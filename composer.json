@@ -34,6 +34,11 @@
         }
     },
     "scripts": {
+        "antlr-gen": [
+            "if ! command -v antlr >/dev/null 2>&1; then echo 'antlr is not installed, please install it from https://www.antlr.org/download.html'; exit 1; fi",
+            "antlr -Dlanguage=PHP -package Proteus\\\\Antlr4 -visitor ./src/Antlr4/Protobuf3.g4",
+            "find ./src/Antlr4/ \\( -name '*.tokens' -o -name '*.interp' \\) -delete"
+        ],
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/mago format",
