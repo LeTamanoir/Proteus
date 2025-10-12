@@ -7,9 +7,7 @@ namespace Proteus;
 use Antlr\Antlr4\Runtime\CommonTokenStream;
 use Antlr\Antlr4\Runtime\Error\Listeners\DiagnosticErrorListener;
 use Antlr\Antlr4\Runtime\InputStream;
-use Proteus\Antlr4\Context\FieldContext;
-use Proteus\Antlr4\Context\MapFieldContext;
-use Proteus\Antlr4\Context\MessageDefContext;
+use Proteus\Antlr4\Context\OptionStatementContext;
 use Proteus\Antlr4\Protobuf3BaseVisitor;
 use Proteus\Antlr4\Protobuf3Lexer;
 use Proteus\Antlr4\Protobuf3Parser;
@@ -623,14 +621,29 @@ class Codegen
         };
     }
 
+    /**
+     * Generates the ProtoUtils.php file with helper functions
+     */
+    public static function generateUtilsFile(string $outputDir): string
+    {
+        $utilsPath = rtrim($outputDir, '/') . '/ProtoUtils.php';
+
+        $content = "<?php\n\n";
+        $content .= "declare(strict_types=1);\n";
+        $content .= "\n";
+        $content .= "const DEFAULT_UINT64 = new \\BcMath\\Number('0');\n";
+        $content .= self::generateHelperFunctions();
+
+        file_put_contents($utilsPath, $content);
+
+        return $utilsPath;
+    }
+
     public static function generate(string $protoPath, string $outputPath): void
     {
         $input = InputStream::fromPath($protoPath);
-
         $lexer = new Protobuf3Lexer($input);
-
         $tokens = new CommonTokenStream($lexer);
-
         $parser = new Protobuf3Parser($tokens);
 
         $parser->addErrorListener(new DiagnosticErrorListener());
@@ -639,6 +652,8 @@ class Codegen
         $tree = $parser->proto();
 
         $visitor = new class extends Protobuf3BaseVisitor {
+            public null|string $phpNamespace = null;
+
             /**
              * @var array{name: string, fields: array{name: string, type: string, label: string, number: string, meta: array<string, string>}[]}[]
              */
@@ -649,7 +664,14 @@ class Codegen
              */
             private null|array $currentMessage = null;
 
-            public function visitMapField(MapFieldContext $context)
+            public function visitOptionStatement(OptionStatementContext $context)
+            {
+                if ($context->optionName()->getText() === 'php_namespace') {
+                    $this->phpNamespace = str_replace('\\\\', '\\', trim($context->constant()->getText(), '"\''));
+                }
+            }
+
+            public function visitMapField($context)
             {
                 $this->currentMessage['fields'][] = [
                     'name' => $context->mapName()->getText(),
@@ -663,7 +685,7 @@ class Codegen
                 ];
             }
 
-            public function visitField(FieldContext $context)
+            public function visitField($context)
             {
                 $this->currentMessage['fields'][] = [
                     'name' => $context->fieldName()->getText(),
@@ -673,7 +695,7 @@ class Codegen
                 ];
             }
 
-            public function visitMessageDef(MessageDefContext $context)
+            public function visitMessageDef($context)
             {
                 $this->currentMessage = [
                     'name' => $context->messageName()->getText(),
@@ -690,20 +712,20 @@ class Codegen
 
         $visitor->visit($tree);
 
-        $codegen = "<?php\n\n";
+        if (!$visitor->phpNamespace) {
+            throw new \Exception('php_namespace option is required');
+        }
+
+        $codegen = "<?php\n";
+        $codegen .= "\n";
         $codegen .= "declare(strict_types=1);\n";
-        $codegen .= "\n"; // TODO: namespace
-
-        $codegen .= "const DEFAULT_UINT64 = new \BcMath\Number('0');\n";
-
-        // Add helper functions for binary deserialization
-        $codegen .= self::generateHelperFunctions();
+        $codegen .= "\n";
+        $codegen .= "namespace {$visitor->phpNamespace};\n\n";
 
         foreach ($visitor->messages as $message) {
-            $codegen .= "\n";
-
             $className = self::protoNameToPhpName($message['name']);
-            $codegen .= "class {$className} {\n";
+            $codegen .= "class {$className}\n";
+            $codegen .= "{\n";
 
             // Generate properties
             foreach ($message['fields'] as $idx => $field) {
@@ -731,7 +753,7 @@ class Codegen
             // Generate fromBytes method for all messages
             $codegen .= "\n";
             $codegen .= self::generateFromBytesMethod($message);
-            $codegen .= "}\n";
+            $codegen .= "}\n\n";
         }
 
         file_put_contents($outputPath, $codegen);

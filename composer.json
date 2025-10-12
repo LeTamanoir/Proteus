@@ -26,7 +26,11 @@
     "autoload": {
         "psr-4": {
             "Proteus\\": "src"
-        }
+        },
+        "classmap": [
+            "./tests/Proto/ProtoUtils.php",
+            "./tests/Proto/Test.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
