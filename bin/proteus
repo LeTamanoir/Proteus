@@ -1,0 +1,231 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+// Find the autoloader
+$autoloadPaths = [
+    __DIR__ . '/../../../autoload.php', // Installed as a dependency
+    __DIR__ . '/../vendor/autoload.php', // Standalone installation
+];
+
+$autoloaderFound = false;
+foreach ($autoloadPaths as $autoloadPath) {
+    if (file_exists($autoloadPath)) {
+        require_once $autoloadPath;
+        $autoloaderFound = true;
+        break;
+    }
+}
+
+if (!$autoloaderFound) {
+    fwrite(STDERR, "Error: Composer autoloader not found. Please run 'composer install'.\n");
+    exit(1);
+}
+
+use Proteus\Codegen;
+
+function showUsage(): void
+{
+    echo <<<USAGE
+    Proteus - Generate PHP classes from Protobuf files
+
+    Usage:
+      proteus --proto <path> --output <path>
+      proteus -p <path> -o <path>
+      proteus -p <path1> -p <path2> -o <dir>
+
+    Options:
+      -p, --proto <path>    Path to the .proto file(s) to generate from (required, can be specified multiple times)
+      -o, --output <path>   Path to the output file or directory (required)
+      -h, --help            Show this help message
+
+    Examples:
+      proteus -p test.proto -o Generated.php
+      proteus --proto test.proto --output src/Generated.php
+      proteus -p file1.proto -p file2.proto -o src/generated/
+
+
+    USAGE;
+}
+
+$options = getopt('p:o:h', ['proto:', 'output:', 'help']);
+
+if (isset($options['h']) || isset($options['help'])) {
+    showUsage();
+    exit(0);
+}
+
+// Get proto paths (can be multiple)
+$protoPaths = [];
+if (isset($options['p'])) {
+    $protoPaths = is_array($options['p']) ? $options['p'] : [$options['p']];
+}
+if (isset($options['proto'])) {
+    $protoLong = is_array($options['proto']) ? $options['proto'] : [$options['proto']];
+    $protoPaths = array_merge($protoPaths, $protoLong);
+}
+
+if (empty($protoPaths)) {
+    fwrite(STDERR, "Error: --proto/-p option is required\n\n");
+    showUsage();
+    exit(1);
+}
+
+// Validate all proto files exist
+foreach ($protoPaths as $protoPath) {
+    if (!file_exists($protoPath)) {
+        fwrite(STDERR, "Error: Proto file not found: {$protoPath}\n");
+        exit(1);
+    }
+}
+
+// Resolve proto paths to absolute paths
+$protoPaths = array_map('realpath', $protoPaths);
+
+// Get output path (required)
+$outputPath = $options['o'] ?? $options['output'] ?? null;
+
+if ($outputPath === null) {
+    fwrite(STDERR, "Error: --output/-o option is required\n\n");
+    showUsage();
+    exit(1);
+}
+
+// Determine if output is a directory or file
+$isOutputDir = count($protoPaths) > 1 || (is_dir($outputPath) || str_ends_with($outputPath, '/'));
+
+if ($isOutputDir) {
+    // Ensure output directory exists
+    if (!is_dir($outputPath)) {
+        if (!mkdir($outputPath, 0755, true)) {
+            fwrite(STDERR, "Error: Could not create output directory: {$outputPath}\n");
+            exit(1);
+        }
+    }
+} else {
+    // Ensure output directory exists for single file output
+    $outputDir = dirname($outputPath);
+    if (!is_dir($outputDir)) {
+        if (!mkdir($outputDir, 0755, true)) {
+            fwrite(STDERR, "Error: Could not create output directory: {$outputDir}\n");
+            exit(1);
+        }
+    }
+}
+
+// Generate the code
+try {
+    $generatedFiles = [];
+
+    foreach ($protoPaths as $protoPath) {
+        if ($isOutputDir) {
+            // Generate output filename based on proto filename
+            $protoBasename = pathinfo($protoPath, PATHINFO_FILENAME);
+            $outputFile = rtrim($outputPath, '/') . '/' . ucfirst($protoBasename) . '.php';
+        } else {
+            $outputFile = $outputPath;
+        }
+
+        echo "Generating PHP classes from: {$protoPath}\n";
+        Codegen::generate($protoPath, $outputFile);
+        echo "Successfully generated: {$outputFile}\n";
+
+        $generatedFiles[] = $outputFile;
+    }
+
+    echo "\n";
+
+    // Convert absolute paths to relative paths where possible
+    $cwd = getcwd();
+    $relativePaths = [];
+    foreach ($generatedFiles as $file) {
+        if (str_starts_with($file, $cwd . '/')) {
+            $relativePaths[] = substr($file, strlen($cwd) + 1);
+        } else {
+            $relativePaths[] = $file;
+        }
+    }
+
+    // Check if composer.json exists in current directory
+    $composerJsonPath = $cwd . '/composer.json';
+    if (file_exists($composerJsonPath)) {
+        echo "Do you want to automatically add the generated files to composer.json? [Y/n]: ";
+        $handle = fopen("php://stdin", "r");
+        $line = fgets($handle);
+        fclose($handle);
+
+        $answer = trim(strtolower($line));
+
+        if ($answer === '' || $answer === 'y' || $answer === 'yes') {
+            // Read and parse composer.json
+            $composerContent = file_get_contents($composerJsonPath);
+            $composer = json_decode($composerContent, true);
+
+            if ($composer === null) {
+                fwrite(STDERR, "Error: Could not parse composer.json\n");
+                exit(1);
+            }
+
+            // Initialize autoload.classmap if it doesn't exist
+            if (!isset($composer['autoload'])) {
+                $composer['autoload'] = [];
+            }
+            if (!isset($composer['autoload']['classmap'])) {
+                $composer['autoload']['classmap'] = [];
+            }
+
+            // Add generated files to classmap (avoid duplicates)
+            foreach ($relativePaths as $path) {
+                if (!in_array($path, $composer['autoload']['classmap'])) {
+                    $composer['autoload']['classmap'][] = $path;
+                }
+            }
+
+            // Write back to composer.json with pretty print
+            $newComposerContent = json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+            file_put_contents($composerJsonPath, $newComposerContent);
+
+            echo "✓ Updated composer.json\n";
+
+            // Run composer dump-autoload
+            echo "Running composer dump-autoload...\n";
+            $output = [];
+            $returnCode = 0;
+            exec('composer dump-autoload 2>&1', $output, $returnCode);
+
+            if ($returnCode === 0) {
+                echo "✓ Successfully ran composer dump-autoload\n";
+            } else {
+                echo "⚠ Warning: composer dump-autoload failed. Please run it manually.\n";
+                echo implode("\n", $output) . "\n";
+            }
+        } else {
+            echo "\nManually add the following to your composer.json:\n\n";
+            echo "  \"autoload\": {\n";
+            echo "    \"classmap\": [\n";
+            foreach ($relativePaths as $path) {
+                echo "      \"{$path}\"";
+                if ($path !== end($relativePaths)) {
+                    echo ",";
+                }
+                echo "\n";
+            }
+            echo "    ]\n";
+            echo "  }\n\n";
+            echo "Then run: composer dump-autoload\n";
+        }
+    } else {
+        echo "No composer.json found in current directory.\n";
+        echo "Make sure to add the generated files to your autoloader:\n\n";
+        foreach ($relativePaths as $path) {
+            echo "  - {$path}\n";
+        }
+    }
+
+    exit(0);
+} catch (\Throwable $e) {
+    fwrite(STDERR, 'Error: ' . $e->getMessage() . "\n");
+    fwrite(STDERR, $e->getTraceAsString() . "\n");
+    exit(1);
+}
