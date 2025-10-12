@@ -33,6 +33,9 @@
             "Tests\\": "tests"
         }
     },
+    "bin": [
+        "bin/proteus"
+    ],
     "scripts": {
         "antlr-gen": [
             "if ! command -v antlr >/dev/null 2>&1; then echo 'antlr is not installed, please install it from https://www.antlr.org/download.html'; exit 1; fi",
