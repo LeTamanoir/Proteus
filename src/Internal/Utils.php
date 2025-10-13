@@ -24,9 +24,16 @@ class Utils
 
     /**
      * Converts a protobuf name to a PHP name
+     * Handles both simple names and fully qualified names (package.Message)
      */
     public static function protoNameToPhpName(string $name): string
     {
+        // If name contains dots (fully qualified proto name), extract just the message name
+        if (str_contains($name, '.')) {
+            $parts = explode('.', $name);
+            $name = array_pop($parts);
+        }
+
         if (self::isPhpKeyword($name)) {
             return self::protoNameToPhpName($name . '_');
         }
