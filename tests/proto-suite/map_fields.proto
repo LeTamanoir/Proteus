@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package test.maps;
+
+option php_namespace = "Tests\\ProtoSuite\\Maps";
+
+message SimpleValue {
+  int32 value = 1;
+}
+
+// Tests all valid map key types
+message AllMapKeyTypes {
+  map<int32, string> int32_key = 1;
+  map<int64, string> int64_key = 2;
+  map<uint32, string> uint32_key = 3;
+  map<uint64, string> uint64_key = 4;
+  map<sint32, string> sint32_key = 5;
+  map<sint64, string> sint64_key = 6;
+  map<fixed32, string> fixed32_key = 7;
+  map<fixed64, string> fixed64_key = 8;
+  map<sfixed32, string> sfixed32_key = 9;
+  map<sfixed64, string> sfixed64_key = 10;
+  map<bool, string> bool_key = 11;
+  map<string, string> string_key = 12;
+}
+
+// Tests all valid map value types
+message AllMapValueTypes {
+  map<string, int32> int32_value = 1;
+  map<string, int64> int64_value = 2;
+  map<string, uint32> uint32_value = 3;
+  map<string, uint64> uint64_value = 4;
+  map<string, sint32> sint32_value = 5;
+  map<string, sint64> sint64_value = 6;
+  map<string, fixed32> fixed32_value = 7;
+  map<string, fixed64> fixed64_value = 8;
+  map<string, sfixed32> sfixed32_value = 9;
+  map<string, sfixed64> sfixed64_value = 10;
+  map<string, float> float_value = 11;
+  map<string, double> double_value = 12;
+  map<string, bool> bool_value = 13;
+  map<string, string> string_value = 14;
+  map<string, bytes> bytes_value = 15;
+  map<string, SimpleValue> message_value = 16;
+}
+
+// Tests nested maps
+message NestedMaps {
+  map<string, string> simple_map = 1;
+}
+
+// Tests empty maps
+message EmptyMaps {
+  map<string, string> empty_string_map = 1;
+  map<int32, int32> empty_int_map = 2;
+  map<string, SimpleValue> empty_message_map = 3;
+}
+
+// Tests complex map scenarios
+message ComplexMaps {
+  map<string, string> metadata = 1;
+  map<int32, SimpleValue> items = 2;
+  map<bool, string> flags = 3;
+}

@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package test;
+
+option go_package = "github.com/letamanoir/iris/test-server/proto";
+option php_metadata_namespace = "Tests\\Proto";
+option php_namespace = "Tests\\Proto";
+
+service TestService {
+  rpc GetDataTypes(DataTypes) returns (DataTypes);
+  rpc GetEmpty(Empty) returns (Empty);
+  rpc GetDelayRequest(DelayRequest) returns (Empty);
+  rpc GetFailurePattern(FailurePatternRequest) returns (Empty);
+  rpc GetMeta(Empty) returns (Empty);
+}
+
+message DataTypes {
+  string str_test = 1;
+  int32 int_test = 2;
+  bool bool_test = 3;
+  float float_test = 4;
+  double double_test = 5;
+  bytes bytes_test = 6;
+  map<string, string> map_test = 7;
+  repeated int32 int_test_list = 8;
+  uint64 uint64_test = 9;
+  reserved 10;
+  Empty nested_empty_test = 11;
+}
+
+message Empty {}
+
+message DelayRequest {
+  int32 ms = 1;
+}
+
+message FailurePatternRequest {
+  int32 fail_times = 1;
+  int32 error_code = 2;
+  string key = 3;
+}

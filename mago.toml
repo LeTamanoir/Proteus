@@ -4,6 +4,7 @@ php-version = "8.4.0"
 
 [source]
 paths = ["src"]
+excludes = ["src/Antlr4"]
 includes = ["vendor"]
 
 [formatter]

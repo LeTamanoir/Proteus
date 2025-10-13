@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package test.imports;
+
+import "tests/proto-suite/common_types.proto";
+
+option php_namespace = "Tests\\ProtoSuite\\Imports";
+
+// Test importing types from another proto file
+message Person {
+  string name = 1;
+  int32 age = 2;
+  test.common.Address address = 3;
+  test.common.Timestamp created_at = 4;
+}
+
+message Order {
+  string order_id = 1;
+  test.common.Money total = 2;
+  repeated test.common.Address shipping_addresses = 3;
+  test.common.Timestamp order_date = 4;
+}
+
+message Response {
+  bool success = 1;
+  string message = 2;
+  test.common.Empty metadata = 3;
+}

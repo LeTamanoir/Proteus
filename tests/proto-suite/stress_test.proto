@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package test.stress;
+
+option php_namespace = "Tests\\ProtoSuite\\Stress";
+
+// Large message with many fields
+message LargeMessage {
+  string field1 = 1;
+  int32 field2 = 2;
+  int64 field3 = 3;
+  uint32 field4 = 4;
+  uint64 field5 = 5;
+  sint32 field6 = 6;
+  sint64 field7 = 7;
+  fixed32 field8 = 8;
+  fixed64 field9 = 9;
+  sfixed32 field10 = 10;
+  sfixed64 field11 = 11;
+  float field12 = 12;
+  double field13 = 13;
+  bool field14 = 14;
+  bytes field15 = 15;
+  string field16 = 16;
+  int32 field17 = 17;
+  int32 field18 = 18;
+  int32 field19 = 19;
+  int32 field20 = 20;
+  string field21 = 21;
+  string field22 = 22;
+  string field23 = 23;
+  string field24 = 24;
+  string field25 = 25;
+  repeated int32 field26 = 26;
+  repeated string field27 = 27;
+  map<string, string> field28 = 28;
+  map<int32, int32> field29 = 29;
+  bool field30 = 30;
+}
+
+// Deeply nested structure
+message DeepNesting {
+  message L1 {
+    message L2 {
+      message L3 {
+        message L4 {
+          message L5 {
+            int32 value = 1;
+            repeated int32 values = 2;
+            map<string, string> metadata = 3;
+          }
+          L5 l5 = 1;
+        }
+        L4 l4 = 1;
+      }
+      L3 l3 = 1;
+    }
+    L2 l2 = 1;
+  }
+  L1 l1 = 1;
+}
+
+// Large repeated fields
+message LargeRepeated {
+  repeated int32 many_ints = 1;
+  repeated string many_strings = 2;
+}
+
+// Large map
+message LargeMap {
+  map<string, string> many_entries = 1;
+  map<int32, int32> many_int_entries = 2;
+}
+
+// Complex combination
+message Everything {
+  message NestedItem {
+    int32 id = 1;
+    string name = 2;
+    repeated int32 values = 3;
+    map<string, string> attributes = 4;
+  }
+
+  int32 id = 1;
+  string name = 2;
+  repeated int32 numbers = 3;
+  repeated string tags = 4;
+  repeated NestedItem items = 5;
+  map<string, string> metadata = 6;
+  map<int32, NestedItem> item_map = 7;
+  bool active = 8;
+  float score = 9;
+  double rating = 10;
+  bytes data = 11;
+  NestedItem primary = 12;
+}
+
+// Sparse field numbers (testing field number handling)
+message SparseFields {
+  int32 field1 = 1;
+  int32 field10 = 10;
+  int32 field100 = 100;
+  int32 field1000 = 1000;
+  int32 field10000 = 10000;
+}
