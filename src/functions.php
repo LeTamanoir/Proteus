@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Proteus;
 
-const DEFAULT_UINT64 = new \BcMath\Number('0');
-
 if (!function_exists('skipField')) {
     /**
      * Skips an unknown field in the protobuf binary data
