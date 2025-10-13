@@ -30,41 +30,41 @@ class Protobuf3Visitor extends Protobuf3BaseVisitor
 
     public function visitMapField(MapFieldContext $context)
     {
+        $keyType = new ScalarType(protoType: ProtoType::from($context->keyType()->getText()));
+
+        $valueType = $context->type_()->messageType()
+            ? new MessageType(message: $context->type_()->messageType()->getText())
+            : new ScalarType(protoType: ProtoType::from($context->type_()->getText()));
+
         $this->currentMessage->addField(new Field(
             name: $context->mapName()->getText(),
-            type: new Type(
-                protoType: ProtoType::Map,
-                keyType: new Type(protoType: ProtoType::from($context->keyType()->getText())),
-                valueType: $context->type_()->messageType()
-                    ? new Type(
-                        protoType: ProtoType::Message,
-                        message: $context->type_()->messageType()->getText(),
-                    )
-                    : new Type(protoType: ProtoType::from($context->type_()->getText())),
+            type: new MapType(
+                keyType: $keyType,
+                valueType: $valueType,
             ),
             label: null,
-            number: $context->fieldNumber()->getText(),
+            number: (int) $context->fieldNumber()->getText(),
         ));
     }
 
     public function visitField(FieldContext $context)
     {
+        $type = $context->type_()->messageType()
+            ? new MessageType(message: $context->type_()->messageType()->getText())
+            : new ScalarType(protoType: ProtoType::from($context->type_()->getText()));
+
         $this->currentMessage->addField(new Field(
             name: $context->fieldName()->getText(),
-            type: $context->type_()->messageType()
-                ? new Type(
-                    protoType: ProtoType::Message,
-                    message: $context->type_()->messageType()->getText(),
-                )
-                : new Type(protoType: ProtoType::from($context->type_()->getText())),
+            type: $type,
             label: $context->fieldLabel() ? FieldLabel::from($context->fieldLabel()->getText()) : null,
-            number: $context->fieldNumber()->getText(),
+            number: (int) $context->fieldNumber()->getText(),
         ));
     }
 
     public function visitMessageDef(MessageDefContext $context)
     {
-        $this->currentMessage = new Message(name: $context->messageName()->getText());
+        $this->currentMessage = new Message();
+        $this->currentMessage->name = $context->messageName()->getText();
 
         parent::visitChildren($context);
 

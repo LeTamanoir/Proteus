@@ -5,52 +5,19 @@ declare(strict_types=1);
 namespace Proteus;
 
 use Antlr\Antlr4\Runtime\CommonTokenStream;
-use Antlr\Antlr4\Runtime\Error\Listeners\DiagnosticErrorListener;
 use Antlr\Antlr4\Runtime\InputStream;
-use Proteus\Antlr4\Context\OptionStatementContext;
-use Proteus\Antlr4\Protobuf3BaseVisitor;
 use Proteus\Antlr4\Protobuf3Lexer;
 use Proteus\Antlr4\Protobuf3Parser;
 use Proteus\Internal\Field;
 use Proteus\Internal\FieldLabel;
+use Proteus\Internal\MapType;
 use Proteus\Internal\Message;
+use Proteus\Internal\MessageType;
 use Proteus\Internal\Protobuf3Visitor;
 use Proteus\Internal\ProtoType;
-use Proteus\Internal\Type;
 
 class Codegen
 {
-    /**
-     * Returns the PHP code snippet to read a field value from binary protobuf data
-     *
-     * @param string $type The protobuf type (e.g., 'int32', 'string', 'bool')
-     * @param string $fieldName The name of the field being read (for error messages)
-     * @param bool $forRepeatedPacked Whether this is for packed repeated field decoding
-     * @return string PHP code to read and return the value
-     */
-    public static function getReadFunction(string $type, string $fieldName, bool $forRepeatedPacked = false): string
-    {
-        return match ($type) {
-            // Varint types with sign extension/ZigZag
-            'int32' => 'readInt32($i, $l, $bytes)',
-            'sint32' => 'readSint32($i, $l, $bytes)',
-            'sint64' => 'readSint64($i, $l, $bytes)',
-            'uint32' => 'readVarint($i, $l, $bytes)',
-            'int64' => 'readVarint($i, $l, $bytes)',
-            'bool' => 'readVarint($i, $l, $bytes) === 1',
-            // Large unsigned integers that need special handling
-            'uint64' => '$d->' . $fieldName . ($forRepeatedPacked ? '' : '->add') . '(readVarint($i, $l, $bytes))',
-            // Fixed-size types
-            'fixed32', 'sfixed32' => 'readFixed32($i, $l, $bytes)',
-            'fixed64', 'sfixed64' => 'readFixed64($i, $l, $bytes)',
-            'float' => 'readFloat32($i, $l, $bytes)',
-            'double' => 'readFloat64($i, $l, $bytes)',
-            // Length-delimited types
-            'string', 'bytes' => 'readBytes($i, $l, $bytes)',
-            default => throw new \Exception("Unknown read function for type: {$type}"),
-        };
-    }
-
     /**
      * Generates inline code for reading a varint with fast-path optimization
      *
@@ -66,24 +33,20 @@ class Codegen
     private static function inlineReadVarint(string $varName): string
     {
         return <<<PHP
-        \$_byte = \$b[\$i];
-        if (\$_byte < 0x80) {
-            // Fast path: single-byte varint (90%+ of cases)
-            ++\$i;
-            \${$varName} = \$_byte;
-        } else {
-            // Slow path: multi-byte varint
-            \${$varName} = \$_byte & 0x7F;
-            for (\$shift = 7; \$shift < 64; \$shift += 7) {
-                if (++\$i >= \$l) throw new Exception('Unexpected EOF');
-                \$_byte = \$b[\$i];
-                \${$varName} |= (\$_byte & 0x7F) << \$shift;
-                if (\$_byte < 0x80) {
-                    ++\$i;
-                    break;
-                }
+        \${$varName} = 0;
+        for (\$_shift = 0;; \$_shift += 7) {
+            if (\$_shift >= 64) {
+                throw new Exception('Int overflow');
             }
-            if (\$shift >= 64) throw new Exception('Int overflow');
+            if (\$i >= \$l) {
+                throw new Exception('Unexpected EOF');
+            }
+            \$_b = \$bytes[\$i];
+            ++\$i;
+            \${$varName} |= (\$_b & 0x7F) << \$_shift;
+            if (\$_b < 0x80) {
+                break;
+            }
         }
         PHP;
     }
@@ -145,7 +108,7 @@ class Codegen
     {
         return <<<PHP
         if (\$i + 4 > \$l) throw new Exception('Unexpected EOF');
-        \${$varName} = unpack('V', substr(\$bytes, \$i, 4))[1];
+        \${$varName} = unpack('V', array_slice(\$bytes, \$i, 4))[1];
         \$i += 4;
         PHP;
     }
@@ -160,7 +123,7 @@ class Codegen
     {
         return <<<PHP
         if (\$i + 8 > \$l) throw new Exception('Unexpected EOF');
-        \${$varName} = unpack('P', substr(\$bytes, \$i, 8))[1];
+        \${$varName} = unpack('P', array_slice(\$bytes, \$i, 8))[1];
         \$i += 8;
         PHP;
     }
@@ -175,37 +138,29 @@ class Codegen
     {
         return <<<PHP
         if (\$i + 4 > \$l) throw new Exception('Unexpected EOF');
-        \$_b = substr(\$bytes, \$i, 4);
+        \$_b = array_slice(\$bytes, \$i, 4);
         \$i += 4;
-        if (isBigEndian()) \$_b = strrev(\$_b);
-        \${$varName} = unpack('f', \$_b)[1];
+        if (isBigEndian()) \$_b = array_reverse(\$_b);
+        \${$varName} = unpack('f', pack('C*', ...\$_b))[1];
         PHP;
     }
 
     /**
      * Generates inline code for reading double (64-bit)
-     *
-     * @param string $varName The variable name to store the result
-     * @return string PHP code snippet for inline double reading
      */
     private static function inlineReadDouble(string $varName): string
     {
         return <<<PHP
         if (\$i + 8 > \$l) throw new Exception('Unexpected EOF');
-        \$_b = substr(\$bytes, \$i, 8);
+        \$_b = array_slice(\$bytes, \$i, 8);
         \$i += 8;
-        if (isBigEndian()) \$_b = strrev(\$_b);
-        \${$varName} = unpack('d', \$_b)[1];
+        if (isBigEndian()) \$_b = array_reverse(\$_b);
+        \${$varName} = unpack('d', pack('C*', ...\$_b))[1];
         PHP;
     }
 
     /**
      * Generates inline code for reading length-delimited bytes
-     *
-     * Phase 4 optimization: Fast path for single-byte strings to avoid substr() overhead
-     *
-     * @param string $varName The variable name to store the result
-     * @return string PHP code snippet for inline bytes reading
      */
     private static function inlineReadBytes(string $varName): string
     {
@@ -216,11 +171,10 @@ class Codegen
         \$_postIndex = \$i + \$_byteLen;
         if (\$_postIndex < 0 || \$_postIndex > \$l) throw new Exception('Invalid length');
         if (\$_byteLen === 1) {
-            // Fast path: single-byte string (avoids substr overhead)
-            \${$varName} = \$bytes[\$i];
+            \${$varName} = chr(\$bytes[\$i]);
             ++\$i;
         } else {
-            \${$varName} = substr(\$bytes, \$i, \$_byteLen);
+            \${$varName} = implode('', array_map('chr', array_slice(\$bytes, \$i, \$_byteLen)));
             \$i = \$_postIndex;
         }
         PHP;
@@ -267,19 +221,16 @@ class Codegen
         $code = "    /**\n";
         $code .= "     * Deserializes a {$message->name} message from binary protobuf format\n";
         $code .= "     *\n";
-        $code .= "     * @param string \$bytes Binary protobuf data\n";
-        $code .= "     * @return self The deserialized message instance\n";
+        $code .= "     * @param  int[] \$bytes Binary protobuf data\n";
+        $code .= "     * @return self  The deserialized message instance\n";
         $code .= "     * @throws Exception if the data is malformed or contains invalid wire types\n";
         $code .= "     */\n";
-        $code .= "    public static function fromBytes(string \$bytes): self\n";
+        $code .= "    public static function fromBytes(array \$bytes): self\n";
         $code .= "    {\n";
         $code .= "        \$d = new self();\n";
         $code .= "\n";
-        $code .= "        \$l = strlen(\$bytes);\n";
+        $code .= "        \$l = count(\$bytes);\n";
         $code .= "        \$i = 0;\n";
-        $code .= "\n";
-        $code .= "        // Phase 2: Convert bytes to int array for faster access (replaces ord() calls)\n";
-        $code .= "        \$b = array_values(unpack('C*', \$bytes));\n";
         $code .= "\n";
         $code .= "        while (\$i < \$l) {\n";
 
@@ -296,7 +247,7 @@ class Codegen
             $code .= "                case {$field->number}:\n";
 
             // Handle map fields specially
-            if ($field->type->protoType === ProtoType::Map) {
+            if ($field->type instanceof MapType) {
                 $code .= self::generateMapFieldCode($field);
             }
             // Handle repeated fields
@@ -313,7 +264,7 @@ class Codegen
         }
 
         $code .= "                default:\n";
-        $code .= "                    skipField(\$i, \$l, \$bytes, \$wireType);\n";
+        $code .= "                    \$i = skipField(\$i, \$l, \$bytes, \$wireType);\n";
         $code .= "            }\n";
         $code .= "        }\n";
         $code .= "\n";
@@ -329,10 +280,10 @@ class Codegen
     public static function generateRegularFieldCode(Field $field): string
     {
         // Message types always use wire type 2 (length-delimited)
-        $expectedWireType = $field->type->protoType->toWireType();
+        $expectedWireType = $field->type->getProtoType()->toWireType();
         $code = "                    if (\$wireType !== {$expectedWireType}) throw new Exception('Invalid wire type for {$field->name}');\n";
 
-        if ($field->type->protoType === ProtoType::Message) {
+        if ($field->type instanceof MessageType) {
             // For message types, inline the length reading then call fromBytes
             $lenReadCode = self::inlineReadVarint('_len');
             $code .= self::indent($lenReadCode, 20) . "\n";
@@ -341,21 +292,21 @@ class Codegen
             $code .=
                 "                    \$d->{$field->name} = "
                 . $field->type->getPhpType()
-                . "::fromBytes(substr(\$bytes, \$i, \$_len));\n";
+                . "::fromBytes(array_slice(\$bytes, \$i, \$_len));\n";
             $code .= "                    \$i = \$_postIndex;\n";
-        } else if ($field->type->protoType === ProtoType::Uint64) {
+        } else if ($field->type->getProtoType() === ProtoType::Uint64) {
             // Special handling for uint64 which uses BcMath\Number
-            $inlineCode = self::getInlineReadCode($field->type->protoType, '_value');
+            $inlineCode = self::getInlineReadCode($field->type->getProtoType(), '_value');
             $code .= self::indent($inlineCode, 20) . "\n";
-            $code .= "                    \$d->{$field->name} = bcadd(\$d->{$field->name}, \$_value);\n";
-        } else if ($field->type->protoType === ProtoType::Bool) {
+            $code .= "                    \$d->{$field->name} = bcadd(\$d->{$field->name}, (string) \$_value);\n";
+        } else if ($field->type->getProtoType() === ProtoType::Bool) {
             // Bool needs special handling (convert varint to boolean)
             $inlineCode = self::getInlineReadCode(ProtoType::Int32, '_value');
             $code .= self::indent($inlineCode, 20) . "\n";
             $code .= "                    \$d->{$field->name} = \$_value === 1;\n";
         } else {
             // All other types: inline the read code directly
-            $inlineCode = self::getInlineReadCode($field->type->protoType, '_value');
+            $inlineCode = self::getInlineReadCode($field->type->getProtoType(), '_value');
             $code .= self::indent($inlineCode, 20) . "\n";
             $code .= "                    \$d->{$field->name} = \$_value;\n";
         }
@@ -377,7 +328,7 @@ class Codegen
         $code = '';
 
         // Message types are never packed and always use wire type 2
-        if ($field->type->protoType === ProtoType::Message) {
+        if ($field->type instanceof MessageType) {
             $code .= "                    if (\$wireType !== 2) throw new Exception('Invalid wire type for {$field->name}');\n";
 
             // Inline length reading
@@ -389,14 +340,14 @@ class Codegen
             $code .=
                 "                    \$d->{$field->name}[] = "
                 . $field->type->getPhpType()
-                . "::fromBytes(substr(\$bytes, \$i, \$_len));\n";
+                . "::fromBytes(array_slice(\$bytes, \$i, \$_len));\n";
             $code .= "                    \$i = \$_postIndex;\n";
             return $code;
         }
 
-        $expectedWireType = $field->type->protoType->toWireType();
+        $expectedWireType = $field->type->getProtoType()->toWireType();
 
-        $isPackable = $field->type->protoType->isPackable();
+        $isPackable = $field->type->getProtoType()->isPackable();
 
         if ($isPackable) {
             // Handle packed encoding (wire type 2)
@@ -412,40 +363,40 @@ class Codegen
             $code .= "                        while (\$i < \$_end) {\n";
 
             // Inline the element reading based on type
-            if ($field->type->protoType === ProtoType::Uint64) {
+            if ($field->type->getProtoType() === ProtoType::Uint64) {
                 // uint64 needs special handling with BcMath\Number
-                $inlineCode = self::getInlineReadCode($field->type->protoType, '_value');
+                $inlineCode = self::getInlineReadCode($field->type->getProtoType(), '_value');
                 $code .= self::indent($inlineCode, 28) . "\n";
                 $code .= "                            \$d->{$field->name}[] = new Number((string) \$_value);\n";
-            } else if ($field->type->protoType === ProtoType::Bool) {
+            } else if ($field->type->getProtoType() === ProtoType::Bool) {
                 // Bool needs conversion from varint to boolean
                 $inlineCode = self::getInlineReadCode(ProtoType::Int32, '_value');
                 $code .= self::indent($inlineCode, 28) . "\n";
                 $code .= "                            \$d->{$field->name}[] = \$_value === 1;\n";
             } else {
                 // All other packable types
-                $inlineCode = self::getInlineReadCode($field->type->protoType, '_value');
+                $inlineCode = self::getInlineReadCode($field->type->getProtoType(), '_value');
                 $code .= self::indent($inlineCode, 28) . "\n";
                 $code .= "                            \$d->{$field->name}[] = \$_value;\n";
             }
 
             $code .= "                        }\n";
             $code .= "\n";
-            $code .= "                        if (\$i !== \$_end) throw new Exception('Packed {$field->type->protoType->value} field over/under-read');\n";
+            $code .= "                        if (\$i !== \$_end) throw new Exception('Packed {$field->type->getProtoType()->value} field over/under-read');\n";
             $code .= "                    } else if (\$wireType === {$expectedWireType}) {\n";
             $code .= "                        // Unpacked encoding: individual elements\n";
 
             // Inline the unpacked element reading
-            if ($field->type->protoType === ProtoType::Uint64) {
-                $inlineCode = self::getInlineReadCode($field->type->protoType, '_value');
+            if ($field->type->getProtoType() === ProtoType::Uint64) {
+                $inlineCode = self::getInlineReadCode($field->type->getProtoType(), '_value');
                 $code .= self::indent($inlineCode, 24) . "\n";
                 $code .= "                        \$d->{$field->name}[] = new Number((string) \$_value);\n";
-            } else if ($field->type->protoType === ProtoType::Bool) {
+            } else if ($field->type->getProtoType() === ProtoType::Bool) {
                 $inlineCode = self::getInlineReadCode(ProtoType::Int32, '_value');
                 $code .= self::indent($inlineCode, 24) . "\n";
                 $code .= "                        \$d->{$field->name}[] = \$_value === 1;\n";
             } else {
-                $inlineCode = self::getInlineReadCode($field->type->protoType, '_value');
+                $inlineCode = self::getInlineReadCode($field->type->getProtoType(), '_value');
                 $code .= self::indent($inlineCode, 24) . "\n";
                 $code .= "                        \$d->{$field->name}[] = \$_value;\n";
             }
@@ -456,8 +407,11 @@ class Codegen
             $code .= "                    if (\$wireType !== {$expectedWireType}) throw new Exception('Invalid wire type for {$field->name}');\n";
 
             // Inline the element reading
-            if ($field->type->protoType === ProtoType::String || $field->type->protoType === ProtoType::Bytes) {
-                $inlineCode = self::getInlineReadCode($field->type->protoType, '_value');
+            if (
+                $field->type->getProtoType() === ProtoType::String
+                || $field->type->getProtoType() === ProtoType::Bytes
+            ) {
+                $inlineCode = self::getInlineReadCode($field->type->getProtoType(), '_value');
                 $code .= self::indent($inlineCode, 20) . "\n";
                 $code .= "                    \$d->{$field->name}[] = \$_value;\n";
             }
@@ -474,8 +428,10 @@ class Codegen
      */
     public static function generateMapFieldCode(Field $field): string
     {
-        $keyType = $field->type->keyType;
-        $valueType = $field->type->valueType;
+        /** @var MapType $mapType */
+        $mapType = $field->type;
+        $keyType = $mapType->keyType;
+        $valueType = $mapType->valueType;
 
         $code = "                    if (\$wireType !== 2) throw new Exception('Invalid wire type for {$field->name}');\n";
         $code .= "\n";
@@ -507,16 +463,16 @@ class Codegen
         $code .= "                        switch (\$_fn) {\n";
         $code .= "                            case 1: // key\n";
 
-        $keyWireType = $keyType->protoType->toWireType();
+        $keyWireType = $keyType->getProtoType()->toWireType();
         $code .= "                                if (\$_wt !== {$keyWireType}) throw new Exception('Invalid wire type for {$field->name} key');\n";
 
         // Inline key reading
-        if ($keyType->protoType === ProtoType::Bool) {
+        if ($keyType->getProtoType() === ProtoType::Bool) {
             $keyReadCode = self::getInlineReadCode(ProtoType::Int32, '_keyValue');
             $code .= self::indent($keyReadCode, 32) . "\n";
             $code .= "                                \$_key = \$_keyValue === 1;\n";
         } else {
-            $keyReadCode = self::getInlineReadCode($keyType->protoType, '_key');
+            $keyReadCode = self::getInlineReadCode($keyType->getProtoType(), '_key');
             $code .= self::indent($keyReadCode, 32) . "\n";
         }
 
@@ -524,27 +480,38 @@ class Codegen
         $code .= "\n";
         $code .= "                            case 2: // value\n";
 
-        $valueWireType = $valueType->protoType->toWireType();
+        $valueWireType = $valueType->getProtoType()->toWireType();
         $code .= "                                if (\$_wt !== {$valueWireType}) throw new Exception('Invalid wire type for {$field->name} value');\n";
 
         // Inline value reading
-        if ($valueType->protoType === ProtoType::Uint64) {
-            $valueReadCode = self::getInlineReadCode($valueType->protoType, '_valTemp');
+        if ($valueType instanceof MessageType) {
+            // For message types, read length and call fromBytes
+            $lenReadCode = self::inlineReadVarint('_msgLen');
+            $code .= self::indent($lenReadCode, 32) . "\n";
+            $code .= "                                \$_msgEnd = \$i + \$_msgLen;\n";
+            $code .= "                                if (\$_msgEnd < 0 || \$_msgEnd > \$l) throw new Exception('Invalid length');\n";
+            $code .=
+                "                                \$_val = "
+                . $valueType->getPhpType()
+                . "::fromBytes(array_slice(\$bytes, \$i, \$_msgLen));\n";
+            $code .= "                                \$i = \$_msgEnd;\n";
+        } else if ($valueType->getProtoType() === ProtoType::Uint64) {
+            $valueReadCode = self::getInlineReadCode($valueType->getProtoType(), '_valTemp');
             $code .= self::indent($valueReadCode, 32) . "\n";
             $code .= "                                \$_val = new Number((string) \$_valTemp);\n";
-        } else if ($valueType->protoType === ProtoType::Bool) {
+        } else if ($valueType->getProtoType() === ProtoType::Bool) {
             $valueReadCode = self::getInlineReadCode(ProtoType::Int32, '_valTemp');
             $code .= self::indent($valueReadCode, 32) . "\n";
             $code .= "                                \$_val = \$_valTemp === 1;\n";
         } else {
-            $valueReadCode = self::getInlineReadCode($valueType->protoType, '_val');
+            $valueReadCode = self::getInlineReadCode($valueType->getProtoType(), '_val');
             $code .= self::indent($valueReadCode, 32) . "\n";
         }
 
         $code .= "                                break;\n";
         $code .= "\n";
         $code .= "                            default:\n";
-        $code .= "                                skipField(\$i, \$l, \$bytes, \$_wt);\n";
+        $code .= "                                \$i = skipField(\$i, \$l, \$bytes, \$_wt);\n";
         $code .= "                        }\n";
         $code .= "                    }\n";
         $code .= "\n";
@@ -558,8 +525,7 @@ class Codegen
      */
     public static function generateMessage(Message $message): string
     {
-        $className = $message->getPhpName();
-        $code = "class {$className}\n";
+        $code = "class {$message->name}\n";
         $code .= "{\n";
 
         // Generate properties
@@ -572,11 +538,11 @@ class Codegen
             } else if (
                 $field->label === FieldLabel::Optional
                 // Message types are always nullable in proto3
-                || $field->type->protoType === ProtoType::Message
+                || $field->type instanceof MessageType
             ) {
                 $code .= "    public {$phpType}|null \${$field->name} = null;\n";
             } else {
-                if ($field->type->protoType === ProtoType::Map) {
+                if ($field->type instanceof MapType) {
                     $keyType = $field->type->keyType->getPhpType();
                     $valueType = $field->type->valueType->getPhpType();
                     $code .= "    /** @var array<{$keyType}, {$valueType}> */\n";
@@ -593,7 +559,7 @@ class Codegen
 
         $code .= "\n";
         $code .= self::generateFromBytesMethod($message);
-        $code .= "}\n";
+        $code .= "}\n\n";
 
         return $code;
     }

@@ -8,8 +8,8 @@ readonly class Field
 {
     public function __construct(
         public string $name,
-        public Type $type,
+        public TypeInterface $type,
         public null|FieldLabel $label,
-        public string $number,
+        public int $number,
     ) {}
 }

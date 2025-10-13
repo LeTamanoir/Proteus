@@ -9,19 +9,15 @@ class Message
     /**
      * @var Field[]
      */
-    public array $fields = [];
+    public private(set) array $fields = [];
 
-    public function __construct(
-        public string $name,
-    ) {}
+    public string $name {
+        get => Utils::protoNameToPhpName($this->name);
+        set => $this->name = $value;
+    }
 
     public function addField(Field $field): void
     {
         $this->fields[] = $field;
-    }
-
-    public function getPhpName(): string
-    {
-        return Utils::protoNameToPhpName($this->name);
     }
 }
