@@ -65,6 +65,34 @@ class Codegen
         ]);
     }
 
+    /**
+     * Checks if a field type can be packed when repeated
+     *
+     * In proto3, repeated numeric fields are packed by default.
+     * String, bytes, and message types cannot be packed.
+     *
+     * @param string $type The protobuf type
+     * @return bool True if the type can be packed
+     */
+    public static function isPackableType(string $type): bool
+    {
+        return in_array($type, [
+            'int32',
+            'sint32',
+            'uint32',
+            'int64',
+            'sint64',
+            'uint64',
+            'fixed32',
+            'sfixed32',
+            'fixed64',
+            'sfixed64',
+            'float',
+            'double',
+            'bool',
+        ]);
+    }
+
     public static function isPhpKeyword(string $testString): bool
     {
         // First check it's actually a word and not an expression/number
@@ -154,7 +182,10 @@ class Codegen
     }
 
     /**
-     * Generates inline code for reading a varint
+     * Generates inline code for reading a varint with fast-path optimization
+     *
+     * Fast path: Most varints are single-byte (field tags 1-15, small values < 128)
+     * This avoids loop overhead for 90%+ of varints
      *
      * @param string $varName The variable name to store the result
      * @return string PHP code snippet for inline varint reading
@@ -162,15 +193,24 @@ class Codegen
     private static function inlineReadVarint(string $varName): string
     {
         return <<<PHP
-        \${$varName} = 0;
-        for (\$shift = 0;; \$shift += 7) {
-            if (\$shift >= 64) throw new Exception('Int overflow');
-            if (\$i >= \$l) throw new Exception('Unexpected EOF');
-            \$b = ord(\$bytes[\$i]);
+        if (\$i >= \$l) throw new Exception('Unexpected EOF');
+        \$b = ord(\$bytes[\$i]);
+        if (\$b < 0x80) {
+            // Fast path: single-byte varint (90%+ of cases)
             ++\$i;
-            \${$varName} |= (\$b & 0x7F) << \$shift;
-            if (\$b < 0x80) {
-                break;
+            \${$varName} = \$b;
+        } else {
+            // Slow path: multi-byte varint
+            \${$varName} = \$b & 0x7F;
+            for (\$shift = 7;; \$shift += 7) {
+                if (++\$i >= \$l) throw new Exception('Unexpected EOF');
+                if (\$shift >= 64) throw new Exception('Int overflow');
+                \$b = ord(\$bytes[\$i]);
+                \${$varName} |= (\$b & 0x7F) << \$shift;
+                if (\$b < 0x80) {
+                    ++\$i;
+                    break;
+                }
             }
         }
         PHP;
@@ -188,9 +228,7 @@ class Codegen
         return <<<PHP
         {$varintCode}
         \${$varName} = \$_u;
-        if (\${$varName} > 0x7FFFFFFF) {
-            \${$varName} -= 0x100000000;
-        }
+        if (\${$varName} > 0x7FFFFFFF) \${$varName} -= 0x100000000;
         PHP;
     }
 
@@ -206,9 +244,7 @@ class Codegen
         return <<<PHP
         {$varintCode}
         \${$varName} = (\$_u >> 1) ^ -(\$_u & 1);
-        if (\${$varName} > 0x7FFFFFFF) {
-            \${$varName} -= 0x100000000;
-        }
+        if (\${$varName} > 0x7FFFFFFF) \${$varName} -= 0x100000000;
         PHP;
     }
 
@@ -269,9 +305,7 @@ class Codegen
         if (\$i + 4 > \$l) throw new Exception('Unexpected EOF');
         \$_b = substr(\$bytes, \$i, 4);
         \$i += 4;
-        if (isBigEndian()) {
-            \$_b = strrev(\$_b);
-        }
+        if (isBigEndian()) \$_b = strrev(\$_b);
         \${$varName} = unpack('f', \$_b)[1];
         PHP;
     }
@@ -288,9 +322,7 @@ class Codegen
         if (\$i + 8 > \$l) throw new Exception('Unexpected EOF');
         \$_b = substr(\$bytes, \$i, 8);
         \$i += 8;
-        if (isBigEndian()) {
-            \$_b = strrev(\$_b);
-        }
+        if (isBigEndian()) \$_b = strrev(\$_b);
         \${$varName} = unpack('d', \$_b)[1];
         PHP;
     }
@@ -513,21 +545,7 @@ class Codegen
         $expectedWireType = self::protoTypeToWireType($fieldType);
 
         // Numeric types can be packed (wire type 2) or unpacked (original wire type)
-        $isPackable = in_array($fieldType, [
-            'int32',
-            'sint32',
-            'uint32',
-            'int64',
-            'sint64',
-            'uint64',
-            'fixed32',
-            'sfixed32',
-            'fixed64',
-            'sfixed64',
-            'float',
-            'double',
-            'bool',
-        ]);
+        $isPackable = self::isPackableType($fieldType);
 
         if ($isPackable) {
             // Handle packed encoding (wire type 2)
@@ -810,6 +828,34 @@ class Codegen
             foreach ($message['fields'] as $idx => $field) {
                 $isMessageType = in_array($field['type'], $messageNames);
                 $phpType = self::protoToPhpType($field['type'], $isMessageType);
+
+                // Special handling for map fields
+                if ($field['type'] === 'map') {
+                    $keyType = $field['meta']['key_type'];
+                    $valueType = $field['meta']['value_type'];
+
+                    // Maps are encoded as repeated entries (wire type 2)
+                    $annotation = "protobuf:\"bytes,{$field['number']},rep,name={$field['name']}\"";
+                    $annotation .= " protobuf_key:\"{$keyType},1,opt,name=key\"";
+                    $annotation .= " protobuf_val:\"{$valueType},2,opt,name=value\"";
+                    $codegen .= "    /** {$annotation} */\n";
+                } else {
+                    // Regular fields
+                    $annotation = "protobuf:\"{$field['type']},{$field['number']}";
+
+                    if ($field['label'] === 'repeated') {
+                        $annotation .= ",rep";
+                        // In proto3, repeated numeric fields are packed by default
+                        if (self::isPackableType($field['type'])) {
+                            $annotation .= ",packed";
+                        }
+                    } else if ($field['label'] === 'optional') {
+                        $annotation .= ",opt";
+                    }
+
+                    $annotation .= ",name={$field['name']}\"";
+                    $codegen .= "    /** {$annotation} */\n";
+                }
 
                 if ($field['label'] === 'repeated') {
                     $codegen .= "    /** @var {$phpType}[] */\n";
