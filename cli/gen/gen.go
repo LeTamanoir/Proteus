@@ -94,8 +94,7 @@ func isRepeated(field *descriptorpb.FieldDescriptorProto) bool {
 
 // isOptional checks if a field is explicitly optional
 func isOptional(field *descriptorpb.FieldDescriptorProto) bool {
-	return field.GetLabel() == descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL ||
-		field.GetProto3Optional()
+	return field.GetProto3Optional()
 }
 
 // isMessage checks if a field is a message type
@@ -133,7 +132,7 @@ func getPhpType(field *descriptorpb.FieldDescriptorProto) string {
 		// Extract just the message name from the type name
 		typeName := field.GetTypeName()
 		parts := strings.Split(typeName, ".")
-		return parts[len(parts)-1]
+		return GetPhpClassName(parts[len(parts)-1])
 	default:
 		return "mixed"
 	}
@@ -357,11 +356,10 @@ func (g *Gen) genFromBytesMethod(message *descriptorpb.DescriptorProto) {
 
 // genMessage generates code for a message type
 func (g *Gen) genMessage(message *descriptorpb.DescriptorProto) {
-	g.w.Line(fmt.Sprintf("class %s", message.GetName()))
+	g.w.Line(fmt.Sprintf("class %s", GetPhpClassName(message.GetName())))
 	g.w.Line("{")
 	g.w.In()
 
-	// Generate fields
 	for _, field := range message.GetField() {
 		phpType := getPhpType(field)
 		fieldName := field.GetName()
@@ -419,7 +417,9 @@ Proto file: %s`, file.GetName()))
 }
 
 func Run(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, error) {
-	resp := &pluginpb.CodeGeneratorResponse{}
+	resp := &pluginpb.CodeGeneratorResponse{
+		SupportedFeatures: proto.Uint64(uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)),
+	}
 
 	// Build a map of all files for resolving dependencies
 	fileByName := make(map[string]*descriptorpb.FileDescriptorProto)
@@ -427,20 +427,21 @@ func Run(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, e
 		fileByName[f.GetName()] = f
 	}
 
-	// Generate code for requested files
 	for _, fileName := range req.GetFileToGenerate() {
-		file := fileByName[fileName]
-		if file == nil {
-			continue
+		file, ok := fileByName[fileName]
+		if !ok {
+			return nil, fmt.Errorf("file %s not found", fileName)
 		}
 
-		// Generate PHP code for this file
+		if file.Syntax == nil || *file.Syntax != "proto3" {
+			return nil, fmt.Errorf("file %s is not a proto3 file", fileName)
+		}
+
 		content, err := (&Gen{w: writer.NewWriter()}).genFile(file)
 		if err != nil {
 			return nil, err
 		}
 
-		// Determine output filename
 		outputName := strings.TrimSuffix(fileName, ".proto") + ".php"
 		outputName = filepath.Base(outputName)
 
