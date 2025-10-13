@@ -121,12 +121,6 @@ try {
     // Determine output directory
     $outputDir = $isOutputDir ? $outputPath : dirname($outputPath);
 
-    // Generate ProtoUtils.php file once (shared utility functions)
-    echo "Generating ProtoUtils.php...\n";
-    $utilsFile = Codegen::generateUtilsFile($outputDir);
-    echo "Successfully generated: {$utilsFile}\n\n";
-    $generatedFiles[] = $utilsFile;
-
     foreach ($protoPaths as $protoPath) {
         if ($isOutputDir) {
             // Generate output filename based on proto filename
