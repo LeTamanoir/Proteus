@@ -19,7 +19,7 @@
         "antlr/antlr4-php-runtime": "^0.9.1"
     },
     "require-dev": {
-        "carthage-software/mago": "1.0.0-beta.27",
+        "carthage-software/mago": "1.0.0-beta.28",
         "pestphp/pest": "^4.1",
         "symfony/var-dumper": "^7.3"
     },
