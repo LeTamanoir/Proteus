@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package test.imports;
 
-import "tests/proto-suite/common_types.proto";
+import "tests/protos/common_types.proto";
 
 option php_namespace = "Tests\\ProtoSuite\\Imports";
 

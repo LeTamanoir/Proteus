@@ -24,4 +24,4 @@ test:
 
 # Generate PHP classes from proto files
 proto-gen:
-    protoc --plugin=./cli/bin/protoc-gen-php-proteus --php-proteus_out=proto ./tests/proto-suite/*
+    protoc --plugin=./cli/bin/protoc-gen-php-proteus --php-proteus_out=./tests/generated ./tests/protos/*
