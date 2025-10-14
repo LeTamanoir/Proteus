@@ -7,6 +7,14 @@ import (
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
+const (
+	// Field numbers in FileDescriptorProto for path construction
+	fileDescriptorMessageTypeField = 4 // message_type field
+
+	// Field numbers in DescriptorProto for path construction
+	descriptorProtoFieldField = 2 // field field
+)
+
 // pathToString converts a path array to a string key for the comment map
 func pathToString(path []int32) string {
 	parts := make([]string, len(path))
@@ -57,13 +65,10 @@ func buildCommentMap(file *descriptorpb.FileDescriptorProto) map[string]string {
 
 // getMessagePath returns the path for a message
 func getMessagePath(messageIndex int) string {
-	// Field 4 in FileDescriptorProto is message_type
-	return fmt.Sprintf("4.%d", messageIndex)
+	return fmt.Sprintf("%d.%d", fileDescriptorMessageTypeField, messageIndex)
 }
 
 // getFieldPath returns the path for a field within a message
 func getFieldPath(messageIndex, fieldIndex int) string {
-	// Field 4 in FileDescriptorProto is message_type
-	// Field 2 in DescriptorProto is field
-	return fmt.Sprintf("4.%d.2.%d", messageIndex, fieldIndex)
+	return fmt.Sprintf("%d.%d.%d.%d", fileDescriptorMessageTypeField, messageIndex, descriptorProtoFieldField, fieldIndex)
 }
