@@ -85,6 +85,12 @@ function skipField(int $i, int $l, array $bytes, int $wireType): int
  */
 function isBigEndian(): bool
 {
-    static $endianness;
-    return $endianness ??= unpack('L', pack('V', 1))[1] !== 1;
+    /** @var bool|null */
+    static $endianness = null;
+
+    if ($endianness === null) {
+        $endianness = unpack('L', pack('V', 1))[1] !== 1;
+    }
+
+    return $endianness;
 }
