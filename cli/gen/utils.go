@@ -1,133 +1,116 @@
 package gen
 
 import (
+	"fmt"
 	"strings"
+
+	"google.golang.org/protobuf/types/descriptorpb"
 )
 
-var PHP_RESERVED_WORDS = map[string]bool{
-	// from https://www.php.net/manual/en/reserved.other-reserved-words.php
-	"int":      true,
-	"float":    true,
-	"bool":     true,
-	"string":   true,
-	"true":     true,
-	"false":    true,
-	"null":     true,
-	"void":     true,
-	"iterable": true,
-	"object":   true,
-	"mixed":    true,
-	"never":    true,
-
-	// from https://www.php.net/manual/en/reserved.classes.php
-	// Predefined Classes
-	"Directory":              true,
-	"stdClass":               true,
-	"__PHP_Incomplete_Class": true,
-	"Exception":              true,
-	"ErrorException":         true,
-	"php_user_filter":        true,
-	"Closure":                true,
-	"Generator":              true,
-	"ArithmeticError":        true,
-	"AssertionError":         true,
-	"DivisionByZeroError":    true,
-	"Error":                  true,
-	"Throwable":              true,
-	"ParseError":             true,
-	"TypeError":              true,
-	"self":                   true,
-	"parent":                 true,
-
-	// from https://www.php.net/manual/en/reserved.keywords.php
-	// PHP Keywords
-	"__halt_compiler": true,
-	"abstract":        true,
-	"and":             true,
-	"array":           true,
-	"as":              true,
-	"break":           true,
-	"callable":        true,
-	"case":            true,
-	"catch":           true,
-	"class":           true,
-	"clone":           true,
-	"const":           true,
-	"continue":        true,
-	"declare":         true,
-	"default":         true,
-	"die":             true,
-	"do":              true,
-	"echo":            true,
-	"else":            true,
-	"elseif":          true,
-	"empty":           true,
-	"enddeclare":      true,
-	"endfor":          true,
-	"endforeach":      true,
-	"endif":           true,
-	"endswitch":       true,
-	"endwhile":        true,
-	"eval":            true,
-	"exit":            true,
-	"extends":         true,
-	"final":           true,
-	"finally":         true,
-	"fn":              true,
-	"for":             true,
-	"foreach":         true,
-	"function":        true,
-	"global":          true,
-	"goto":            true,
-	"if":              true,
-	"implements":      true,
-	"include":         true,
-	"include_once":    true,
-	"instanceof":      true,
-	"insteadof":       true,
-	"interface":       true,
-	"isset":           true,
-	"list":            true,
-	"match":           true,
-	"namespace":       true,
-	"new":             true,
-	"or":              true,
-	"print":           true,
-	"private":         true,
-	"protected":       true,
-	"public":          true,
-	"readonly":        true,
-	"require":         true,
-	"require_once":    true,
-	"return":          true,
-	"static":          true,
-	"switch":          true,
-	"throw":           true,
-	"trait":           true,
-	"try":             true,
-	"unset":           true,
-	"use":             true,
-	"var":             true,
-	"while":           true,
-	"xor":             true,
-	"yield":           true,
-	"yield from":      true,
-
-	// Compile-time constants
-	"__CLASS__":     true,
-	"__DIR__":       true,
-	"__FILE__":      true,
-	"__FUNCTION__":  true,
-	"__LINE__":      true,
-	"__METHOD__":    true,
-	"__PROPERTY__":  true,
-	"__NAMESPACE__": true,
-	"__TRAIT__":     true,
+// inlineReadCode returns inline code for reading a specific protobuf type
+func (g *gen) inlineReadCode(fieldType descriptorpb.FieldDescriptorProto_Type, varName string) {
+	switch fieldType {
+	case descriptorpb.FieldDescriptorProto_TYPE_INT32:
+		g.w.InlineReadInt32(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_SINT32:
+		g.w.InlineReadSint32(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_SINT64:
+		g.w.InlineReadSint64(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_UINT32,
+		descriptorpb.FieldDescriptorProto_TYPE_INT64,
+		descriptorpb.FieldDescriptorProto_TYPE_UINT64,
+		descriptorpb.FieldDescriptorProto_TYPE_BOOL:
+		g.w.InlineReadVarint(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_FIXED32,
+		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32:
+		g.w.InlineReadFixed32(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
+		descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
+		g.w.InlineReadFixed64(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_FLOAT:
+		g.w.InlineReadFloat(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_DOUBLE:
+		g.w.InlineReadDouble(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_STRING,
+		descriptorpb.FieldDescriptorProto_TYPE_BYTES:
+		g.w.InlineReadBytes(varName)
+	default:
+		panic(fmt.Sprintf("Unknown inline read for type: %v", fieldType))
+	}
 }
 
-func GetPhpClassName(name string) string {
-	if _, ok := PHP_RESERVED_WORDS[strings.ToLower(name)]; ok {
-		return GetPhpClassName(name + "_")
+// getWireType returns the wire type for a field type
+func getWireType(fieldType descriptorpb.FieldDescriptorProto_Type) int {
+	switch fieldType {
+	case descriptorpb.FieldDescriptorProto_TYPE_INT32,
+		descriptorpb.FieldDescriptorProto_TYPE_INT64,
+		descriptorpb.FieldDescriptorProto_TYPE_UINT32,
+		descriptorpb.FieldDescriptorProto_TYPE_UINT64,
+		descriptorpb.FieldDescriptorProto_TYPE_SINT32,
+		descriptorpb.FieldDescriptorProto_TYPE_SINT64,
+		descriptorpb.FieldDescriptorProto_TYPE_BOOL:
+		return 0 // Varint
+	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
+		descriptorpb.FieldDescriptorProto_TYPE_SFIXED64,
+		descriptorpb.FieldDescriptorProto_TYPE_DOUBLE:
+		return 1 // 64-bit
+	case descriptorpb.FieldDescriptorProto_TYPE_STRING,
+		descriptorpb.FieldDescriptorProto_TYPE_BYTES,
+		descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
+		return 2 // Length-delimited
+	case descriptorpb.FieldDescriptorProto_TYPE_FIXED32,
+		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32,
+		descriptorpb.FieldDescriptorProto_TYPE_FLOAT:
+		return 5 // 32-bit
+	default:
+		panic(fmt.Sprintf("Unknown wire type for: %v", fieldType))
 	}
-	return name
+}
+
+// isPackable returns whether a type can be packed
+func isPackable(fieldType descriptorpb.FieldDescriptorProto_Type) bool {
+	switch fieldType {
+	case descriptorpb.FieldDescriptorProto_TYPE_STRING,
+		descriptorpb.FieldDescriptorProto_TYPE_BYTES,
+		descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
+		return false
+	default:
+		return true
+	}
+}
+
+// isRepeated checks if a field is repeated
+func isRepeated(field *descriptorpb.FieldDescriptorProto) bool {
+	return field.GetLabel() == descriptorpb.FieldDescriptorProto_LABEL_REPEATED
+}
+
+// isOptional checks if a field is explicitly optional
+func isOptional(field *descriptorpb.FieldDescriptorProto) bool {
+	return field.GetProto3Optional()
+}
+
+// isMessage checks if a field is a message type
+func isMessage(field *descriptorpb.FieldDescriptorProto) bool {
+	return field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_MESSAGE
+}
+
+// isMapField checks if a field is a map field by looking at the message descriptor
+func isMapField(field *descriptorpb.FieldDescriptorProto, file *descriptorpb.FileDescriptorProto) bool {
+	if !isRepeated(field) || !isMessage(field) {
+		return false
+	}
+
+	// Map fields are encoded as repeated messages with the MapEntry option set
+	typeName := field.GetTypeName()
+
+	// Look for the nested message type in the parent message
+	for _, message := range file.GetMessageType() {
+		for _, nested := range message.GetNestedType() {
+			if strings.HasSuffix(typeName, "."+nested.GetName()) {
+				return nested.GetOptions().GetMapEntry()
+			}
+		}
+	}
+
+	return false
 }
