@@ -76,7 +76,7 @@ function skipField(int $i, int $l, array $bytes, int $wireType): int
             return $i;
 
         default:
-            throw new Exception("Unsupported wire type: {$wireType}");
+            throw new Exception("Illegal wire type: {$wireType}");
     }
 }
 
