@@ -42,28 +42,18 @@ func (g *gen) genMapFieldCode(field *descriptorpb.FieldDescriptorProto, file *de
 	}
 
 	fieldName := field.GetName()
-
 	g.w.Line(fmt.Sprintf("if ($wireType !== 2) throw new \\Exception(sprintf('Invalid wire type %%d for field %s', $wireType));", fieldName))
-
 	g.w.InlineReadVarint("_entryLen")
 	g.w.Line("$_limit = $i + $_entryLen;")
-
-	// Initialize key and value with defaults
-	keyDefault := php.GetDefaultValue(keyField)
-	valueDefault := php.GetDefaultValue(valueField)
-
-	g.w.Line(fmt.Sprintf("$_key = %s;", keyDefault))
-	g.w.Line(fmt.Sprintf("$_val = %s;", valueDefault))
+	g.w.Line(fmt.Sprintf("$_key = %s;", php.GetDefaultValue(keyField)))
+	g.w.Line(fmt.Sprintf("$_val = %s;", php.GetDefaultValue(valueField)))
 	g.w.Line("while ($i < $_limit) {")
 	g.w.In()
-
 	g.w.InlineReadVarint("_tag")
 	g.w.Line("$_fieldNum = $_tag >> 3;")
 	g.w.Line("$_wireType = $_tag & 0x7;")
 	g.w.Line("switch ($_fieldNum) {")
 	g.w.In()
-
-	// Case 1: key
 	g.w.Line("case 1:")
 	g.w.In()
 	keyWireType, err := getWireType(keyField.GetType())
@@ -73,27 +63,22 @@ func (g *gen) genMapFieldCode(field *descriptorpb.FieldDescriptorProto, file *de
 	g.w.Line(fmt.Sprintf("if ($_wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s key', $_wireType));", keyWireType, fieldName))
 
 	if keyField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BOOL {
-		err = g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_keyValue")
-		if err != nil {
-			return err
+		if e := g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_keyValue"); e != nil {
+			return e
 		}
 		g.w.Line("$_key = $_keyValue === 1;")
 	} else if keyField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_UINT64 {
-		err = g.inlineReadCode(keyField.GetType(), "_keyTemp")
-		if err != nil {
-			return err
+		if e := g.inlineReadCode(keyField.GetType(), "_keyTemp"); e != nil {
+			return e
 		}
 		g.w.Line("$_key = (string) $_keyTemp;")
 	} else {
-		err = g.inlineReadCode(keyField.GetType(), "_key")
-		if err != nil {
-			return err
+		if e := g.inlineReadCode(keyField.GetType(), "_key"); e != nil {
+			return e
 		}
 	}
 	g.w.Line("break;")
 	g.w.Out()
-
-	// Case 2: value
 	g.w.Line("case 2:")
 	g.w.In()
 	valueWireType, err := getWireType(valueField.GetType())
@@ -110,27 +95,22 @@ func (g *gen) genMapFieldCode(field *descriptorpb.FieldDescriptorProto, file *de
 		g.w.Line(fmt.Sprintf("$_val = %s::decode(array_slice($bytes, $i, $_msgLen));", valueType))
 		g.w.Line("$i = $_msgEnd;")
 	} else if valueField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_UINT64 {
-		err = g.inlineReadCode(valueField.GetType(), "_valTemp")
-		if err != nil {
-			return err
+		if e := g.inlineReadCode(valueField.GetType(), "_valTemp"); e != nil {
+			return e
 		}
 		g.w.Line("$_val = (string) $_valTemp;")
 	} else if valueField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BOOL {
-		err = g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_valTemp")
-		if err != nil {
-			return err
+		if e := g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_valTemp"); e != nil {
+			return e
 		}
 		g.w.Line("$_val = $_valTemp === 1;")
 	} else {
-		err = g.inlineReadCode(valueField.GetType(), "_val")
-		if err != nil {
-			return err
+		if e := g.inlineReadCode(valueField.GetType(), "_val"); e != nil {
+			return e
 		}
 	}
 	g.w.Line("break;")
 	g.w.Out()
-
-	// Default case
 	g.w.Line("default:")
 	g.w.In()
 	g.w.Line("$i = \\Proteus\\skipField($i, $l, $bytes, $_wireType);")
