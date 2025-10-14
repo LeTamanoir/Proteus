@@ -31,9 +31,8 @@ func (w *Writer) In() {
 
 // Out decreases indentation level
 func (w *Writer) Out() {
-	w.indentLevel--
-	if w.indentLevel < 0 {
-		panic("indent level cannot be negative")
+	if w.indentLevel > 0 {
+		w.indentLevel--
 	}
 }
 

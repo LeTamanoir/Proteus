@@ -7,7 +7,7 @@ import (
 )
 
 // genDecodeMethod generates the decode method for a message
-func (g *gen) genDecodeMethod(message *descriptorpb.DescriptorProto, file *descriptorpb.FileDescriptorProto) {
+func (g *gen) genDecodeMethod(message *descriptorpb.DescriptorProto, file *descriptorpb.FileDescriptorProto) error {
 	g.w.Docblock(fmt.Sprintf(`Decodes a %s message from binary protobuf format
 @param  int[] $bytes Binary protobuf data
 @return self  The decoded message instance
@@ -34,13 +34,17 @@ func (g *gen) genDecodeMethod(message *descriptorpb.DescriptorProto, file *descr
 		g.w.Line(fmt.Sprintf("case %d:", field.GetNumber()))
 		g.w.In()
 
+		var err error
 		switch {
 		case isMapField(field, file):
-			g.genMapFieldCode(field, file)
+			err = g.genMapFieldCode(field, file)
 		case isRepeated(field):
-			g.genRepeatedFieldCode(field)
+			err = g.genRepeatedFieldCode(field)
 		default:
-			g.genRegularFieldCode(field)
+			err = g.genRegularFieldCode(field)
+		}
+		if err != nil {
+			return err
 		}
 
 		g.w.Line("break;")
@@ -58,4 +62,6 @@ func (g *gen) genDecodeMethod(message *descriptorpb.DescriptorProto, file *descr
 	g.w.Line("return $d;")
 	g.w.Out()
 	g.w.Line("}")
+
+	return nil
 }

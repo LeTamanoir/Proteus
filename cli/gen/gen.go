@@ -65,7 +65,9 @@ Proto file: %s`, file.GetName()))
 		if message.GetOptions().GetMapEntry() {
 			continue
 		}
-		g.genMessage(message, file, messageIndex)
+		if err := g.genMessage(message, file, messageIndex); err != nil {
+			return "", err
+		}
 	}
 
 	return g.w.GetOutput(), nil

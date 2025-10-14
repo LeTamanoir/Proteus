@@ -9,7 +9,7 @@ import (
 )
 
 // genMessage generates code for a message type
-func (g *gen) genMessage(message *descriptorpb.DescriptorProto, file *descriptorpb.FileDescriptorProto, messageIndex int) {
+func (g *gen) genMessage(message *descriptorpb.DescriptorProto, file *descriptorpb.FileDescriptorProto, messageIndex int) error {
 	// Add class docblock if comment exists
 	if comment, ok := g.commentMap[getMessagePath(messageIndex)]; ok {
 		g.w.Docblock(comment)
@@ -31,7 +31,7 @@ func (g *gen) genMessage(message *descriptorpb.DescriptorProto, file *descriptor
 		case isMapField(field, file):
 			keyField, valueField := getMapKeyValueTypes(field, file)
 			if keyField == nil || valueField == nil {
-				panic(fmt.Sprintf("Map entry message %s not found", field.GetTypeName()))
+				return fmt.Errorf("map entry message %s not found", field.GetTypeName())
 			}
 			keyType := php.GetType(keyField)
 			valueType := php.GetType(valueField)
@@ -53,8 +53,13 @@ func (g *gen) genMessage(message *descriptorpb.DescriptorProto, file *descriptor
 		g.w.Newline()
 	}
 
-	g.genDecodeMethod(message, file)
+	if err := g.genDecodeMethod(message, file); err != nil {
+		return err
+	}
+
 	g.w.Out()
 	g.w.Line("}")
 	g.w.Newline()
+
+	return nil
 }

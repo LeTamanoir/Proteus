@@ -19,7 +19,8 @@ func run() error {
 		return err
 	}
 	req := &pluginpb.CodeGeneratorRequest{}
-	if err := proto.Unmarshal(in, req); err != nil {
+	err = proto.Unmarshal(in, req)
+	if err != nil {
 		return err
 	}
 	resp, err := gen.Run(req)

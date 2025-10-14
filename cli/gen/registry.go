@@ -20,7 +20,7 @@ func buildTypeRegistry(file *descriptorpb.FileDescriptorProto, fileByName map[st
 
 		importedNamespace, ok := php.GetNamespace(importedFile)
 		if !ok {
-			return nil, fmt.Errorf("php_namespace option is required in %s", importedFile.GetName())
+			return nil, fmt.Errorf("imported file %s is missing php_namespace option", importedFile.GetName())
 		}
 
 		// Register all messages from the imported file

@@ -6,7 +6,9 @@ import (
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
-var PHP_RESERVED_WORDS = map[string]bool{
+// phpReservedWords is a map of PHP reserved words
+// This map should not be modified after initialization
+var phpReservedWords = map[string]bool{
 	// from https://www.php.net/manual/en/reserved.other-reserved-words.php
 	"int":      true,
 	"float":    true,
@@ -129,7 +131,7 @@ var PHP_RESERVED_WORDS = map[string]bool{
 
 // GetClassName returns the PHP class name for a field
 func GetClassName(name string) string {
-	if _, ok := PHP_RESERVED_WORDS[strings.ToLower(name)]; ok {
+	if _, ok := phpReservedWords[strings.ToLower(name)]; ok {
 		return GetClassName(name + "_")
 	}
 	return name
