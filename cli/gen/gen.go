@@ -73,7 +73,7 @@ Proto file: %s`, file.GetName()))
 	return g.w.GetOutput(), nil
 }
 
-func Run(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, error) {
+func Run(req *pluginpb.CodeGeneratorRequest) *pluginpb.CodeGeneratorResponse {
 	resp := &pluginpb.CodeGeneratorResponse{
 		SupportedFeatures: proto.Uint64(uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)),
 	}
@@ -87,16 +87,19 @@ func Run(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, e
 	for _, fileName := range req.GetFileToGenerate() {
 		file, ok := fileByName[fileName]
 		if !ok {
-			return nil, fmt.Errorf("file %s not found", fileName)
+			resp.Error = proto.String(fmt.Sprintf("file %s not found", fileName))
+			return resp
 		}
 
 		if file.Syntax == nil || *file.Syntax != "proto3" {
-			return nil, fmt.Errorf("file %s is not a proto3 file", fileName)
+			resp.Error = proto.String(fmt.Sprintf("file %s is not a proto3 file", fileName))
+			return resp
 		}
 
 		content, err := (&gen{w: writer.NewWriter()}).genFile(file, fileByName)
 		if err != nil {
-			return nil, err
+			resp.Error = proto.String(err.Error())
+			return resp
 		}
 
 		outputName := strings.TrimSuffix(fileName, ".proto") + ".php"
@@ -108,5 +111,5 @@ func Run(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, e
 		})
 	}
 
-	return resp, nil
+	return resp
 }

@@ -23,10 +23,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	resp, err := gen.Run(req)
-	if err != nil {
-		return err
-	}
+	resp := gen.Run(req)
 	out, err := proto.Marshal(resp)
 	if err != nil {
 		return err

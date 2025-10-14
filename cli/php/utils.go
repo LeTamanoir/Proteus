@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
-// phpReservedWords is a map of PHP reserved words
+// phpReservedWords is a map of PHP reserved words in lowercase
 // This map should not be modified after initialization
 var phpReservedWords = map[string]bool{
 	// from https://www.php.net/manual/en/reserved.other-reserved-words.php
@@ -24,27 +24,27 @@ var phpReservedWords = map[string]bool{
 	"never":    true,
 
 	// from https://www.php.net/manual/en/reserved.classes.php
-	// Predefined Classes
-	"Directory":              true,
-	"stdClass":               true,
-	"__PHP_Incomplete_Class": true,
-	"Exception":              true,
-	"ErrorException":         true,
+	// predefined classes
+	"directory":              true,
+	"stdclass":               true,
+	"__php_incomplete_class": true,
+	"exception":              true,
+	"errorexception":         true,
 	"php_user_filter":        true,
-	"Closure":                true,
-	"Generator":              true,
-	"ArithmeticError":        true,
-	"AssertionError":         true,
-	"DivisionByZeroError":    true,
-	"Error":                  true,
-	"Throwable":              true,
-	"ParseError":             true,
-	"TypeError":              true,
+	"closure":                true,
+	"generator":              true,
+	"arithmeticerror":        true,
+	"assertionerror":         true,
+	"divisionbyzeroerror":    true,
+	"error":                  true,
+	"throwable":              true,
+	"parseerror":             true,
+	"typeerror":              true,
 	"self":                   true,
 	"parent":                 true,
 
 	// from https://www.php.net/manual/en/reserved.keywords.php
-	// PHP Keywords
+	// php keywords
 	"__halt_compiler": true,
 	"abstract":        true,
 	"and":             true,
@@ -117,16 +117,16 @@ var phpReservedWords = map[string]bool{
 	"yield":           true,
 	"yield from":      true,
 
-	// Compile-time constants
-	"__CLASS__":     true,
-	"__DIR__":       true,
-	"__FILE__":      true,
-	"__FUNCTION__":  true,
-	"__LINE__":      true,
-	"__METHOD__":    true,
-	"__PROPERTY__":  true,
-	"__NAMESPACE__": true,
-	"__TRAIT__":     true,
+	// compile-time constants
+	"__class__":     true,
+	"__dir__":       true,
+	"__file__":      true,
+	"__function__":  true,
+	"__line__":      true,
+	"__method__":    true,
+	"__property__":  true,
+	"__namespace__": true,
+	"__trait__":     true,
 }
 
 // GetClassName returns the PHP class name for a field
