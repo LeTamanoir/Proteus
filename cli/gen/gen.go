@@ -12,7 +12,8 @@ import (
 )
 
 type Gen struct {
-	w *writer.Writer
+	w            *writer.Writer
+	typeRegistry map[string]string
 }
 
 // inlineReadCode returns inline code for reading a specific protobuf type
@@ -102,6 +103,52 @@ func isMessage(field *descriptorpb.FieldDescriptorProto) bool {
 	return field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_MESSAGE
 }
 
+// isMapField checks if a field is a map field by looking at the message descriptor
+func isMapField(field *descriptorpb.FieldDescriptorProto, file *descriptorpb.FileDescriptorProto) bool {
+	if !isRepeated(field) || !isMessage(field) {
+		return false
+	}
+
+	// Map fields are encoded as repeated messages with the MapEntry option set
+	typeName := field.GetTypeName()
+
+	// Look for the nested message type in the parent message
+	for _, message := range file.GetMessageType() {
+		for _, nested := range message.GetNestedType() {
+			if strings.HasSuffix(typeName, "."+nested.GetName()) {
+				return nested.GetOptions().GetMapEntry()
+			}
+		}
+	}
+
+	return false
+}
+
+// getMapKeyValueTypes extracts key and value field types from a map entry message
+func getMapKeyValueTypes(field *descriptorpb.FieldDescriptorProto, file *descriptorpb.FileDescriptorProto) (*descriptorpb.FieldDescriptorProto, *descriptorpb.FieldDescriptorProto) {
+	typeName := field.GetTypeName()
+
+	// Find the map entry message
+	for _, message := range file.GetMessageType() {
+		for _, nested := range message.GetNestedType() {
+			if strings.HasSuffix(typeName, "."+nested.GetName()) && nested.GetOptions().GetMapEntry() {
+				// Map entry messages have exactly 2 fields: key (field 1) and value (field 2)
+				var keyField, valueField *descriptorpb.FieldDescriptorProto
+				for _, f := range nested.GetField() {
+					if f.GetNumber() == 1 {
+						keyField = f
+					} else if f.GetNumber() == 2 {
+						valueField = f
+					}
+				}
+				return keyField, valueField
+			}
+		}
+	}
+
+	return nil, nil
+}
+
 // getPhpType returns the PHP type for a field
 func getPhpType(field *descriptorpb.FieldDescriptorProto) string {
 	switch field.GetType() {
@@ -170,26 +217,18 @@ func getPhpDefaultValue(field *descriptorpb.FieldDescriptorProto) string {
 // genRegularFieldCode generates code for deserializing a regular field
 func (g *Gen) genRegularFieldCode(field *descriptorpb.FieldDescriptorProto, fieldName string) {
 	expectedWireType := getWireType(field.GetType())
-	g.w.Line(fmt.Sprintf("if ($wireType !== %d) {", expectedWireType))
-	g.w.In()
-	g.w.Line(fmt.Sprintf("throw new \\Exception('Invalid wire type for %s');", fieldName))
-	g.w.Out()
-	g.w.Line("}")
+	g.w.Line(fmt.Sprintf("if ($wireType !== %d) throw new \\Exception('Invalid wire type for %s');", expectedWireType, fieldName))
 
 	if isMessage(field) {
 		g.w.InlineReadVarint("_len")
 		g.w.Line("$_postIndex = $i + $_len;")
-		g.w.Line("if ($_postIndex < 0 || $_postIndex > $l) {")
-		g.w.In()
-		g.w.Line("throw new \\Exception('Invalid length');")
-		g.w.Out()
-		g.w.Line("}")
+		g.w.Line("if ($_postIndex < 0 || $_postIndex > $l) throw new \\Exception('Invalid length');")
 		phpType := getPhpType(field)
 		g.w.Line(fmt.Sprintf("$d->%s = %s::fromBytes(array_slice($bytes, $i, $_len));", fieldName, phpType))
 		g.w.Line("$i = $_postIndex;")
 	} else if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_UINT64 {
 		g.inlineReadCode(field.GetType(), "_value")
-		g.w.Line(fmt.Sprintf("$d->%s = bcadd($d->%s, (string) $_value);", fieldName, fieldName))
+		g.w.Line(fmt.Sprintf("$d->%s = (string) $_value;", fieldName))
 	} else if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BOOL {
 		g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_value")
 		g.w.Line(fmt.Sprintf("$d->%s = $_value === 1;", fieldName))
@@ -203,19 +242,10 @@ func (g *Gen) genRegularFieldCode(field *descriptorpb.FieldDescriptorProto, fiel
 func (g *Gen) genRepeatedFieldCode(field *descriptorpb.FieldDescriptorProto, fieldName string) {
 	// Message types are never packed
 	if isMessage(field) {
-		g.w.Line("if ($wireType !== 2) {")
-		g.w.In()
-		g.w.Line(fmt.Sprintf("throw new \\Exception('Invalid wire type for %s');", fieldName))
-		g.w.Out()
-		g.w.Line("}")
-
+		g.w.Line(fmt.Sprintf("if ($wireType !== 2) throw new \\Exception('Invalid wire type for %s');", fieldName))
 		g.w.InlineReadVarint("_len")
 		g.w.Line("$_postIndex = $i + $_len;")
-		g.w.Line("if ($_postIndex < 0 || $_postIndex > $l) {")
-		g.w.In()
-		g.w.Line("throw new \\Exception('Invalid length');")
-		g.w.Out()
-		g.w.Line("}")
+		g.w.Line("if ($_postIndex < 0 || $_postIndex > $l) throw new \\Exception('Invalid length');")
 		phpType := getPhpType(field)
 		g.w.Line(fmt.Sprintf("$d->%s[] = %s::fromBytes(array_slice($bytes, $i, $_len));", fieldName, phpType))
 		g.w.Line("$i = $_postIndex;")
@@ -236,7 +266,7 @@ func (g *Gen) genRepeatedFieldCode(field *descriptorpb.FieldDescriptorProto, fie
 
 		if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_UINT64 {
 			g.inlineReadCode(field.GetType(), "_value")
-			g.w.Line(fmt.Sprintf("$d->%s[] = new Number((string) $_value);", fieldName))
+			g.w.Line(fmt.Sprintf("$d->%s[] = (string) $_value;", fieldName))
 		} else if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BOOL {
 			g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_value")
 			g.w.Line(fmt.Sprintf("$d->%s[] = $_value === 1;", fieldName))
@@ -248,17 +278,13 @@ func (g *Gen) genRepeatedFieldCode(field *descriptorpb.FieldDescriptorProto, fie
 		g.w.Out()
 		g.w.Line("}")
 		g.w.Newline()
-		g.w.Line("if ($i !== $_end) {")
-		g.w.In()
-		g.w.Line(fmt.Sprintf("throw new \\Exception('Packed %s field over/under-read');", field.GetType().String()))
-		g.w.Out()
-		g.w.Line("}")
+		g.w.Line(fmt.Sprintf("if ($i !== $_end) throw new \\Exception('Packed %s field over/under-read');", field.GetType().String()))
 		g.w.Newline()
 
 		// Unpacked format
 		if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_UINT64 {
 			g.inlineReadCode(field.GetType(), "_value")
-			g.w.Line(fmt.Sprintf("$d->%s[] = new Number((string) $_value);", fieldName))
+			g.w.Line(fmt.Sprintf("$d->%s[] = (string) $_value;", fieldName))
 		} else if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BOOL {
 			g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_value")
 			g.w.Line(fmt.Sprintf("$d->%s[] = $_value === 1;", fieldName))
@@ -268,19 +294,10 @@ func (g *Gen) genRepeatedFieldCode(field *descriptorpb.FieldDescriptorProto, fie
 		}
 
 		g.w.Out()
-		g.w.Line("} else {")
-		g.w.In()
-		g.w.Line(fmt.Sprintf("throw new \\Exception('Invalid wire type for %s');", fieldName))
-		g.w.Out()
-		g.w.Line("}")
+		g.w.Line(fmt.Sprintf("} else throw new \\Exception('Invalid wire type for %s');", fieldName))
 	} else {
 		// Non-packable types
-		g.w.Line(fmt.Sprintf("if ($wireType !== %d) {", expectedWireType))
-		g.w.In()
-		g.w.Line(fmt.Sprintf("throw new \\Exception('Invalid wire type for %s');", fieldName))
-		g.w.Out()
-		g.w.Line("}")
-
+		g.w.Line(fmt.Sprintf("if ($wireType !== %d) throw new \\Exception('Invalid wire type for %s');", expectedWireType, fieldName))
 		if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_STRING ||
 			field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BYTES {
 			g.inlineReadCode(field.GetType(), "_value")
@@ -290,15 +307,86 @@ func (g *Gen) genRepeatedFieldCode(field *descriptorpb.FieldDescriptorProto, fie
 }
 
 // genMapFieldCode generates code for deserializing a map field
-// Note: This is a simplified version - full implementation would need map detection
-func (g *Gen) genMapFieldCode(w *writer.Writer, field *descriptorpb.FieldDescriptorProto, fieldName string) {
-	// Maps are encoded as repeated entries with key/value fields
-	// This is a placeholder for now
-	g.w.Line("// Map field handling would go here")
+func (g *Gen) genMapFieldCode(field *descriptorpb.FieldDescriptorProto, keyField *descriptorpb.FieldDescriptorProto, valueField *descriptorpb.FieldDescriptorProto, fieldName string) {
+	g.w.Line(fmt.Sprintf("if ($wireType !== 2) throw new \\Exception('Invalid wire type for %s');", fieldName))
+
+	g.w.InlineReadVarint("_entryLen")
+	g.w.Line("$_limit = $i + $_entryLen;")
+
+	// Initialize key and value with defaults
+	keyDefault := getPhpDefaultValue(keyField)
+	valueDefault := getPhpDefaultValue(valueField)
+
+	g.w.Line(fmt.Sprintf("$_key = %s;", keyDefault))
+	g.w.Line(fmt.Sprintf("$_val = %s;", valueDefault))
+	g.w.Line("while ($i < $_limit) {")
+	g.w.In()
+
+	g.w.InlineReadVarint("_tag")
+	g.w.Line("$_fn = $_tag >> 3;")
+	g.w.Line("$_wt = $_tag & 0x7;")
+	g.w.Line("switch ($_fn) {")
+	g.w.In()
+
+	// Case 1: key
+	g.w.Line("case 1:")
+	g.w.In()
+	keyWireType := getWireType(keyField.GetType())
+	g.w.Line(fmt.Sprintf("if ($_wt !== %d) throw new \\Exception('Invalid wire type for %s key');", keyWireType, fieldName))
+
+	if keyField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BOOL {
+		g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_keyValue")
+		g.w.Line("$_key = $_keyValue === 1;")
+	} else if keyField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_UINT64 {
+		g.inlineReadCode(keyField.GetType(), "_keyTemp")
+		g.w.Line("$_key = (string) $_keyTemp;")
+	} else {
+		g.inlineReadCode(keyField.GetType(), "_key")
+	}
+	g.w.Line("break;")
+	g.w.Newline()
+	g.w.Out()
+
+	// Case 2: value
+	g.w.Line("case 2:")
+	g.w.In()
+	valueWireType := getWireType(valueField.GetType())
+	g.w.Line(fmt.Sprintf("if ($_wt !== %d) throw new \\Exception('Invalid wire type for %s value');", valueWireType, fieldName))
+
+	if isMessage(valueField) {
+		g.w.InlineReadVarint("_msgLen")
+		g.w.Line("$_msgEnd = $i + $_msgLen;")
+		g.w.Line("if ($_msgEnd < 0 || $_msgEnd > $l) throw new \\Exception('Invalid length');")
+		valueType := getPhpType(valueField)
+		g.w.Line(fmt.Sprintf("$_val = %s::fromBytes(array_slice($bytes, $i, $_msgLen));", valueType))
+		g.w.Line("$i = $_msgEnd;")
+	} else if valueField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_UINT64 {
+		g.inlineReadCode(valueField.GetType(), "_valTemp")
+		g.w.Line("$_val = (string) $_valTemp;")
+	} else if valueField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BOOL {
+		g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_valTemp")
+		g.w.Line("$_val = $_valTemp === 1;")
+	} else {
+		g.inlineReadCode(valueField.GetType(), "_val")
+	}
+	g.w.Line("break;")
+	g.w.Newline()
+	g.w.Out()
+
+	// Default case
+	g.w.Line("default:")
+	g.w.In()
+	g.w.Line("$i = \\Proteus\\skipField($i, $l, $bytes, $_wt);")
+	g.w.Out()
+	g.w.Out()
+	g.w.Line("}")
+	g.w.Out()
+	g.w.Line("}")
+	g.w.Line(fmt.Sprintf("$d->%s[$_key] = $_val;", fieldName))
 }
 
 // generateFromBytesMethod generates the fromBytes method for a message
-func (g *Gen) genFromBytesMethod(message *descriptorpb.DescriptorProto) {
+func (g *Gen) genFromBytesMethod(message *descriptorpb.DescriptorProto, file *descriptorpb.FileDescriptorProto) {
 	g.w.Docblock(fmt.Sprintf(`Deserializes a %s message from binary protobuf format
 @param  int[] $bytes Binary protobuf data
 @return self  The deserialized message instance
@@ -326,10 +414,12 @@ func (g *Gen) genFromBytesMethod(message *descriptorpb.DescriptorProto) {
 		g.w.Line(fmt.Sprintf("case %d:", field.GetNumber()))
 		g.w.In()
 
-		// Check if it's a map field (maps are encoded as repeated messages with key/value)
-		// For now, we'll handle regular and repeated fields
-		if isRepeated(field) && !isMessage(field) {
-			g.genRepeatedFieldCode(field, fieldName)
+		// Check if it's a map field
+		if isMapField(field, file) {
+			keyField, valueField := getMapKeyValueTypes(field, file)
+			if keyField != nil && valueField != nil {
+				g.genMapFieldCode(field, keyField, valueField, fieldName)
+			}
 		} else if isRepeated(field) {
 			g.genRepeatedFieldCode(field, fieldName)
 		} else {
@@ -355,7 +445,7 @@ func (g *Gen) genFromBytesMethod(message *descriptorpb.DescriptorProto) {
 }
 
 // genMessage generates code for a message type
-func (g *Gen) genMessage(message *descriptorpb.DescriptorProto) {
+func (g *Gen) genMessage(message *descriptorpb.DescriptorProto, file *descriptorpb.FileDescriptorProto) {
 	g.w.Line(fmt.Sprintf("class %s", GetPhpClassName(message.GetName())))
 	g.w.Line("{")
 	g.w.In()
@@ -364,7 +454,16 @@ func (g *Gen) genMessage(message *descriptorpb.DescriptorProto) {
 		phpType := getPhpType(field)
 		fieldName := field.GetName()
 
-		if isRepeated(field) {
+		// Check if this is a map field
+		if isMapField(field, file) {
+			keyField, valueField := getMapKeyValueTypes(field, file)
+			if keyField != nil && valueField != nil {
+				keyType := getPhpType(keyField)
+				valueType := getPhpType(valueField)
+				g.w.Comment(fmt.Sprintf("@var array<%s, %s>", keyType, valueType))
+				g.w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
+			}
+		} else if isRepeated(field) {
 			g.w.Comment(fmt.Sprintf("@var %s[]", phpType))
 			g.w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
 		} else if isOptional(field) || isMessage(field) {
@@ -377,7 +476,7 @@ func (g *Gen) genMessage(message *descriptorpb.DescriptorProto) {
 		g.w.Newline()
 	}
 
-	g.genFromBytesMethod(message)
+	g.genFromBytesMethod(message, file)
 	g.w.Out()
 	g.w.Line("}")
 	g.w.Newline()
@@ -391,12 +490,73 @@ func getPhpNamespace(file *descriptorpb.FileDescriptorProto) string {
 	return ""
 }
 
+// buildTypeRegistry builds a map from proto type names to PHP FQNs from imported files
+func buildTypeRegistry(file *descriptorpb.FileDescriptorProto, fileByName map[string]*descriptorpb.FileDescriptorProto) map[string]string {
+	registry := make(map[string]string)
+
+	for _, importPath := range file.GetDependency() {
+		importedFile, ok := fileByName[importPath]
+		if !ok {
+			continue
+		}
+
+		importedNamespace := getPhpNamespace(importedFile)
+		if importedNamespace == "" {
+			continue
+		}
+
+		// Register all messages from the imported file
+		for _, message := range importedFile.GetMessageType() {
+			phpClassName := GetPhpClassName(message.GetName())
+			phpFqn := importedNamespace + "\\" + phpClassName
+
+			// Store both the simple name and the fully qualified proto name
+			registry[message.GetName()] = phpFqn
+			if importedFile.GetPackage() != "" {
+				protoFqn := "." + importedFile.GetPackage() + "." + message.GetName()
+				registry[protoFqn] = phpFqn
+			}
+		}
+	}
+
+	return registry
+}
+
+// collectUsedImports collects all imported types that are actually used in the file
+func collectUsedImports(file *descriptorpb.FileDescriptorProto, typeRegistry map[string]string) map[string]bool {
+	usedImports := make(map[string]bool)
+
+	for _, message := range file.GetMessageType() {
+		for _, field := range message.GetField() {
+			if isMessage(field) {
+				typeName := field.GetTypeName()
+
+				// Check if this is an imported type
+				if phpFqn, ok := typeRegistry[typeName]; ok {
+					usedImports[phpFqn] = true
+				}
+			}
+		}
+	}
+
+	return usedImports
+}
+
 // genFile generates PHP code for a proto file
-func (g *Gen) genFile(file *descriptorpb.FileDescriptorProto) (string, error) {
+func (g *Gen) genFile(file *descriptorpb.FileDescriptorProto, fileByName map[string]*descriptorpb.FileDescriptorProto) (string, error) {
 	phpNamespace := getPhpNamespace(file)
 	if phpNamespace == "" {
 		return "", fmt.Errorf("php_namespace option is required in %s", file.GetName())
 	}
+
+	// Build type registry from imports
+	typeRegistry := buildTypeRegistry(file, fileByName)
+
+	// Store the type registry in the generator for use in type resolution
+	g.typeRegistry = typeRegistry
+
+	// Collect used imports
+	usedImports := collectUsedImports(file, typeRegistry)
 
 	g.w.Line("<?php")
 	g.w.Newline()
@@ -408,9 +568,21 @@ Proto file: %s`, file.GetName()))
 	g.w.Line(fmt.Sprintf("namespace %s;", phpNamespace))
 	g.w.Newline()
 
+	// Add use statements for imported types
+	if len(usedImports) > 0 {
+		for phpFqn := range usedImports {
+			g.w.Line(fmt.Sprintf("use %s;", phpFqn))
+		}
+		g.w.Newline()
+	}
+
 	// Generate all messages
 	for _, message := range file.GetMessageType() {
-		g.genMessage(message)
+		// Skip map entry messages (they are internal representations)
+		if message.GetOptions().GetMapEntry() {
+			continue
+		}
+		g.genMessage(message, file)
 	}
 
 	return g.w.GetOutput(), nil
@@ -437,7 +609,7 @@ func Run(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, e
 			return nil, fmt.Errorf("file %s is not a proto3 file", fileName)
 		}
 
-		content, err := (&Gen{w: writer.NewWriter()}).genFile(file)
+		content, err := (&Gen{w: writer.NewWriter()}).genFile(file, fileByName)
 		if err != nil {
 			return nil, err
 		}
