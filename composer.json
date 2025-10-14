@@ -15,9 +15,7 @@
         }
     ],
     "require": {
-        "php": "^8.4",
-        "antlr/antlr4-php-runtime": "^0.9.1",
-        "symfony/console": "^7.3"
+        "php": "^8.4"
     },
     "require-dev": {
         "carthage-software/mago": "1.0.0-beta.27",
@@ -32,24 +30,14 @@
         "files": [
             "./src/functions.php"
         ],
-        "classmap": [
-
-        ]
+        "classmap": []
     },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests"
         }
     },
-    "bin": [
-        "bin/proteus"
-    ],
     "scripts": {
-        "antlr-gen": [
-            "if ! command -v antlr >/dev/null 2>&1; then echo 'antlr is not installed, please install it from https://www.antlr.org/download.html'; exit 1; fi",
-            "antlr -Dlanguage=PHP -package 'Proteus\\Antlr4' -visitor ./src/Antlr4/Protobuf3.g4",
-            "find ./src/Antlr4/ \\( -name '*.tokens' -o -name '*.interp' \\) -delete"
-        ],
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/mago format",
