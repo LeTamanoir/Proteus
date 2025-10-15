@@ -1,0 +1,108 @@
+{
+  "int32List": [
+    1,
+    2,
+    3,
+    -1,
+    -2
+  ],
+  "int64List": [
+    "100",
+    "200",
+    "300",
+    "-100",
+    "-200"
+  ],
+  "uint32List": [
+    10,
+    20,
+    30,
+    40,
+    50
+  ],
+  "uint64List": [
+    "1000",
+    "2000",
+    "3000"
+  ],
+  "sint32List": [
+    -1,
+    -2,
+    -3,
+    1,
+    2
+  ],
+  "sint64List": [
+    "-100",
+    "-200",
+    "100",
+    "200"
+  ],
+  "fixed32List": [
+    100,
+    200,
+    300
+  ],
+  "fixed64List": [
+    "1000",
+    "2000",
+    "3000"
+  ],
+  "sfixed32List": [
+    -10,
+    -20,
+    10,
+    20
+  ],
+  "sfixed64List": [
+    "-100",
+    "-200",
+    "100",
+    "200"
+  ],
+  "floatList": [
+    1.1,
+    2.2,
+    3.3,
+    -1.1,
+    -2.2
+  ],
+  "doubleList": [
+    100.1,
+    200.2,
+    300.3
+  ],
+  "boolList": [
+    true,
+    false,
+    true,
+    false
+  ],
+  "stringList": [
+    "alpha",
+    "beta",
+    "gamma",
+    "delta"
+  ],
+  "bytesList": [
+    "Ynl0ZXMx",
+    "Ynl0ZXMy",
+    "Ynl0ZXMz"
+  ],
+  "addressList": [
+    {
+      "street": "9111 North Millston",
+      "city": "El Paso",
+      "state": "AL",
+      "zipCode": "47918",
+      "country": "Gambia"
+    },
+    {
+      "street": "35737 Crossroadberg",
+      "city": "Newark",
+      "state": "OK",
+      "zipCode": "91864",
+      "country": "Réunion"
+    }
+  ]
+}

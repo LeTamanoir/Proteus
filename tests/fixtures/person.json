@@ -1,0 +1,38 @@
+{
+  "name": "Rolando Jenkins",
+  "age": 18,
+  "homeAddress": {
+    "street": "912 South Estateville",
+    "city": "Oakland",
+    "state": "KY",
+    "zipCode": "70596",
+    "country": "USA"
+  },
+  "workAddress": {
+    "street": "4007 Squaretown",
+    "city": "Anaheim",
+    "state": "MS",
+    "zipCode": "20615",
+    "country": "USA"
+  },
+  "accounts": [
+    {
+      "currencyCode": "USD",
+      "units": "1000",
+      "nanos": 500000000
+    },
+    {
+      "currencyCode": "EUR",
+      "units": "500",
+      "nanos": 250000000
+    }
+  ],
+  "createdAt": {
+    "seconds": "1704067200",
+    "nanos": 0
+  },
+  "location": {
+    "latitude": -21.221164,
+    "longitude": -53.292857
+  }
+}

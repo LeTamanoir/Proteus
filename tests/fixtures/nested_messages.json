@@ -1,0 +1,45 @@
+{
+  "rootName": "root",
+  "child": {
+    "name": "level1",
+    "child": {
+      "name": "level2",
+      "child": {
+        "value": "level3_value",
+        "depth": 3
+      },
+      "children": [
+        {
+          "value": "child1",
+          "depth": 3
+        },
+        {
+          "value": "child2",
+          "depth": 3
+        }
+      ]
+    },
+    "childMap": {
+      "key1": {
+        "name": "mapped_level2",
+        "child": {
+          "value": "mapped_value",
+          "depth": 3
+        },
+        "children": []
+      }
+    }
+  },
+  "children": [
+    {
+      "name": "sibling1",
+      "child": null,
+      "childMap": {}
+    },
+    {
+      "name": "sibling2",
+      "child": null,
+      "childMap": {}
+    }
+  ]
+}

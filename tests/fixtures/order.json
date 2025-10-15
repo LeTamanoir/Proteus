@@ -1,0 +1,62 @@
+{
+  "orderId": "ae9e0e72-14fc-4bbd-9030-37c407e04d4a",
+  "customerId": "7746dc3d-f66b-4d9a-93cd-ac04a905549e",
+  "status": 2,
+  "createdAt": {
+    "seconds": "1704067200",
+    "nanos": 0
+  },
+  "items": [
+    {
+      "productId": "21142194-bfbb-4297-8e66-99061c70cee5",
+      "productName": "Quick Suede Scale",
+      "quantity": 2,
+      "unitPrice": {
+        "currencyCode": "USD",
+        "units": "29",
+        "nanos": 990000000
+      },
+      "totalPrice": {
+        "currencyCode": "USD",
+        "units": "59",
+        "nanos": 980000000
+      },
+      "attributes": {
+        "color": "blue",
+        "size": "M"
+      }
+    }
+  ],
+  "shippingAddress": {
+    "street": "421 Courseshire",
+    "city": "Raleigh",
+    "state": "IN",
+    "zipCode": "11781",
+    "country": "USA"
+  },
+  "subtotal": {
+    "currencyCode": "USD",
+    "units": "59",
+    "nanos": 980000000
+  },
+  "tax": {
+    "currencyCode": "USD",
+    "units": "5",
+    "nanos": 400000000
+  },
+  "shippingCost": {
+    "currencyCode": "USD",
+    "units": "9",
+    "nanos": 990000000
+  },
+  "total": {
+    "currencyCode": "USD",
+    "units": "75",
+    "nanos": 370000000
+  },
+  "metadata": {
+    "channel": "direct",
+    "source": "web"
+  },
+  "notes": "Please leave at door"
+}
