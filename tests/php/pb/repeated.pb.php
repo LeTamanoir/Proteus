@@ -1,0 +1,142 @@
+<?php
+
+/**
+ * Auto-generated file, DO NOT EDIT!
+ * Proto file: repeated.proto
+ */
+
+declare(strict_types=1);
+
+namespace Tests\PB;
+
+use Tests\PB\User;
+
+class Organization
+{
+    /** @var User[] */
+    public array $users = [];
+
+    /** @var string[] */
+    public array $emails = [];
+
+    /** @var int[] */
+    public array $ages = [];
+
+    /** @var bool[] */
+    public array $is_admin = [];
+
+    /**
+     * Decodes a Organization message from binary protobuf format
+     * @param  int[] $bytes Binary protobuf data
+     * @return self  The decoded message instance
+     * @throws Exception if the data is malformed or contains invalid wire types
+     */
+    public static function decode(array $bytes): self
+    {
+        $d = new self();
+        $l = count($bytes);
+        $i = 0;
+        while ($i < $l) {
+            $wire = 0;
+            for ($_shift = 0;; $_shift += 7) {
+                if ($_shift >= 64) throw new \Exception('Int overflow');
+                if ($i >= $l) throw new \Exception('Unexpected EOF');
+                $_b = $bytes[$i++];
+                $wire |= ($_b & 0x7F) << $_shift;
+                if ($_b < 0x80) break;
+            }
+            $fieldNum = $wire >> 3;
+            $wireType = $wire & 0x7;
+            switch ($fieldNum) {
+                case 1:
+                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field users', $wireType));
+                    $_len = 0;
+                    for ($_shift = 0;; $_shift += 7) {
+                        if ($_shift >= 64) throw new \Exception('Int overflow');
+                        if ($i >= $l) throw new \Exception('Unexpected EOF');
+                        $_b = $bytes[$i++];
+                        $_len |= ($_b & 0x7F) << $_shift;
+                        if ($_b < 0x80) break;
+                    }
+                    $_postIndex = $i + $_len;
+                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
+                    $d->users[] = User::decode(array_slice($bytes, $i, $_len));
+                    $i = $_postIndex;
+                    break;
+                case 2:
+                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field emails', $wireType));
+                    $_byteLen = 0;
+                    for ($_shift = 0;; $_shift += 7) {
+                        if ($_shift >= 64) throw new \Exception('Int overflow');
+                        if ($i >= $l) throw new \Exception('Unexpected EOF');
+                        $_b = $bytes[$i++];
+                        $_byteLen |= ($_b & 0x7F) << $_shift;
+                        if ($_b < 0x80) break;
+                    }
+                    if ($_byteLen < 0) throw new \Exception('Invalid length');
+                    $_postIndex = $i + $_byteLen;
+                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
+                    $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $i = $_postIndex;
+                    $d->emails[] = $_value;
+                    break;
+                case 3:
+                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field ages', $wireType));
+                    $_len = 0;
+                    for ($_shift = 0;; $_shift += 7) {
+                        if ($_shift >= 64) throw new \Exception('Int overflow');
+                        if ($i >= $l) throw new \Exception('Unexpected EOF');
+                        $_b = $bytes[$i++];
+                        $_len |= ($_b & 0x7F) << $_shift;
+                        if ($_b < 0x80) break;
+                    }
+                    $_end = $i + $_len;
+                    while ($i < $_end) {
+                        $_u = 0;
+                        for ($_shift = 0;; $_shift += 7) {
+                            if ($_shift >= 64) throw new \Exception('Int overflow');
+                            if ($i >= $l) throw new \Exception('Unexpected EOF');
+                            $_b = $bytes[$i++];
+                            $_u |= ($_b & 0x7F) << $_shift;
+                            if ($_b < 0x80) break;
+                        }
+                        $_value = $_u;
+                        if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
+                        $d->ages[] = $_value;
+                    }
+                    if ($i !== $_end) throw new \Exception('Packed TYPE_INT32 field over/under-read');
+                    break;
+                case 4:
+                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field is_admin', $wireType));
+                    $_len = 0;
+                    for ($_shift = 0;; $_shift += 7) {
+                        if ($_shift >= 64) throw new \Exception('Int overflow');
+                        if ($i >= $l) throw new \Exception('Unexpected EOF');
+                        $_b = $bytes[$i++];
+                        $_len |= ($_b & 0x7F) << $_shift;
+                        if ($_b < 0x80) break;
+                    }
+                    $_end = $i + $_len;
+                    while ($i < $_end) {
+                        $_u = 0;
+                        for ($_shift = 0;; $_shift += 7) {
+                            if ($_shift >= 64) throw new \Exception('Int overflow');
+                            if ($i >= $l) throw new \Exception('Unexpected EOF');
+                            $_b = $bytes[$i++];
+                            $_u |= ($_b & 0x7F) << $_shift;
+                            if ($_b < 0x80) break;
+                        }
+                        $_value = $_u;
+                        if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
+                        $d->is_admin[] = $_value === 1;
+                    }
+                    if ($i !== $_end) throw new \Exception('Packed TYPE_BOOL field over/under-read');
+                    break;
+                default:
+                    $i = \Proteus\skipField($i, $l, $bytes, $wireType);
+            }
+        }
+        return $d;
+    }
+}
+

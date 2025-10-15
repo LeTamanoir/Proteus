@@ -16,4 +16,7 @@ test('Decode Message', function (string $class, string $file) {
     //
     // Imports
     [\Tests\PB\User::class, 'User'],
+    // 
+    // Repeated
+    [\Tests\PB\Organization::class, 'Organization'],
 ]);

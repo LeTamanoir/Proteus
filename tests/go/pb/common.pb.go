@@ -151,7 +151,7 @@ func (x *Timestamp) GetNanos() int32 {
 
 type Money struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CurrencyCode  string                 `protobuf:"bytes,1,opt,name=currency_code,json=currencyCode,proto3" json:"currency_code,omitempty"` // ISO 4217 currency code
+	CurrencyCode  string                 `protobuf:"bytes,1,opt,name=currency_code,json=currencyCode,proto3" json:"currency_code,omitempty"`
 	Units         int64                  `protobuf:"varint,2,opt,name=units,proto3" json:"units,omitempty"`
 	Nanos         int32                  `protobuf:"varint,3,opt,name=nanos,proto3" json:"nanos,omitempty"`
 	unknownFields protoimpl.UnknownFields

@@ -19,7 +19,7 @@ message Timestamp {
 }
 
 message Money {
-  string currency_code = 1;  // ISO 4217 currency code
+  string currency_code = 1;
   int64 units = 2;
   int32 nanos = 3;
 }
