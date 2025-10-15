@@ -29,4 +29,3 @@ phpstan.neon
 psalm.xml
 testbench.yaml
 /coverage
-/plugin/bin/protoc-gen-php-proteus
