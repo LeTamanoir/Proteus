@@ -187,7 +187,7 @@ var File_scalars_proto protoreflect.FileDescriptor
 
 const file_scalars_proto_rawDesc = "" +
 	"\n" +
-	"\rscalars.proto\x12\rtest.repeated\"\xdb\x02\n" +
+	"\rscalars.proto\x12\ftest.scalars\"\xdb\x02\n" +
 	"\aScalars\x12\x16\n" +
 	"\x06double\x18\x01 \x01(\x01R\x06double\x12\x14\n" +
 	"\x05int32\x18\x03 \x01(\x05R\x05int32\x12\x14\n" +
@@ -220,7 +220,7 @@ func file_scalars_proto_rawDescGZIP() []byte {
 
 var file_scalars_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_scalars_proto_goTypes = []any{
-	(*Scalars)(nil), // 0: test.repeated.Scalars
+	(*Scalars)(nil), // 0: test.scalars.Scalars
 }
 var file_scalars_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
