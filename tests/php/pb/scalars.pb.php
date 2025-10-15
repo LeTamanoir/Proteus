@@ -2,7 +2,7 @@
 
 /**
  * Auto-generated file, DO NOT EDIT!
- * Proto file: scalars.proto
+ * Proto file: tests/protos/scalars.proto
  */
 
 declare(strict_types=1);

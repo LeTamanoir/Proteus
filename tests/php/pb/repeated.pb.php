@@ -2,7 +2,7 @@
 
 /**
  * Auto-generated file, DO NOT EDIT!
- * Proto file: repeated.proto
+ * Proto file: tests/protos/repeated.proto
  */
 
 declare(strict_types=1);

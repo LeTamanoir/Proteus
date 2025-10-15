@@ -2,7 +2,7 @@
 
 /**
  * Auto-generated file, DO NOT EDIT!
- * Proto file: imports.proto
+ * Proto file: tests/protos/imports.proto
  */
 
 declare(strict_types=1);

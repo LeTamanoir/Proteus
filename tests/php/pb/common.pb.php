@@ -2,7 +2,7 @@
 
 /**
  * Auto-generated file, DO NOT EDIT!
- * Proto file: common.proto
+ * Proto file: tests/protos/common.proto
  */
 
 declare(strict_types=1);

@@ -2,7 +2,7 @@
 
 /**
  * Auto-generated file, DO NOT EDIT!
- * Proto file: map.proto
+ * Proto file: tests/protos/map.proto
  */
 
 declare(strict_types=1);
