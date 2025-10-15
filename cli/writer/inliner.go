@@ -75,4 +75,5 @@ func (w *Writer) InlineReadBytes(varName string) {
 	w.Line("$_postIndex = $i + $_byteLen;")
 	w.Line("if ($_postIndex < 0 || $_postIndex > $l) throw new \\Exception('Invalid length');")
 	w.Line(fmt.Sprintf("$%s = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));", varName))
+	w.Line("$i = $_postIndex;")
 }
