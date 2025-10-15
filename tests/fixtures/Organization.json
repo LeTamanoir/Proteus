@@ -1,0 +1,107 @@
+{
+   "users": [
+      {
+         "address": {
+            "street": "390 Islandsmouth",
+            "city": "Henderson",
+            "state": "MA",
+            "zip_code": "12667",
+            "country": "USA"
+         },
+         "created_at": {
+            "seconds": 1490538585,
+            "nanos": 1723325005
+         },
+         "balance": {
+            "currency_code": "Hong Kong Dollar",
+            "units": 4685411680918953923,
+            "nanos": 1307528635
+         },
+         "coordinates": {
+            "latitude": -72.370743,
+            "longitude": -41.999664
+         }
+      },
+      {
+         "address": {
+            "street": "10589 Villeside",
+            "city": "Fort Wayne",
+            "state": "VT",
+            "zip_code": "22991",
+            "country": "USA"
+         },
+         "created_at": {
+            "seconds": -467732473,
+            "nanos": 10477922
+         },
+         "balance": {
+            "currency_code": "Mauritius Rupee",
+            "units": 8296535052451715592,
+            "nanos": 1391437121
+         },
+         "coordinates": {
+            "latitude": -55.300924,
+            "longitude": -122.082192
+         }
+      },
+      {
+         "address": {
+            "street": "17705 West Glenton",
+            "city": "Newark",
+            "state": "GA",
+            "zip_code": "14809",
+            "country": "USA"
+         },
+         "created_at": {
+            "seconds": -1647451198,
+            "nanos": 1489112256
+         },
+         "balance": {
+            "currency_code": "Australia Dollar",
+            "units": 166640049012067847,
+            "nanos": 324092662
+         },
+         "coordinates": {
+            "latitude": -50.714524,
+            "longitude": -69.114924
+         }
+      },
+      {
+         "address": {
+            "street": "616 Traceview",
+            "city": "Jersey",
+            "state": "IA",
+            "zip_code": "78439",
+            "country": "USA"
+         },
+         "created_at": {
+            "seconds": 504459154,
+            "nanos": 1356423338
+         },
+         "balance": {
+            "currency_code": "Maldives (Maldive Islands) Rufiyaa",
+            "units": 6054363186664360294,
+            "nanos": 514350192
+         },
+         "coordinates": {
+            "latitude": 33.542336,
+            "longitude": -2.781422
+         }
+      }
+   ],
+   "emails": [
+      "laurelgulgowski@cassin.io",
+      "eddkuvalis@wiza.com"
+   ],
+   "ages": [
+      1946189737,
+      954530034,
+      604350259
+   ],
+   "is_admin": [
+      true,
+      true,
+      true,
+      true
+   ]
+}

@@ -13,6 +13,7 @@ var Generators = []func() proto.Message{
 	Money,
 	Timestamp,
 	User,
+	Organization,
 }
 
 func Address() proto.Message {
@@ -53,5 +54,31 @@ func User() proto.Message {
 		CreatedAt:   Timestamp().(*pb.Timestamp),
 		Balance:     Money().(*pb.Money),
 		Coordinates: Coordinates().(*pb.Coordinates),
+	}
+}
+
+func Organization() proto.Message {
+	return &pb.Organization{
+		Users: []*pb.User{
+			User().(*pb.User),
+			User().(*pb.User),
+			User().(*pb.User),
+			User().(*pb.User),
+		},
+		Emails: []string{
+			gofakeit.Email(),
+			gofakeit.Email(),
+		},
+		Ages: []int32{
+			gofakeit.Int32(),
+			gofakeit.Int32(),
+			gofakeit.Int32(),
+		},
+		IsAdmin: []bool{
+			gofakeit.Bool(),
+			gofakeit.Bool(),
+			gofakeit.Bool(),
+			gofakeit.Bool(),
+		},
 	}
 }

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package test.repeated;
+
+option php_namespace = "Tests\\PB";
+option go_package = "proteus/pb";
+
+import "imports.proto";
+
+message Organization {
+    repeated imports.User users = 1;
+    repeated string emails = 2;
+    repeated int32 ages = 3;
+    repeated bool is_admin = 4;
+}
