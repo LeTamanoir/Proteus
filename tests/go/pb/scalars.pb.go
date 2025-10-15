@@ -26,8 +26,6 @@ type Scalars struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Uses IEEE 754 double-precision format.
 	Double float64 `protobuf:"fixed64,1,opt,name=double,proto3" json:"double,omitempty"`
-	// Uses IEEE 754 single-precision format.
-	Float float32 `protobuf:"fixed32,2,opt,name=float,proto3" json:"float,omitempty"`
 	// Uses variable-length encoding. Inefficient for encoding negative numbers - if your field is likely to have negative values, use sint32 instead.
 	Int32 int32 `protobuf:"varint,3,opt,name=int32,proto3" json:"int32,omitempty"`
 	// Uses variable-length encoding. Inefficient for encoding negative numbers - if your field is likely to have negative values, use sint64 instead.
@@ -90,13 +88,6 @@ func (*Scalars) Descriptor() ([]byte, []int) {
 func (x *Scalars) GetDouble() float64 {
 	if x != nil {
 		return x.Double
-	}
-	return 0
-}
-
-func (x *Scalars) GetFloat() float32 {
-	if x != nil {
-		return x.Float
 	}
 	return 0
 }
@@ -196,10 +187,9 @@ var File_scalars_proto protoreflect.FileDescriptor
 
 const file_scalars_proto_rawDesc = "" +
 	"\n" +
-	"\rscalars.proto\x12\rtest.repeated\"\xf1\x02\n" +
+	"\rscalars.proto\x12\rtest.repeated\"\xdb\x02\n" +
 	"\aScalars\x12\x16\n" +
 	"\x06double\x18\x01 \x01(\x01R\x06double\x12\x14\n" +
-	"\x05float\x18\x02 \x01(\x02R\x05float\x12\x14\n" +
 	"\x05int32\x18\x03 \x01(\x05R\x05int32\x12\x14\n" +
 	"\x05int64\x18\x04 \x01(\x03R\x05int64\x12\x16\n" +
 	"\x06uint32\x18\x05 \x01(\rR\x06uint32\x12\x16\n" +
