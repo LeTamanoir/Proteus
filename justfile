@@ -23,10 +23,14 @@ test:
 # docker build -t proteus-cli -f cli/Dockerfile .
 
 # Generate PHP & Go classes from proto files for tests
-proto-gen:
+test-proto-gen:
     mkdir -p ./tests/generated
+    rm -rf ./tests/php/pb/*
+    rm -rf ./tests/go/pb/*
     protoc --plugin=./cli/bin/protoc-gen-php-proteus --php-proteus_out=./tests/php/pb --proto_path=./tests/protos ./tests/protos/*
     protoc --go_out=./tests/go/pb --go_opt=paths=source_relative --proto_path=./tests/protos ./tests/protos/*
+    composer dump-autoload
 
-gen-go-mocks:
-    cd tests/go && go run main.go
+test-mocks-gen:
+    rm -rf ./tests/fixtures/*
+    cd tests/go && go run .
