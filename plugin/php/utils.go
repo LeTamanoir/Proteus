@@ -149,10 +149,10 @@ func GetType(field *descriptorpb.FieldDescriptorProto) string {
 		return "int"
 	case descriptorpb.FieldDescriptorProto_TYPE_INT64,
 		descriptorpb.FieldDescriptorProto_TYPE_SINT64,
-		descriptorpb.FieldDescriptorProto_TYPE_SFIXED64,
-		descriptorpb.FieldDescriptorProto_TYPE_FIXED64:
+		descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
 		return "int"
-	case descriptorpb.FieldDescriptorProto_TYPE_UINT64:
+	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
+		descriptorpb.FieldDescriptorProto_TYPE_UINT64:
 		return "string"
 	case descriptorpb.FieldDescriptorProto_TYPE_FLOAT,
 		descriptorpb.FieldDescriptorProto_TYPE_DOUBLE:
@@ -182,11 +182,11 @@ func GetDefaultValue(field *descriptorpb.FieldDescriptorProto) string {
 		descriptorpb.FieldDescriptorProto_TYPE_INT64,
 		descriptorpb.FieldDescriptorProto_TYPE_SINT64,
 		descriptorpb.FieldDescriptorProto_TYPE_FIXED32,
-		descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
 		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32,
 		descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
 		return "0"
-	case descriptorpb.FieldDescriptorProto_TYPE_UINT64:
+	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
+		descriptorpb.FieldDescriptorProto_TYPE_UINT64:
 		return "'0'"
 	case descriptorpb.FieldDescriptorProto_TYPE_FLOAT,
 		descriptorpb.FieldDescriptorProto_TYPE_DOUBLE:
