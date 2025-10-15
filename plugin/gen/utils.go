@@ -41,7 +41,7 @@ func (g *gen) inlineReadCode(fieldType descriptorpb.FieldDescriptorProto_Type, v
 }
 
 // getWireType returns the wire type for a field type
-func getWireType(fieldType descriptorpb.FieldDescriptorProto_Type) (int, error) {
+func getWireType(fieldType descriptorpb.FieldDescriptorProto_Type) int {
 	switch fieldType {
 	case descriptorpb.FieldDescriptorProto_TYPE_INT32,
 		descriptorpb.FieldDescriptorProto_TYPE_INT64,
@@ -50,21 +50,21 @@ func getWireType(fieldType descriptorpb.FieldDescriptorProto_Type) (int, error) 
 		descriptorpb.FieldDescriptorProto_TYPE_SINT32,
 		descriptorpb.FieldDescriptorProto_TYPE_SINT64,
 		descriptorpb.FieldDescriptorProto_TYPE_BOOL:
-		return 0, nil // Varint
+		return 0 // Varint
 	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
 		descriptorpb.FieldDescriptorProto_TYPE_SFIXED64,
 		descriptorpb.FieldDescriptorProto_TYPE_DOUBLE:
-		return 1, nil // 64-bit
+		return 1 // 64-bit
 	case descriptorpb.FieldDescriptorProto_TYPE_STRING,
 		descriptorpb.FieldDescriptorProto_TYPE_BYTES,
 		descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
-		return 2, nil // Length-delimited
+		return 2 // Length-delimited
 	case descriptorpb.FieldDescriptorProto_TYPE_FIXED32,
 		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32,
 		descriptorpb.FieldDescriptorProto_TYPE_FLOAT:
-		return 5, nil // 32-bit
+		return 5 // 32-bit
 	default:
-		return 0, fmt.Errorf("unknown wire type for: %v", fieldType)
+		panic(fmt.Sprintf("unknown wire type for: %v", fieldType))
 	}
 }
 
