@@ -79,18 +79,3 @@ function skipField(int $i, int $l, array $bytes, int $wireType): int
             throw new Exception("Illegal wire type: {$wireType}");
     }
 }
-
-/**
- * Detects if the system uses big-endian byte order
- */
-function isBigEndian(): bool
-{
-    /** @var bool|null */
-    static $endianness = null;
-
-    if ($endianness === null) {
-        $endianness = unpack('L', pack('V', 1))[1] !== 1;
-    }
-
-    return $endianness;
-}
