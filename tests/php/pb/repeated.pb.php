@@ -2,30 +2,31 @@
 
 /**
  * Auto-generated file, DO NOT EDIT!
- * Proto file: imports.proto
+ * Proto file: repeated.proto
  */
 
 declare(strict_types=1);
 
 namespace Tests\PB;
 
-use Tests\PB\Address;
-use Tests\PB\Timestamp;
-use Tests\PB\Money;
-use Tests\PB\Coordinates;
+use Tests\PB\User;
 
-class User
+class Organization
 {
-    public Address|null $address = null;
+    /** @var User[] */
+    public array $users = [];
 
-    public Timestamp|null $created_at = null;
+    /** @var string[] */
+    public array $emails = [];
 
-    public Money|null $balance = null;
+    /** @var int[] */
+    public array $ages = [];
 
-    public Coordinates|null $coordinates = null;
+    /** @var bool[] */
+    public array $is_admin = [];
 
     /**
-     * Decodes a User message from binary protobuf format
+     * Decodes a Organization message from binary protobuf format
      * @param  int[] $bytes Binary protobuf data
      * @return self  The decoded message instance
      * @throws Exception if the data is malformed or contains invalid wire types
@@ -48,7 +49,7 @@ class User
             $wireType = $wire & 0x7;
             switch ($fieldNum) {
                 case 1:
-                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field address', $wireType));
+                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field users', $wireType));
                     $_len = 0;
                     for ($_shift = 0;; $_shift += 7) {
                         if ($_shift >= 64) throw new \Exception('Int overflow');
@@ -59,26 +60,28 @@ class User
                     }
                     $_postIndex = $i + $_len;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $d->address = Address::decode(array_slice($bytes, $i, $_len));
+                    $d->users[] = User::decode(array_slice($bytes, $i, $_len));
                     $i = $_postIndex;
                     break;
                 case 2:
-                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field created_at', $wireType));
-                    $_len = 0;
+                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field emails', $wireType));
+                    $_byteLen = 0;
                     for ($_shift = 0;; $_shift += 7) {
                         if ($_shift >= 64) throw new \Exception('Int overflow');
                         if ($i >= $l) throw new \Exception('Unexpected EOF');
                         $_b = $bytes[$i++];
-                        $_len |= ($_b & 0x7F) << $_shift;
+                        $_byteLen |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    $_postIndex = $i + $_len;
+                    if ($_byteLen < 0) throw new \Exception('Invalid length');
+                    $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $d->created_at = Timestamp::decode(array_slice($bytes, $i, $_len));
+                    $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
                     $i = $_postIndex;
+                    $d->emails[] = $_value;
                     break;
                 case 3:
-                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field balance', $wireType));
+                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field ages', $wireType));
                     $_len = 0;
                     for ($_shift = 0;; $_shift += 7) {
                         if ($_shift >= 64) throw new \Exception('Int overflow');
@@ -87,13 +90,24 @@ class User
                         $_len |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    $_postIndex = $i + $_len;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $d->balance = Money::decode(array_slice($bytes, $i, $_len));
-                    $i = $_postIndex;
+                    $_end = $i + $_len;
+                    while ($i < $_end) {
+                        $_u = 0;
+                        for ($_shift = 0;; $_shift += 7) {
+                            if ($_shift >= 64) throw new \Exception('Int overflow');
+                            if ($i >= $l) throw new \Exception('Unexpected EOF');
+                            $_b = $bytes[$i++];
+                            $_u |= ($_b & 0x7F) << $_shift;
+                            if ($_b < 0x80) break;
+                        }
+                        $_value = $_u;
+                        if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
+                        $d->ages[] = $_value;
+                    }
+                    if ($i !== $_end) throw new \Exception('Packed TYPE_INT32 field over/under-read');
                     break;
                 case 4:
-                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field coordinates', $wireType));
+                    if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field is_admin', $wireType));
                     $_len = 0;
                     for ($_shift = 0;; $_shift += 7) {
                         if ($_shift >= 64) throw new \Exception('Int overflow');
@@ -102,10 +116,21 @@ class User
                         $_len |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    $_postIndex = $i + $_len;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $d->coordinates = Coordinates::decode(array_slice($bytes, $i, $_len));
-                    $i = $_postIndex;
+                    $_end = $i + $_len;
+                    while ($i < $_end) {
+                        $_u = 0;
+                        for ($_shift = 0;; $_shift += 7) {
+                            if ($_shift >= 64) throw new \Exception('Int overflow');
+                            if ($i >= $l) throw new \Exception('Unexpected EOF');
+                            $_b = $bytes[$i++];
+                            $_u |= ($_b & 0x7F) << $_shift;
+                            if ($_b < 0x80) break;
+                        }
+                        $_value = $_u;
+                        if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
+                        $d->is_admin[] = $_value === 1;
+                    }
+                    if ($i !== $_end) throw new \Exception('Packed TYPE_BOOL field over/under-read');
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);
