@@ -18,7 +18,7 @@ func main() {
 
 	for _, g := range gen.Generators {
 		msg := g.Gen()
-		if err := gen.WriteMessageWithJSON(fixturesDir, g.Name, msg); err != nil {
+		if err := gen.WriteMessage(fixturesDir, g.Name, msg, g.WriteJson); err != nil {
 			log.Fatalf("Failed to write message: %v", err)
 		}
 	}

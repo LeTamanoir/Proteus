@@ -9,17 +9,19 @@ import (
 )
 
 var Generators = []struct {
-	Name string
-	Gen  func() proto.Message
+	Name      string
+	Gen       func() proto.Message
+	WriteJson bool
 }{
-	{"Address", Address},
-	{"Coordinates", Coordinates},
-	{"Money", Money},
-	{"Timestamp", Timestamp},
-	{"User", User},
-	{"Organization", Organization},
-	{"Scalars", Scalars},
-	{"Map", Map},
+	{"Address", Address, true},
+	{"Coordinates", Coordinates, true},
+	{"Money", Money, true},
+	{"Timestamp", Timestamp, true},
+	{"User", User, true},
+	{"Organization", Organization, true},
+	{"Scalars", Scalars, true},
+	{"Map", Map, true},
+	{"BenchmarkMap", BenchmarkMap, false},
 }
 
 func Address() proto.Message {
@@ -161,6 +163,21 @@ func Map() proto.Message {
 				StringAddress: map[string]*pb.Address{
 					gofakeit.Sentence(10): Address().(*pb.Address),
 				},
+			},
+		},
+	}
+}
+
+func BenchmarkMap() proto.Message {
+	addresses := make([]*pb.Address, 1000)
+	for i := range 1000 {
+		addresses[i] = Address().(*pb.Address)
+	}
+
+	return &pb.Map{
+		StringRepeated: map[string]*pb.Repeated{
+			gofakeit.Sentence(10): {
+				Addresses: addresses,
 			},
 		},
 	}
