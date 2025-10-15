@@ -21,7 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Common address type used across tests
 type Address struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Street        string                 `protobuf:"bytes,1,opt,name=street,proto3" json:"street,omitempty"`
@@ -98,7 +97,6 @@ func (x *Address) GetCountry() string {
 	return ""
 }
 
-// Timestamp representation
 type Timestamp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Seconds       int64                  `protobuf:"varint,1,opt,name=seconds,proto3" json:"seconds,omitempty"`
@@ -151,7 +149,6 @@ func (x *Timestamp) GetNanos() int32 {
 	return 0
 }
 
-// Money with currency
 type Money struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CurrencyCode  string                 `protobuf:"bytes,1,opt,name=currency_code,json=currencyCode,proto3" json:"currency_code,omitempty"` // ISO 4217 currency code
@@ -212,7 +209,6 @@ func (x *Money) GetNanos() int32 {
 	return 0
 }
 
-// GPS coordinates
 type Coordinates struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Latitude      float64                `protobuf:"fixed64,1,opt,name=latitude,proto3" json:"latitude,omitempty"`

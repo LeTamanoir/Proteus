@@ -5,7 +5,6 @@ package test.common;
 option php_namespace = "Tests\\PB";
 option go_package = "proteus/pb";
 
-// Common address type used across tests
 message Address {
   string street = 1;
   string city = 2;
@@ -14,20 +13,17 @@ message Address {
   string country = 5;
 }
 
-// Timestamp representation
 message Timestamp {
   int64 seconds = 1;
   int32 nanos = 2;
 }
 
-// Money with currency
 message Money {
   string currency_code = 1;  // ISO 4217 currency code
   int64 units = 2;
   int32 nanos = 3;
 }
 
-// GPS coordinates
 message Coordinates {
   double latitude = 1;
   double longitude = 2;

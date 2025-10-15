@@ -8,8 +8,12 @@ test('Decode Message', function (string $class, string $file) {
 
     expect(json_encode($data, JSON_PRETTY_PRINT))->toBe(json_encode($json, JSON_PRETTY_PRINT));
 })->with([
+    // Common
     [\Tests\PB\Address::class, 'Address'],
     [\Tests\PB\Coordinates::class, 'Coordinates'],
     [\Tests\PB\Money::class, 'Money'],
     [\Tests\PB\Timestamp::class, 'Timestamp'],
+    //
+    // Imports
+    [\Tests\PB\User::class, 'User'],
 ]);

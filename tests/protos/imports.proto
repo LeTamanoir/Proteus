@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package test.imports;
+
+option php_namespace = "Tests\\PB";
+option go_package = "proteus/pb";
+
+import "common.proto";
+
+message User {
+    common.Address address = 1;
+    common.Timestamp created_at = 2;
+    common.Money balance = 3;
+    common.Coordinates coordinates = 4;
+}
