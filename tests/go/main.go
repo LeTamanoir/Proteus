@@ -10,13 +10,15 @@ import (
 
 func main() {
 	// hardcoded seed for consistent test data
-	gofakeit.Seed(12345)
+	if err := gofakeit.Seed(12345); err != nil {
+		log.Fatalf("Failed to seed gofakeit: %v", err)
+	}
 
 	fixturesDir := "../fixtures"
 
 	for _, g := range gen.Generators {
-		msg := g()
-		if err := gen.WriteMessageWithJSON(fixturesDir, string(msg.ProtoReflect().Descriptor().Name()), msg); err != nil {
+		msg := g.Gen()
+		if err := gen.WriteMessageWithJSON(fixturesDir, g.Name, msg); err != nil {
 			log.Fatalf("Failed to write message: %v", err)
 		}
 	}
