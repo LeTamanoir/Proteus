@@ -1,4 +1,4 @@
-module proteus/tester
+module github.com/LeTamanoir/Proteus/tests/generator
 
 go 1.23
 

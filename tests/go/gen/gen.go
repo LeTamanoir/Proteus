@@ -2,7 +2,8 @@ package gen
 
 import (
 	"math"
-	"proteus/tester/pb"
+
+	"github.com/LeTamanoir/Proteus/tests/generator/pb"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"google.golang.org/protobuf/proto"
@@ -21,7 +22,7 @@ var Generators = []struct {
 	{"Organization", Organization, true},
 	{"Scalars", Scalars, true},
 	{"Map", Map, true},
-	{"BenchmarkMap", BenchmarkMap, false},
+	// {"BenchmarkMap", BenchmarkMap, false},
 }
 
 func Address() proto.Message {

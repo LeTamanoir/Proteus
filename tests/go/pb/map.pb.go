@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.10
 // 	protoc        v6.32.1
-// source: map.proto
+// source: tests/protos/map.proto
 
 package pb
 
@@ -30,7 +30,7 @@ type NestedMap struct {
 
 func (x *NestedMap) Reset() {
 	*x = NestedMap{}
-	mi := &file_map_proto_msgTypes[0]
+	mi := &file_tests_protos_map_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +42,7 @@ func (x *NestedMap) String() string {
 func (*NestedMap) ProtoMessage() {}
 
 func (x *NestedMap) ProtoReflect() protoreflect.Message {
-	mi := &file_map_proto_msgTypes[0]
+	mi := &file_tests_protos_map_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +55,7 @@ func (x *NestedMap) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NestedMap.ProtoReflect.Descriptor instead.
 func (*NestedMap) Descriptor() ([]byte, []int) {
-	return file_map_proto_rawDescGZIP(), []int{0}
+	return file_tests_protos_map_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *NestedMap) GetStringAddress() map[string]*Address {
@@ -74,7 +74,7 @@ type Repeated struct {
 
 func (x *Repeated) Reset() {
 	*x = Repeated{}
-	mi := &file_map_proto_msgTypes[1]
+	mi := &file_tests_protos_map_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -86,7 +86,7 @@ func (x *Repeated) String() string {
 func (*Repeated) ProtoMessage() {}
 
 func (x *Repeated) ProtoReflect() protoreflect.Message {
-	mi := &file_map_proto_msgTypes[1]
+	mi := &file_tests_protos_map_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -99,7 +99,7 @@ func (x *Repeated) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Repeated.ProtoReflect.Descriptor instead.
 func (*Repeated) Descriptor() ([]byte, []int) {
-	return file_map_proto_rawDescGZIP(), []int{1}
+	return file_tests_protos_map_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Repeated) GetAddresses() []*Address {
@@ -131,7 +131,7 @@ type Map struct {
 
 func (x *Map) Reset() {
 	*x = Map{}
-	mi := &file_map_proto_msgTypes[2]
+	mi := &file_tests_protos_map_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -143,7 +143,7 @@ func (x *Map) String() string {
 func (*Map) ProtoMessage() {}
 
 func (x *Map) ProtoReflect() protoreflect.Message {
-	mi := &file_map_proto_msgTypes[2]
+	mi := &file_tests_protos_map_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -156,7 +156,7 @@ func (x *Map) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Map.ProtoReflect.Descriptor instead.
 func (*Map) Descriptor() ([]byte, []int) {
-	return file_map_proto_rawDescGZIP(), []int{2}
+	return file_tests_protos_map_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Map) GetInt32Bool() map[int32]bool {
@@ -257,11 +257,11 @@ func (x *Map) GetStringNestedMap() map[string]*NestedMap {
 	return nil
 }
 
-var File_map_proto protoreflect.FileDescriptor
+var File_tests_protos_map_proto protoreflect.FileDescriptor
 
-const file_map_proto_rawDesc = "" +
+const file_tests_protos_map_proto_rawDesc = "" +
 	"\n" +
-	"\tmap.proto\x12\btest.map\x1a\fcommon.proto\"\xb2\x01\n" +
+	"\x16tests/protos/map.proto\x12\btest.map\x1a\x19tests/protos/common.proto\"\xb2\x01\n" +
 	"\tNestedMap\x12M\n" +
 	"\x0estring_address\x18\x01 \x03(\v2&.test.map.NestedMap.StringAddressEntryR\rstringAddress\x1aV\n" +
 	"\x12StringAddressEntry\x12\x10\n" +
@@ -333,23 +333,22 @@ const file_map_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2\x12.test.map.RepeatedR\x05value:\x028\x01\x1aW\n" +
 	"\x14StringNestedMapEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12)\n" +
-	"\x05value\x18\x02 \x01(\v2\x13.test.map.NestedMapR\x05value:\x028\x01B\x17Z\n" +
-	"proteus/pb\xca\x02\bTests\\PBb\x06proto3"
+	"\x05value\x18\x02 \x01(\v2\x13.test.map.NestedMapR\x05value:\x028\x01B\x18Z\vtests/go/pb\xca\x02\bTests\\PBb\x06proto3"
 
 var (
-	file_map_proto_rawDescOnce sync.Once
-	file_map_proto_rawDescData []byte
+	file_tests_protos_map_proto_rawDescOnce sync.Once
+	file_tests_protos_map_proto_rawDescData []byte
 )
 
-func file_map_proto_rawDescGZIP() []byte {
-	file_map_proto_rawDescOnce.Do(func() {
-		file_map_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_map_proto_rawDesc), len(file_map_proto_rawDesc)))
+func file_tests_protos_map_proto_rawDescGZIP() []byte {
+	file_tests_protos_map_proto_rawDescOnce.Do(func() {
+		file_tests_protos_map_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_tests_protos_map_proto_rawDesc), len(file_tests_protos_map_proto_rawDesc)))
 	})
-	return file_map_proto_rawDescData
+	return file_tests_protos_map_proto_rawDescData
 }
 
-var file_map_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
-var file_map_proto_goTypes = []any{
+var file_tests_protos_map_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_tests_protos_map_proto_goTypes = []any{
 	(*NestedMap)(nil), // 0: test.map.NestedMap
 	(*Repeated)(nil),  // 1: test.map.Repeated
 	(*Map)(nil),       // 2: test.map.Map
@@ -370,7 +369,7 @@ var file_map_proto_goTypes = []any{
 	nil,               // 17: test.map.Map.StringNestedMapEntry
 	(*Address)(nil),   // 18: test.common.Address
 }
-var file_map_proto_depIdxs = []int32{
+var file_tests_protos_map_proto_depIdxs = []int32{
 	3,  // 0: test.map.NestedMap.string_address:type_name -> test.map.NestedMap.StringAddressEntry
 	18, // 1: test.map.Repeated.addresses:type_name -> test.common.Address
 	4,  // 2: test.map.Map.int32_bool:type_name -> test.map.Map.Int32BoolEntry
@@ -398,27 +397,27 @@ var file_map_proto_depIdxs = []int32{
 	0,  // [0:20] is the sub-list for field type_name
 }
 
-func init() { file_map_proto_init() }
-func file_map_proto_init() {
-	if File_map_proto != nil {
+func init() { file_tests_protos_map_proto_init() }
+func file_tests_protos_map_proto_init() {
+	if File_tests_protos_map_proto != nil {
 		return
 	}
-	file_common_proto_init()
+	file_tests_protos_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_map_proto_rawDesc), len(file_map_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tests_protos_map_proto_rawDesc), len(file_tests_protos_map_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_map_proto_goTypes,
-		DependencyIndexes: file_map_proto_depIdxs,
-		MessageInfos:      file_map_proto_msgTypes,
+		GoTypes:           file_tests_protos_map_proto_goTypes,
+		DependencyIndexes: file_tests_protos_map_proto_depIdxs,
+		MessageInfos:      file_tests_protos_map_proto_msgTypes,
 	}.Build()
-	File_map_proto = out.File
-	file_map_proto_goTypes = nil
-	file_map_proto_depIdxs = nil
+	File_tests_protos_map_proto = out.File
+	file_tests_protos_map_proto_goTypes = nil
+	file_tests_protos_map_proto_depIdxs = nil
 }

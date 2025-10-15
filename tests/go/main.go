@@ -1,7 +1,7 @@
 package main
 
 import (
-	"proteus/tester/gen"
+	"github.com/LeTamanoir/Proteus/tests/generator/gen"
 
 	"github.com/brianvoe/gofakeit/v7"
 

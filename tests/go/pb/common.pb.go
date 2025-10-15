@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.10
 // 	protoc        v6.32.1
-// source: common.proto
+// source: tests/protos/common.proto
 
 package pb
 
@@ -34,7 +34,7 @@ type Address struct {
 
 func (x *Address) Reset() {
 	*x = Address{}
-	mi := &file_common_proto_msgTypes[0]
+	mi := &file_tests_protos_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +46,7 @@ func (x *Address) String() string {
 func (*Address) ProtoMessage() {}
 
 func (x *Address) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[0]
+	mi := &file_tests_protos_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +59,7 @@ func (x *Address) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Address.ProtoReflect.Descriptor instead.
 func (*Address) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{0}
+	return file_tests_protos_common_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Address) GetStreet() string {
@@ -107,7 +107,7 @@ type Timestamp struct {
 
 func (x *Timestamp) Reset() {
 	*x = Timestamp{}
-	mi := &file_common_proto_msgTypes[1]
+	mi := &file_tests_protos_common_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -119,7 +119,7 @@ func (x *Timestamp) String() string {
 func (*Timestamp) ProtoMessage() {}
 
 func (x *Timestamp) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[1]
+	mi := &file_tests_protos_common_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -132,7 +132,7 @@ func (x *Timestamp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Timestamp.ProtoReflect.Descriptor instead.
 func (*Timestamp) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{1}
+	return file_tests_protos_common_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Timestamp) GetSeconds() int64 {
@@ -160,7 +160,7 @@ type Money struct {
 
 func (x *Money) Reset() {
 	*x = Money{}
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_tests_protos_common_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -172,7 +172,7 @@ func (x *Money) String() string {
 func (*Money) ProtoMessage() {}
 
 func (x *Money) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_tests_protos_common_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -185,7 +185,7 @@ func (x *Money) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Money.ProtoReflect.Descriptor instead.
 func (*Money) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{2}
+	return file_tests_protos_common_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Money) GetCurrencyCode() string {
@@ -219,7 +219,7 @@ type Coordinates struct {
 
 func (x *Coordinates) Reset() {
 	*x = Coordinates{}
-	mi := &file_common_proto_msgTypes[3]
+	mi := &file_tests_protos_common_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -231,7 +231,7 @@ func (x *Coordinates) String() string {
 func (*Coordinates) ProtoMessage() {}
 
 func (x *Coordinates) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[3]
+	mi := &file_tests_protos_common_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -244,7 +244,7 @@ func (x *Coordinates) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Coordinates.ProtoReflect.Descriptor instead.
 func (*Coordinates) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{3}
+	return file_tests_protos_common_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Coordinates) GetLatitude() float64 {
@@ -261,11 +261,11 @@ func (x *Coordinates) GetLongitude() float64 {
 	return 0
 }
 
-var File_common_proto protoreflect.FileDescriptor
+var File_tests_protos_common_proto protoreflect.FileDescriptor
 
-const file_common_proto_rawDesc = "" +
+const file_tests_protos_common_proto_rawDesc = "" +
 	"\n" +
-	"\fcommon.proto\x12\vtest.common\"\x80\x01\n" +
+	"\x19tests/protos/common.proto\x12\vtest.common\"\x80\x01\n" +
 	"\aAddress\x12\x16\n" +
 	"\x06street\x18\x01 \x01(\tR\x06street\x12\x12\n" +
 	"\x04city\x18\x02 \x01(\tR\x04city\x12\x14\n" +
@@ -281,29 +281,28 @@ const file_common_proto_rawDesc = "" +
 	"\x05nanos\x18\x03 \x01(\x05R\x05nanos\"G\n" +
 	"\vCoordinates\x12\x1a\n" +
 	"\blatitude\x18\x01 \x01(\x01R\blatitude\x12\x1c\n" +
-	"\tlongitude\x18\x02 \x01(\x01R\tlongitudeB\x17Z\n" +
-	"proteus/pb\xca\x02\bTests\\PBb\x06proto3"
+	"\tlongitude\x18\x02 \x01(\x01R\tlongitudeB\x18Z\vtests/go/pb\xca\x02\bTests\\PBb\x06proto3"
 
 var (
-	file_common_proto_rawDescOnce sync.Once
-	file_common_proto_rawDescData []byte
+	file_tests_protos_common_proto_rawDescOnce sync.Once
+	file_tests_protos_common_proto_rawDescData []byte
 )
 
-func file_common_proto_rawDescGZIP() []byte {
-	file_common_proto_rawDescOnce.Do(func() {
-		file_common_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)))
+func file_tests_protos_common_proto_rawDescGZIP() []byte {
+	file_tests_protos_common_proto_rawDescOnce.Do(func() {
+		file_tests_protos_common_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_tests_protos_common_proto_rawDesc), len(file_tests_protos_common_proto_rawDesc)))
 	})
-	return file_common_proto_rawDescData
+	return file_tests_protos_common_proto_rawDescData
 }
 
-var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_common_proto_goTypes = []any{
+var file_tests_protos_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_tests_protos_common_proto_goTypes = []any{
 	(*Address)(nil),     // 0: test.common.Address
 	(*Timestamp)(nil),   // 1: test.common.Timestamp
 	(*Money)(nil),       // 2: test.common.Money
 	(*Coordinates)(nil), // 3: test.common.Coordinates
 }
-var file_common_proto_depIdxs = []int32{
+var file_tests_protos_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -311,26 +310,26 @@ var file_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_common_proto_init() }
-func file_common_proto_init() {
-	if File_common_proto != nil {
+func init() { file_tests_protos_common_proto_init() }
+func file_tests_protos_common_proto_init() {
+	if File_tests_protos_common_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tests_protos_common_proto_rawDesc), len(file_tests_protos_common_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_common_proto_goTypes,
-		DependencyIndexes: file_common_proto_depIdxs,
-		MessageInfos:      file_common_proto_msgTypes,
+		GoTypes:           file_tests_protos_common_proto_goTypes,
+		DependencyIndexes: file_tests_protos_common_proto_depIdxs,
+		MessageInfos:      file_tests_protos_common_proto_msgTypes,
 	}.Build()
-	File_common_proto = out.File
-	file_common_proto_goTypes = nil
-	file_common_proto_depIdxs = nil
+	File_tests_protos_common_proto = out.File
+	file_tests_protos_common_proto_goTypes = nil
+	file_tests_protos_common_proto_depIdxs = nil
 }
