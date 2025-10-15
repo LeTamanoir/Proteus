@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Tests\PB;
 
 use Tests\PB\Address;
-use Tests\PB\Timestamp;
-use Tests\PB\Money;
 use Tests\PB\Coordinates;
+use Tests\PB\Money;
+use Tests\PB\Timestamp;
 
 if (PHP_INT_SIZE !== 8) {
     trigger_error('This message is only supported on 64-bit systems', E_USER_WARNING);

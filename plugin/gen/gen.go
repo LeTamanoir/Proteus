@@ -26,19 +26,15 @@ func (g *gen) genFile(file *descriptorpb.FileDescriptorProto, fileByName map[str
 		return "", fmt.Errorf("php_namespace option is required in %s", file.GetName())
 	}
 
-	// Build type registry from imports
 	typeRegistry, err := buildTypeRegistry(file, fileByName)
 	if err != nil {
 		return "", fmt.Errorf("buildTypeRegistry: %w", err)
 	}
 
-	// Store the type registry in the generator for use in type resolution
 	g.typeRegistry = typeRegistry
 
-	// Build comment map from source code info
 	g.commentMap = buildCommentMap(file)
 
-	// Collect used imports
 	usedImports := collectUsedImports(file, typeRegistry)
 
 	g.w.Line("<?php")
@@ -53,7 +49,7 @@ Proto file: %s`, file.GetName()))
 
 	// Add use statements for imported types
 	if len(usedImports) > 0 {
-		for phpFqn := range usedImports {
+		for _, phpFqn := range usedImports {
 			g.w.Line(fmt.Sprintf("use %s;", phpFqn))
 		}
 		g.w.Newline()

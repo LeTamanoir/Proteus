@@ -22,4 +22,7 @@ test('Decode Message', function (string $class, string $file) {
     //
     // Scalars
     [\Tests\PB\Scalars::class, 'Scalars'],
+    //
+    // Map
+    [\Tests\PB\Map::class, 'Map'],
 ]);

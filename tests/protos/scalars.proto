@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package test.repeated;
+package test.scalars;
 
 option php_namespace = "Tests\\PB";
 option go_package = "proteus/pb";

@@ -2,6 +2,7 @@ package gen
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/LeTamanoir/Proteus/plugin/php"
 
@@ -41,7 +42,7 @@ func buildTypeRegistry(file *descriptorpb.FileDescriptorProto, fileByName map[st
 }
 
 // collectUsedImports collects all imported types that are actually used in the file
-func collectUsedImports(file *descriptorpb.FileDescriptorProto, typeRegistry map[string]string) map[string]bool {
+func collectUsedImports(file *descriptorpb.FileDescriptorProto, typeRegistry map[string]string) []string {
 	usedImports := make(map[string]bool)
 
 	for _, message := range file.GetMessageType() {
@@ -57,5 +58,12 @@ func collectUsedImports(file *descriptorpb.FileDescriptorProto, typeRegistry map
 		}
 	}
 
-	return usedImports
+	imports := make([]string, 0, len(usedImports))
+	for phpFqn := range usedImports {
+		imports = append(imports, phpFqn)
+	}
+
+	slices.Sort(imports)
+
+	return imports
 }

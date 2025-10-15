@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package test.map;
+
+option php_namespace = "Tests\\PB";
+option go_package = "proteus/pb";
+
+import "common.proto";
+
+message NestedMap {
+    map<string, common.Address> string_address = 1;
+}
+
+message Repeated {
+    repeated common.Address addresses = 1;
+}
+
+message Map {
+    map<int32, bool> int32_bool = 10;
+    map<int64, bool> int64_bool = 11;
+    map<uint32, bool> uint32_bool = 12;
+    map<uint64, bool> uint64_bool = 13;
+    map<sint32, bool> sint32_bool = 14;
+    map<sint64, bool> sint64_bool = 15;
+    map<fixed32, bool> fixed32_bool = 16;
+    map<fixed64, bool> fixed64_bool = 17;
+    map<sfixed32, bool> sfixed32_bool = 18;
+    map<sfixed64, bool> sfixed64_bool = 19;
+    map<string, bool> string_bool = 20;
+
+    map<string, common.Address> string_address = 21;
+
+    map<string, Repeated> string_repeated = 23;
+
+    map<string, NestedMap> string_nested_map = 22;
+}

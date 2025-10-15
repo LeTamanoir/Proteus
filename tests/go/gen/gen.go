@@ -19,6 +19,7 @@ var Generators = []struct {
 	{"User", User},
 	{"Organization", Organization},
 	{"Scalars", Scalars},
+	{"Map", Map},
 }
 
 func Address() proto.Message {
@@ -104,5 +105,63 @@ func Scalars() proto.Message {
 		Bool:     true,
 		String_:  gofakeit.Sentence(10),
 		Bytes:    []byte(gofakeit.Sentence(10)),
+	}
+}
+
+// NOTE: we only use 1 element per field because map JSON is not ordered
+func Map() proto.Message {
+	return &pb.Map{
+		Int32Bool: map[int32]bool{
+			math.MaxInt32: gofakeit.Bool(),
+		},
+		Int64Bool: map[int64]bool{
+			math.MaxInt64: gofakeit.Bool(),
+		},
+		Uint32Bool: map[uint32]bool{
+			math.MaxUint32: gofakeit.Bool(),
+		},
+		Uint64Bool: map[uint64]bool{
+			math.MaxUint64: gofakeit.Bool(),
+		},
+		Sint32Bool: map[int32]bool{
+			math.MaxInt32: gofakeit.Bool(),
+		},
+		Sint64Bool: map[int64]bool{
+			math.MaxInt64: gofakeit.Bool(),
+		},
+		Fixed32Bool: map[uint32]bool{
+			math.MaxUint32: gofakeit.Bool(),
+		},
+		Fixed64Bool: map[uint64]bool{
+			math.MaxUint64: gofakeit.Bool(),
+		},
+		Sfixed32Bool: map[int32]bool{
+			math.MaxInt32: gofakeit.Bool(),
+		},
+		Sfixed64Bool: map[int64]bool{
+			math.MaxInt64: gofakeit.Bool(),
+		},
+		StringBool: map[string]bool{
+			gofakeit.Sentence(10): gofakeit.Bool(),
+		},
+		StringAddress: map[string]*pb.Address{
+			gofakeit.Sentence(10): Address().(*pb.Address),
+		},
+		StringRepeated: map[string]*pb.Repeated{
+			gofakeit.Sentence(10): {
+				Addresses: []*pb.Address{
+					Address().(*pb.Address),
+					Address().(*pb.Address),
+					Address().(*pb.Address),
+				},
+			},
+		},
+		StringNestedMap: map[string]*pb.NestedMap{
+			gofakeit.Sentence(10): {
+				StringAddress: map[string]*pb.Address{
+					gofakeit.Sentence(10): Address().(*pb.Address),
+				},
+			},
+		},
 	}
 }
