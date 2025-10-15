@@ -9,9 +9,6 @@ declare(strict_types=1);
 
 namespace Tests\PB;
 
-/**
- * Common address type used across tests
- */
 class Address
 {
     public string $street = '';
@@ -140,9 +137,6 @@ class Address
     }
 }
 
-/**
- * Timestamp representation
- */
 class Timestamp
 {
     public int $seconds = 0;
@@ -206,9 +200,6 @@ class Timestamp
     }
 }
 
-/**
- * Money with currency
- */
 class Money
 {
     /**
@@ -294,9 +285,6 @@ class Money
     }
 }
 
-/**
- * GPS coordinates
- */
 class Coordinates
 {
     public float $latitude = 0.0;

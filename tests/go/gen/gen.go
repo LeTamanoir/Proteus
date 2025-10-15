@@ -7,6 +7,14 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+var Generators = []func() proto.Message{
+	Address,
+	Coordinates,
+	Money,
+	Timestamp,
+	User,
+}
+
 func Address() proto.Message {
 	return &pb.Address{
 		Street:  gofakeit.Street(),
@@ -36,5 +44,14 @@ func Coordinates() proto.Message {
 	return &pb.Coordinates{
 		Latitude:  gofakeit.Latitude(),
 		Longitude: gofakeit.Longitude(),
+	}
+}
+
+func User() proto.Message {
+	return &pb.User{
+		Address:     Address().(*pb.Address),
+		CreatedAt:   Timestamp().(*pb.Timestamp),
+		Balance:     Money().(*pb.Money),
+		Coordinates: Coordinates().(*pb.Coordinates),
 	}
 }

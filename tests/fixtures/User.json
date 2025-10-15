@@ -1,0 +1,22 @@
+{
+   "address": {
+      "street": "473 Port Damborough",
+      "city": "Henderson",
+      "state": "NV",
+      "zip_code": "58554",
+      "country": "USA"
+   },
+   "created_at": {
+      "seconds": 1643943750,
+      "nanos": 397161163
+   },
+   "balance": {
+      "currency_code": "Afghanistan Afghani",
+      "units": 8475786287443136404,
+      "nanos": 1070081678
+   },
+   "coordinates": {
+      "latitude": -56.335321,
+      "longitude": -76.108952
+   }
+}
