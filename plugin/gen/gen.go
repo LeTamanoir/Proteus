@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cli/php"
-	"cli/writer"
+	"github.com/LeTamanoir/Proteus/plugin/php"
+	"github.com/LeTamanoir/Proteus/plugin/writer"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/descriptorpb"

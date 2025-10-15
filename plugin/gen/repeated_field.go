@@ -1,8 +1,9 @@
 package gen
 
 import (
-	"cli/php"
 	"fmt"
+
+	"github.com/LeTamanoir/Proteus/plugin/php"
 
 	"google.golang.org/protobuf/types/descriptorpb"
 )
