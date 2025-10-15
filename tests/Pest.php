@@ -11,7 +11,7 @@
  |
  */
 
-pest()->extend(Tests\TestCase::class)->in('Feature');
+pest()->extend(Tests\TestCase::class)->in('php');
 
 /*
  |--------------------------------------------------------------------------
@@ -39,4 +39,15 @@ pest()->extend(Tests\TestCase::class)->in('Feature');
  |
  */
 
-// FUNCTIONS HERE...
+function jsonFixture(string $name): array
+{
+    return json_decode(file_get_contents(__DIR__ . "/fixtures/{$name}.json"), true);
+}
+
+/**
+ * @return int[]
+ */
+function protoFixture(string $name): array
+{
+    return array_values(unpack('C*', file_get_contents(__DIR__ . "/fixtures/{$name}.bin")));
+}
