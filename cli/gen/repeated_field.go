@@ -50,9 +50,6 @@ func (g *gen) genRepeatedFieldCode(field *descriptorpb.FieldDescriptorProto) err
 		g.w.Out()
 		g.w.Line("}")
 		g.w.Line(fmt.Sprintf("if ($i !== $_end) throw new \\Exception('Packed %s field over/under-read');", field.GetType().String()))
-		if err := g.genFieldValueAppend(field, fieldName); err != nil {
-			return err
-		}
 	} else if isMessage(field) {
 		g.w.Line(fmt.Sprintf("if ($wireType !== 2) throw new \\Exception(sprintf('Invalid wire type %%d for field %s', $wireType));", fieldName))
 		g.w.InlineReadVarint("_len")
