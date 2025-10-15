@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/LeTamanoir/Proteus/plugin/php"
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
 // inlineReadCode returns inline code for reading a specific protobuf type
-func (g *gen) inlineReadCode(fieldType descriptorpb.FieldDescriptorProto_Type, varName string) error {
-	switch fieldType {
+// inspired by gogoproto: https://github.com/cosmos/gogoproto/blob/main/plugin/unmarshal/unmarshal.go#L345
+func (g *gen) inlineReadCode(field *descriptorpb.FieldDescriptorProto, varName string) {
+	switch field.GetType() {
 	case descriptorpb.FieldDescriptorProto_TYPE_INT32:
 		g.w.InlineReadInt32(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_SINT32:
@@ -17,27 +19,36 @@ func (g *gen) inlineReadCode(fieldType descriptorpb.FieldDescriptorProto_Type, v
 	case descriptorpb.FieldDescriptorProto_TYPE_SINT64:
 		g.w.InlineReadSint64(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_UINT32,
-		descriptorpb.FieldDescriptorProto_TYPE_INT64,
-		descriptorpb.FieldDescriptorProto_TYPE_UINT64,
-		descriptorpb.FieldDescriptorProto_TYPE_BOOL:
+		descriptorpb.FieldDescriptorProto_TYPE_INT64:
 		g.w.InlineReadVarint(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_UINT64:
+		g.w.InlineReadUint64(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_BOOL:
+		g.w.InlineReadVarint(varName)
+		g.w.Line(fmt.Sprintf("$%s = $%s === 1;", varName, varName))
 	case descriptorpb.FieldDescriptorProto_TYPE_FIXED32,
 		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32:
 		g.w.InlineReadFixed32(varName)
-	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
-		descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
+	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64:
 		g.w.InlineReadFixed64(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
+		g.w.InlineReadSfixed64(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_FLOAT:
 		g.w.InlineReadFloat(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_DOUBLE:
 		g.w.InlineReadDouble(varName)
-	case descriptorpb.FieldDescriptorProto_TYPE_STRING,
-		descriptorpb.FieldDescriptorProto_TYPE_BYTES:
+	case descriptorpb.FieldDescriptorProto_TYPE_STRING:
+		g.w.InlineReadString(varName)
+	case descriptorpb.FieldDescriptorProto_TYPE_BYTES:
 		g.w.InlineReadBytes(varName)
-	default:
-		return fmt.Errorf("unknown inline read for type: %v", fieldType)
+	case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
+		g.w.InlineReadVarint("_len")
+		g.w.Line("$_msgLen = $i + $_len;")
+		g.w.Line("if ($_msgLen < 0 || $_msgLen > $l) throw new \\Exception('Invalid length');")
+		phpType := php.GetType(field)
+		g.w.Line(fmt.Sprintf("$%s = %s::decode(array_slice($bytes, $i, $_len));", varName, phpType))
+		g.w.Line("$i = $_msgLen;")
 	}
-	return nil
 }
 
 // getWireType returns the wire type for a field type

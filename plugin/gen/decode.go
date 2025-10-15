@@ -17,6 +17,7 @@ func (g *gen) genDecodeMethod(message *descriptorpb.DescriptorProto, file *descr
 	g.w.Line("{")
 	g.w.In()
 
+	g.w.Line("if (PHP_INT_SIZE !== 8) throw new \\Exception('" + message.GetName() + " message is only supported on 64-bit systems');")
 	g.w.Line("$d = new self();")
 	g.w.Line("$l = count($bytes);")
 	g.w.Line("$i = 0;")
@@ -24,6 +25,9 @@ func (g *gen) genDecodeMethod(message *descriptorpb.DescriptorProto, file *descr
 	g.w.Line("while ($i < $l) {")
 	g.w.In()
 
+	// Google uses uint32 in their CPP implem so it's fair
+	// to assume we can ignore the uint64 overflow here
+	// see https://stackoverflow.com/questions/57520857/maximum-field-number-in-protobuf-message
 	g.w.InlineReadVarint("wire")
 	g.w.Line("$fieldNum = $wire >> 3;")
 	g.w.Line("$wireType = $wire & 0x7;")
@@ -34,17 +38,15 @@ func (g *gen) genDecodeMethod(message *descriptorpb.DescriptorProto, file *descr
 		g.w.Line(fmt.Sprintf("case %d:", field.GetNumber()))
 		g.w.In()
 
-		var err error
 		switch {
 		case isMapField(field, file):
-			err = g.genMapFieldCode(field, file)
+			if err := g.genMapFieldCode(field, file); err != nil {
+				return err
+			}
 		case isRepeated(field):
-			err = g.genRepeatedFieldCode(field)
+			g.genRepeatedFieldCode(field)
 		default:
-			err = g.genRegularFieldCode(field)
-		}
-		if err != nil {
-			return err
+			g.genRegularFieldCode(field)
 		}
 
 		g.w.Line("break;")
