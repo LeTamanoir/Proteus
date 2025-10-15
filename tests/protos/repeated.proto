@@ -3,9 +3,9 @@ syntax = "proto3";
 package test.repeated;
 
 option php_namespace = "Tests\\PB";
-option go_package = "proteus/pb";
+option go_package = "tests/go/pb";
 
-import "imports.proto";
+import "tests/protos/imports.proto";
 
 message Organization {
     repeated imports.User users = 1;

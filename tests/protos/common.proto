@@ -3,7 +3,7 @@ syntax = "proto3";
 package test.common;
 
 option php_namespace = "Tests\\PB";
-option go_package = "proteus/pb";
+option go_package = "tests/go/pb";
 
 message Address {
   string street = 1;
