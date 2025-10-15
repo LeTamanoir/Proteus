@@ -1,25 +1,15 @@
 <?php
 
-use Tests\PB\Order;
+test('Decode Message', function (string $class, string $file) {
+    $json = jsonFixture($file);
+    $proto = protoFixture($file);
 
-function jsonFixture(string $name): array
-{
-    return json_decode(file_get_contents(__DIR__ . '/../fixtures/' . $name . '.json'), true);
-}
+    $data = $class::decode($proto);
 
-/**
- * @return int[]
- */
-function protoFixture(string $name): array
-{
-    return array_values(unpack('C*', file_get_contents(__DIR__ . '/../fixtures/' . $name . '.bin')));
-}
-
-test('test', function () {
-    $orderJson = jsonFixture('order');
-    $orderProto = protoFixture('order');
-
-    $order = Order::decode($orderProto);
-
-    dd($order);
-});
+    expect(json_encode($data, JSON_PRETTY_PRINT))->toBe(json_encode($json, JSON_PRETTY_PRINT));
+})->with([
+    [\Tests\PB\Address::class, 'Address'],
+    [\Tests\PB\Coordinates::class, 'Coordinates'],
+    [\Tests\PB\Money::class, 'Money'],
+    [\Tests\PB\Timestamp::class, 'Timestamp'],
+]);
