@@ -102,7 +102,7 @@ func Run(req *pluginpb.CodeGeneratorRequest) *pluginpb.CodeGeneratorResponse {
 			return resp
 		}
 
-		outputName := strings.TrimSuffix(fileName, ".proto") + ".php"
+		outputName := strings.TrimSuffix(fileName, ".proto") + ".pb.php"
 		outputName = filepath.Base(outputName)
 
 		resp.File = append(resp.File, &pluginpb.CodeGeneratorResponse_File{

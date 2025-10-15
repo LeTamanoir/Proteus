@@ -1,0 +1,360 @@
+syntax = "proto3";
+
+package test.comprehensive;
+
+import "common.proto";
+
+option php_namespace = "Tests\\PB";
+option go_package = "proteus/pb";
+
+// ============================================================================
+// SCALAR TYPES TEST
+// Tests all protobuf scalar types including signed variants and fixed-width
+// ============================================================================
+
+// Message containing all scalar types
+message AllScalarTypes {
+  // Variable-length integer types
+  int32 int32_field = 1;
+  int64 int64_field = 2;
+  uint32 uint32_field = 3;
+  uint64 uint64_field = 4;
+
+  // Signed integers with ZigZag encoding
+  sint32 sint32_field = 5;
+  sint64 sint64_field = 6;
+
+  // Fixed-width integer types (more efficient for large values)
+  fixed32 fixed32_field = 7;
+  fixed64 fixed64_field = 8;
+  sfixed32 sfixed32_field = 9;
+  sfixed64 sfixed64_field = 10;
+
+  // Floating point types
+  float float_field = 11;
+  double double_field = 12;
+
+  // Boolean type
+  bool bool_field = 13;
+
+  // String and bytes
+  string string_field = 14;
+  bytes bytes_field = 15;
+}
+
+// ============================================================================
+// REPEATED FIELDS TEST
+// Tests repeated fields which use packed encoding for scalars
+// ============================================================================
+
+// Message with repeated fields of various types
+message AllRepeatedTypes {
+  // Repeated integers (packed encoding)
+  repeated int32 int32_list = 1;
+  repeated int64 int64_list = 2;
+  repeated uint32 uint32_list = 3;
+  repeated uint64 uint64_list = 4;
+  repeated sint32 sint32_list = 5;
+  repeated sint64 sint64_list = 6;
+  repeated fixed32 fixed32_list = 7;
+  repeated fixed64 fixed64_list = 8;
+  repeated sfixed32 sfixed32_list = 9;
+  repeated sfixed64 sfixed64_list = 10;
+
+  // Repeated floating point (packed encoding)
+  repeated float float_list = 11;
+  repeated double double_list = 12;
+
+  // Repeated boolean (packed encoding)
+  repeated bool bool_list = 13;
+
+  // Repeated string and bytes (NOT packed - length-delimited)
+  repeated string string_list = 14;
+  repeated bytes bytes_list = 15;
+
+  // Repeated message type (NOT packed)
+  repeated test.common.Address address_list = 16;
+}
+
+// ============================================================================
+// MAP FIELDS TEST
+// Tests all valid map key types with various value types
+// ============================================================================
+
+// Message testing int32 keys with different value types
+message MapInt32Keys {
+  map<int32, string> int32_to_string = 1;
+  map<int32, int32> int32_to_int32 = 2;
+  map<int32, test.common.Money> int32_to_message = 3;
+}
+
+// Message testing int64 keys
+message MapInt64Keys {
+  map<int64, string> int64_to_string = 1;
+  map<int64, double> int64_to_double = 2;
+}
+
+// Message testing uint32/uint64 keys
+message MapUintKeys {
+  map<uint32, string> uint32_to_string = 1;
+  map<uint64, bytes> uint64_to_bytes = 2;
+}
+
+// Message testing sint32/sint64 keys
+message MapSintKeys {
+  map<sint32, int32> sint32_to_int32 = 1;
+  map<sint64, int64> sint64_to_int64 = 2;
+}
+
+// Message testing fixed-width keys
+message MapFixedKeys {
+  map<fixed32, string> fixed32_to_string = 1;
+  map<fixed64, string> fixed64_to_string = 2;
+  map<sfixed32, int32> sfixed32_to_int32 = 3;
+  map<sfixed64, int64> sfixed64_to_int64 = 4;
+}
+
+// Message testing bool and string keys
+message MapBoolStringKeys {
+  map<bool, string> bool_to_string = 1;
+  map<string, string> string_to_string = 2;
+  map<string, int32> string_to_int32 = 3;
+  map<string, test.common.Address> string_to_message = 4;
+}
+
+// ============================================================================
+// NESTED MESSAGES TEST
+// Tests deeply nested message structures
+// ============================================================================
+
+// Level 3 nested message
+message Level3 {
+  string value = 1;
+  int32 depth = 2;
+}
+
+// Level 2 nested message
+message Level2 {
+  string name = 1;
+  Level3 child = 2;
+  repeated Level3 children = 3;
+}
+
+// Level 1 nested message
+message Level1 {
+  string name = 1;
+  Level2 child = 2;
+  map<string, Level2> child_map = 3;
+}
+
+// Root message with nested structure
+message NestedStructure {
+  string root_name = 1;
+  Level1 child = 2;
+  repeated Level1 children = 3;
+}
+
+// ============================================================================
+// OPTIONAL FIELDS TEST
+// Tests proto3 optional fields (generates hasX() methods)
+// ============================================================================
+
+// Message with optional fields
+message OptionalFieldsTest {
+  // Regular field (no has method)
+  int32 regular_int32 = 1;
+
+  // Optional fields (generates has methods)
+  optional int32 optional_int32 = 2;
+  optional string optional_string = 3;
+  optional bool optional_bool = 4;
+  optional double optional_double = 5;
+  optional test.common.Address optional_message = 6;
+}
+
+// ============================================================================
+// IMPORT TEST
+// Tests using imported types from common.proto
+// ============================================================================
+
+// Person with address and financial info
+message Person {
+  string name = 1;
+  int32 age = 2;
+  test.common.Address home_address = 3;
+  test.common.Address work_address = 4;
+  repeated test.common.Money accounts = 5;
+  test.common.Timestamp created_at = 6;
+  test.common.Coordinates location = 7;
+}
+
+// ============================================================================
+// EDGE CASES TEST
+// Tests edge cases like zero values, negative numbers, max values
+// ============================================================================
+
+// Edge case values
+message EdgeCases {
+  // Zero values
+  int32 zero_int32 = 1;
+  string empty_string = 2;
+  bytes empty_bytes = 3;
+
+  // Negative numbers (using sint for efficient encoding)
+  sint32 negative_sint32 = 4;
+  sint64 negative_sint64 = 5;
+
+  // Maximum values
+  int32 max_int32 = 6;        // 2147483647
+  int64 max_int64 = 7;        // 9223372036854775807
+  uint32 max_uint32 = 8;      // 4294967295
+  uint64 max_uint64 = 9;      // 18446744073709551615 (as string in PHP)
+
+  // Minimum values
+  int32 min_int32 = 10;       // -2147483648
+  int64 min_int64 = 11;       // -9223372036854775808
+
+  // Special floating point values
+  float float_zero = 12;
+  float float_infinity = 13;
+  float float_neg_infinity = 14;
+  double double_max = 15;
+  double double_min = 16;
+
+  // Unicode strings
+  string unicode_string = 17;     // Test emojis, chinese, etc
+  string multiline_string = 18;   // String with \n
+
+  // Large bytes field
+  bytes large_bytes = 19;
+}
+
+// ============================================================================
+// RESERVED WORDS TEST
+// Tests PHP reserved word handling (should append underscore)
+// ============================================================================
+
+// Message named with reserved word
+message Empty_ {
+  string content = 1;
+}
+
+// Message with field names that are reserved words
+message ReservedFieldNames {
+  string class_ = 1;      // PHP reserved: class
+  string function_ = 2;   // PHP reserved: function
+  int32 int_ = 3;         // PHP reserved: int
+  string string_ = 4;     // PHP reserved: string
+  bool bool_ = 5;         // PHP reserved: bool
+  string exception_ = 6;  // PHP class: Exception
+}
+
+// ============================================================================
+// STRESS TEST
+// Large message with many fields for performance testing
+// ============================================================================
+
+// Message with many fields for stress testing
+message StressTest {
+  // 50 string fields
+  string field_001 = 1;
+  string field_002 = 2;
+  string field_003 = 3;
+  string field_004 = 4;
+  string field_005 = 5;
+  string field_006 = 6;
+  string field_007 = 7;
+  string field_008 = 8;
+  string field_009 = 9;
+  string field_010 = 10;
+  string field_011 = 11;
+  string field_012 = 12;
+  string field_013 = 13;
+  string field_014 = 14;
+  string field_015 = 15;
+  string field_016 = 16;
+  string field_017 = 17;
+  string field_018 = 18;
+  string field_019 = 19;
+  string field_020 = 20;
+  string field_021 = 21;
+  string field_022 = 22;
+  string field_023 = 23;
+  string field_024 = 24;
+  string field_025 = 25;
+  string field_026 = 26;
+  string field_027 = 27;
+  string field_028 = 28;
+  string field_029 = 29;
+  string field_030 = 30;
+  string field_031 = 31;
+  string field_032 = 32;
+  string field_033 = 33;
+  string field_034 = 34;
+  string field_035 = 35;
+  string field_036 = 36;
+  string field_037 = 37;
+  string field_038 = 38;
+  string field_039 = 39;
+  string field_040 = 40;
+  string field_041 = 41;
+  string field_042 = 42;
+  string field_043 = 43;
+  string field_044 = 44;
+  string field_045 = 45;
+  string field_046 = 46;
+  string field_047 = 47;
+  string field_048 = 48;
+  string field_049 = 49;
+  string field_050 = 50;
+
+  // Mix of different types
+  repeated int32 int_list = 51;
+  map<string, string> metadata = 52;
+  test.common.Address address = 53;
+  repeated test.common.Money transactions = 54;
+}
+
+// ============================================================================
+// REAL WORLD EXAMPLE
+// Realistic message combining multiple features
+// ============================================================================
+
+// Order item
+message OrderItem {
+  string product_id = 1;
+  string product_name = 2;
+  int32 quantity = 3;
+  test.common.Money unit_price = 4;
+  test.common.Money total_price = 5;
+  map<string, string> attributes = 6;  // color, size, etc
+}
+
+// Customer order (realistic use case)
+// Note: status as int32 (0=unspecified, 1=pending, 2=confirmed, 3=shipped, 4=delivered, 5=cancelled)
+// Enums not yet supported by Proteus
+message Order {
+  string order_id = 1;
+  string customer_id = 2;
+  int32 status = 3;  // Order status code
+  test.common.Timestamp created_at = 4;
+  optional test.common.Timestamp updated_at = 5;
+  optional test.common.Timestamp delivered_at = 6;
+
+  // Items
+  repeated OrderItem items = 7;
+
+  // Addresses
+  test.common.Address shipping_address = 8;
+  optional test.common.Address billing_address = 9;  // may be same as shipping
+
+  // Pricing
+  test.common.Money subtotal = 10;
+  test.common.Money tax = 11;
+  test.common.Money shipping_cost = 12;
+  test.common.Money total = 13;
+
+  // Metadata
+  map<string, string> metadata = 14;
+  string notes = 15;
+}

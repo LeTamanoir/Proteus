@@ -22,6 +22,8 @@ test:
 # build-cli-image:
 # docker build -t proteus-cli -f cli/Dockerfile .
 
-# Generate PHP classes from proto files
+# Generate PHP & Go classes from proto files for tests
 proto-gen:
-    protoc --plugin=./cli/bin/protoc-gen-php-proteus --php-proteus_out=./tests/generated ./tests/protos/*
+    mkdir -p ./tests/generated
+    protoc --plugin=./cli/bin/protoc-gen-php-proteus --php-proteus_out=./tests/php/pb --proto_path=./tests/protos ./tests/protos/*
+    protoc --go_out=./tests/go/pb --go_opt=paths=source_relative --proto_path=./tests/protos ./tests/protos/*
