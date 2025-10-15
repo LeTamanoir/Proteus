@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package benchmark.proteus;
+
+option php_namespace = "Tests\\PB\\benchmark\\proteus";
+option go_package = "tests/go/pb/benchmark";
+
+message Address {
+    string street = 1;
+    string city = 2;
+    string state = 3;
+    string zip_code = 4;
+    string country = 5;
+}
+
+message Bench {
+    map<string, Address> map_addresses = 1;
+    repeated Address repeated_addresses = 2;
+}
