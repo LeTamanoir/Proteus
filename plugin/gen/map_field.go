@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"plugin/php"
+	"github.com/LeTamanoir/Proteus/plugin/php"
 
 	"google.golang.org/protobuf/types/descriptorpb"
 )

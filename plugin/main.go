@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"plugin/gen"
+	"github.com/LeTamanoir/Proteus/plugin/gen"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/pluginpb"

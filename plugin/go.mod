@@ -1,4 +1,4 @@
-module plugin
+module github.com/LeTamanoir/Proteus/plugin
 
 go 1.25.2
 
