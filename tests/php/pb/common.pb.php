@@ -61,6 +61,7 @@ class Address
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
                     $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $i = $_postIndex;
                     $d->street = $_value;
                     break;
                 case 2:
@@ -77,6 +78,7 @@ class Address
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
                     $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $i = $_postIndex;
                     $d->city = $_value;
                     break;
                 case 3:
@@ -93,6 +95,7 @@ class Address
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
                     $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $i = $_postIndex;
                     $d->state = $_value;
                     break;
                 case 4:
@@ -109,6 +112,7 @@ class Address
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
                     $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $i = $_postIndex;
                     $d->zip_code = $_value;
                     break;
                 case 5:
@@ -125,6 +129,7 @@ class Address
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
                     $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $i = $_postIndex;
                     $d->country = $_value;
                     break;
                 default:
@@ -252,6 +257,7 @@ class Money
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
                     $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $i = $_postIndex;
                     $d->currency_code = $_value;
                     break;
                 case 2:
