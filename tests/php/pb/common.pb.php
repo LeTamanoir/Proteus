@@ -202,9 +202,6 @@ class Timestamp
 
 class Money
 {
-    /**
-     * ISO 4217 currency code
-     */
     public string $currency_code = '';
 
     public int $units = 0;

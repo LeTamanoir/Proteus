@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Tests\PB;
 
+use Tests\PB\Coordinates;
 use Tests\PB\Address;
 use Tests\PB\Timestamp;
 use Tests\PB\Money;
-use Tests\PB\Coordinates;
 
 class User
 {
