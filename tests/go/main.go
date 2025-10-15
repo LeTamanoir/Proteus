@@ -1,6 +1,8 @@
 package main
 
 import (
+	"proteus/tester/gen"
+
 	"github.com/brianvoe/gofakeit/v7"
 	"google.golang.org/protobuf/proto"
 
@@ -13,13 +15,16 @@ func main() {
 
 	fixturesDir := "../fixtures"
 
-	var generators = []func(dir string) proto.Message{
-		generateAddress,
+	var generators = []func() proto.Message{
+		gen.Address,
+		gen.Coordinates,
+		gen.Money,
+		gen.Timestamp,
 	}
 
-	for _, gen := range generators {
-		msg := gen(fixturesDir)
-		if err := writeMessageWithJSON(fixturesDir, string(msg.ProtoReflect().Descriptor().Name()), msg); err != nil {
+	for _, g := range generators {
+		msg := g()
+		if err := gen.WriteMessageWithJSON(fixturesDir, string(msg.ProtoReflect().Descriptor().Name()), msg); err != nil {
 			log.Fatalf("Failed to write message: %v", err)
 		}
 	}
