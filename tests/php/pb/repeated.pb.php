@@ -11,6 +11,14 @@ namespace Tests\PB;
 
 use Tests\PB\User;
 
+if (PHP_INT_SIZE !== 8) {
+    trigger_error('This message is only supported on 64-bit systems', E_USER_WARNING);
+}
+
+if (!extension_loaded('gmp')) {
+    trigger_error('The gmp extension must be loaded in order to decode this message', E_USER_WARNING);
+}
+
 class Organization
 {
     /** @var User[] */
@@ -58,10 +66,10 @@ class Organization
                         $_len |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    $_postIndex = $i + $_len;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
+                    $_msgLen = $i + $_len;
+                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
                     $d->users[] = User::decode(array_slice($bytes, $i, $_len));
-                    $i = $_postIndex;
+                    $i = $_msgLen;
                     break;
                 case 2:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field emails', $wireType));
@@ -76,7 +84,7 @@ class Organization
                     if ($_byteLen < 0) throw new \Exception('Invalid length');
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $_value = pack('C*', ...array_slice($bytes, $i, $_byteLen));
                     $i = $_postIndex;
                     $d->emails[] = $_value;
                     break;
@@ -118,17 +126,16 @@ class Organization
                     }
                     $_end = $i + $_len;
                     while ($i < $_end) {
-                        $_u = 0;
+                        $_value = 0;
                         for ($_shift = 0;; $_shift += 7) {
                             if ($_shift >= 64) throw new \Exception('Int overflow');
                             if ($i >= $l) throw new \Exception('Unexpected EOF');
                             $_b = $bytes[$i++];
-                            $_u |= ($_b & 0x7F) << $_shift;
+                            $_value |= ($_b & 0x7F) << $_shift;
                             if ($_b < 0x80) break;
                         }
-                        $_value = $_u;
-                        if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
-                        $d->is_admin[] = $_value === 1;
+                        $_value = $_value === 1;
+                        $d->is_admin[] = $_value;
                     }
                     if ($i !== $_end) throw new \Exception('Packed TYPE_BOOL field over/under-read');
                     break;

@@ -41,7 +41,7 @@ pest()->extend(Tests\TestCase::class)->in('php');
 
 function jsonFixture(string $name): array
 {
-    return json_decode(file_get_contents(__DIR__ . "/fixtures/{$name}.json"), true);
+    return json_decode(file_get_contents(__DIR__ . "/fixtures/{$name}.json"), true, 512, JSON_BIGINT_AS_STRING);
 }
 
 /**

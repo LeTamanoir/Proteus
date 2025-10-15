@@ -59,6 +59,20 @@ Proto file: %s`, file.GetName()))
 		g.w.Newline()
 	}
 
+	g.w.Line("if (PHP_INT_SIZE !== 8) {")
+	g.w.In()
+	g.w.Line("trigger_error('This message is only supported on 64-bit systems', E_USER_WARNING);")
+	g.w.Out()
+	g.w.Line("}")
+	g.w.Newline()
+
+	g.w.Line("if (!extension_loaded('gmp')) {")
+	g.w.In()
+	g.w.Line("trigger_error('The gmp extension must be loaded in order to decode this message', E_USER_WARNING);")
+	g.w.Out()
+	g.w.Line("}")
+	g.w.Newline()
+
 	// Generate all messages
 	for messageIndex, message := range file.GetMessageType() {
 		// Skip map entry messages (they are internal representations)

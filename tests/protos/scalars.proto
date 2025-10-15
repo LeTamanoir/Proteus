@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package test.repeated;
+
+option php_namespace = "Tests\\PB";
+option go_package = "proteus/pb";
+
+// see https://protobuf.dev/programming-guides/proto3/#scalar
+message Scalars {
+    // Uses IEEE 754 double-precision format.
+    double double = 1; 
+    
+    // Uses IEEE 754 single-precision format.
+    // see Known issues in README.md
+    // float float = 2; 
+
+    // Uses variable-length encoding. Inefficient for encoding negative numbers - if your field is likely to have negative values, use sint32 instead.
+    int32 int32 = 3; 
+    // Uses variable-length encoding. Inefficient for encoding negative numbers - if your field is likely to have negative values, use sint64 instead.
+    int64 int64 = 4;
+    // Uses variable-length encoding.
+    uint32 uint32 = 5; 
+    // Uses variable-length encoding.
+    uint64 uint64 = 6; 
+    // Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.
+    sint32 sint32 = 7; 
+    // Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.
+    sint64 sint64 = 8; 
+    // Always four bytes. More efficient than uint32 if values are often greater than 228.
+    fixed32 fixed32 = 9;
+    // Always eight bytes. More efficient than uint64 if values are often greater than 256.
+    fixed64 fixed64 = 10;
+    // Always four bytes.
+    sfixed32 sfixed32 = 11;
+    // Always eight bytes.
+    sfixed64 sfixed64 = 12;
+    bool bool = 13; 
+    // A string must always contain UTF-8 encoded or 7-bit ASCII text, and cannot be longer than 232.
+    string string = 14;
+    // May contain any arbitrary sequence of bytes no longer than 232.
+    bytes bytes = 15;
+}

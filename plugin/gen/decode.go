@@ -17,7 +17,6 @@ func (g *gen) genDecodeMethod(message *descriptorpb.DescriptorProto, file *descr
 	g.w.Line("{")
 	g.w.In()
 
-	g.w.Line("if (PHP_INT_SIZE !== 8) throw new \\Exception('" + message.GetName() + " message is only supported on 64-bit systems');")
 	g.w.Line("$d = new self();")
 	g.w.Line("$l = count($bytes);")
 	g.w.Line("$i = 0;")
