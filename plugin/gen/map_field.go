@@ -56,59 +56,17 @@ func (g *gen) genMapFieldCode(field *descriptorpb.FieldDescriptorProto, file *de
 	g.w.In()
 	g.w.Line("case 1:")
 	g.w.In()
-	keyWireType, err := getWireType(keyField.GetType())
-	if err != nil {
-		return err
-	}
+	keyWireType := getWireType(keyField.GetType())
 	g.w.Line(fmt.Sprintf("if ($_wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s key', $_wireType));", keyWireType, fieldName))
 
-	if keyField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BOOL {
-		if e := g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_keyValue"); e != nil {
-			return e
-		}
-		g.w.Line("$_key = $_keyValue === 1;")
-	} else if keyField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_UINT64 {
-		if e := g.inlineReadCode(keyField.GetType(), "_keyTemp"); e != nil {
-			return e
-		}
-		g.w.Line("$_key = (string) $_keyTemp;")
-	} else {
-		if e := g.inlineReadCode(keyField.GetType(), "_key"); e != nil {
-			return e
-		}
-	}
+	g.inlineReadCode(keyField, "_key")
 	g.w.Line("break;")
 	g.w.Out()
 	g.w.Line("case 2:")
 	g.w.In()
-	valueWireType, err := getWireType(valueField.GetType())
-	if err != nil {
-		return err
-	}
+	valueWireType := getWireType(valueField.GetType())
 	g.w.Line(fmt.Sprintf("if ($_wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s value', $_wireType));", valueWireType, fieldName))
-
-	if isMessage(valueField) {
-		g.w.InlineReadVarint("_msgLen")
-		g.w.Line("$_msgEnd = $i + $_msgLen;")
-		g.w.Line("if ($_msgEnd < 0 || $_msgEnd > $l) throw new \\Exception('Invalid length');")
-		valueType := php.GetType(valueField)
-		g.w.Line(fmt.Sprintf("$_val = %s::decode(array_slice($bytes, $i, $_msgLen));", valueType))
-		g.w.Line("$i = $_msgEnd;")
-	} else if valueField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_UINT64 {
-		if e := g.inlineReadCode(valueField.GetType(), "_valTemp"); e != nil {
-			return e
-		}
-		g.w.Line("$_val = (string) $_valTemp;")
-	} else if valueField.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BOOL {
-		if e := g.inlineReadCode(descriptorpb.FieldDescriptorProto_TYPE_INT32, "_valTemp"); e != nil {
-			return e
-		}
-		g.w.Line("$_val = $_valTemp === 1;")
-	} else {
-		if e := g.inlineReadCode(valueField.GetType(), "_val"); e != nil {
-			return e
-		}
-	}
+	g.inlineReadCode(valueField, "_val")
 	g.w.Line("break;")
 	g.w.Out()
 	g.w.Line("default:")

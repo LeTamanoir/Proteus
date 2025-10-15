@@ -11,53 +11,42 @@ func TestGetWireType(t *testing.T) {
 		name      string
 		fieldType descriptorpb.FieldDescriptorProto_Type
 		want      int
-		wantErr   bool
 	}{
 		{
 			name:      "int32 is varint (0)",
 			fieldType: descriptorpb.FieldDescriptorProto_TYPE_INT32,
 			want:      0,
-			wantErr:   false,
 		},
 		{
 			name:      "fixed64 is 64-bit (1)",
 			fieldType: descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
 			want:      1,
-			wantErr:   false,
 		},
 		{
 			name:      "string is length-delimited (2)",
 			fieldType: descriptorpb.FieldDescriptorProto_TYPE_STRING,
 			want:      2,
-			wantErr:   false,
 		},
 		{
 			name:      "message is length-delimited (2)",
 			fieldType: descriptorpb.FieldDescriptorProto_TYPE_MESSAGE,
 			want:      2,
-			wantErr:   false,
 		},
 		{
 			name:      "fixed32 is 32-bit (5)",
 			fieldType: descriptorpb.FieldDescriptorProto_TYPE_FIXED32,
 			want:      5,
-			wantErr:   false,
 		},
 		{
 			name:      "bool is varint (0)",
 			fieldType: descriptorpb.FieldDescriptorProto_TYPE_BOOL,
 			want:      0,
-			wantErr:   false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getWireType(tt.fieldType)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("getWireType() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			got := getWireType(tt.fieldType)
 			if got != tt.want {
 				t.Errorf("getWireType(%v) = %d, want %d", tt.fieldType, got, tt.want)
 			}

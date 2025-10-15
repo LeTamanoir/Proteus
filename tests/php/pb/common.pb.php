@@ -9,6 +9,14 @@ declare(strict_types=1);
 
 namespace Tests\PB;
 
+if (PHP_INT_SIZE !== 8) {
+    trigger_error('This message is only supported on 64-bit systems', E_USER_WARNING);
+}
+
+if (!extension_loaded('gmp')) {
+    trigger_error('The gmp extension must be loaded in order to decode this message', E_USER_WARNING);
+}
+
 class Address
 {
     public string $street = '';
@@ -57,7 +65,7 @@ class Address
                     if ($_byteLen < 0) throw new \Exception('Invalid length');
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $_value = pack('C*', ...array_slice($bytes, $i, $_byteLen));
                     $i = $_postIndex;
                     $d->street = $_value;
                     break;
@@ -74,7 +82,7 @@ class Address
                     if ($_byteLen < 0) throw new \Exception('Invalid length');
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $_value = pack('C*', ...array_slice($bytes, $i, $_byteLen));
                     $i = $_postIndex;
                     $d->city = $_value;
                     break;
@@ -91,7 +99,7 @@ class Address
                     if ($_byteLen < 0) throw new \Exception('Invalid length');
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $_value = pack('C*', ...array_slice($bytes, $i, $_byteLen));
                     $i = $_postIndex;
                     $d->state = $_value;
                     break;
@@ -108,7 +116,7 @@ class Address
                     if ($_byteLen < 0) throw new \Exception('Invalid length');
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $_value = pack('C*', ...array_slice($bytes, $i, $_byteLen));
                     $i = $_postIndex;
                     $d->zip_code = $_value;
                     break;
@@ -125,7 +133,7 @@ class Address
                     if ($_byteLen < 0) throw new \Exception('Invalid length');
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $_value = pack('C*', ...array_slice($bytes, $i, $_byteLen));
                     $i = $_postIndex;
                     $d->country = $_value;
                     break;
@@ -244,7 +252,7 @@ class Money
                     if ($_byteLen < 0) throw new \Exception('Invalid length');
                     $_postIndex = $i + $_byteLen;
                     if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = implode('', array_map('chr', array_slice($bytes, $i, $_byteLen)));
+                    $_value = pack('C*', ...array_slice($bytes, $i, $_byteLen));
                     $i = $_postIndex;
                     $d->currency_code = $_value;
                     break;
@@ -316,7 +324,6 @@ class Coordinates
                     if ($i + 8 > $l) throw new \Exception('Unexpected EOF');
                     $_b = array_slice($bytes, $i, 8);
                     $i += 8;
-                    if (\Proteus\isBigEndian()) $_b = array_reverse($_b);
                     $_value = unpack('d', pack('C*', ...$_b))[1];
                     $d->latitude = $_value;
                     break;
@@ -325,7 +332,6 @@ class Coordinates
                     if ($i + 8 > $l) throw new \Exception('Unexpected EOF');
                     $_b = array_slice($bytes, $i, 8);
                     $i += 8;
-                    if (\Proteus\isBigEndian()) $_b = array_reverse($_b);
                     $_value = unpack('d', pack('C*', ...$_b))[1];
                     $d->longitude = $_value;
                     break;

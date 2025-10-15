@@ -14,6 +14,14 @@ use Tests\PB\Timestamp;
 use Tests\PB\Money;
 use Tests\PB\Coordinates;
 
+if (PHP_INT_SIZE !== 8) {
+    trigger_error('This message is only supported on 64-bit systems', E_USER_WARNING);
+}
+
+if (!extension_loaded('gmp')) {
+    trigger_error('The gmp extension must be loaded in order to decode this message', E_USER_WARNING);
+}
+
 class User
 {
     public Address|null $address = null;
@@ -57,10 +65,11 @@ class User
                         $_len |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    $_postIndex = $i + $_len;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $d->address = Address::decode(array_slice($bytes, $i, $_len));
-                    $i = $_postIndex;
+                    $_msgLen = $i + $_len;
+                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
+                    $_value = Address::decode(array_slice($bytes, $i, $_len));
+                    $i = $_msgLen;
+                    $d->address = $_value;
                     break;
                 case 2:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field created_at', $wireType));
@@ -72,10 +81,11 @@ class User
                         $_len |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    $_postIndex = $i + $_len;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $d->created_at = Timestamp::decode(array_slice($bytes, $i, $_len));
-                    $i = $_postIndex;
+                    $_msgLen = $i + $_len;
+                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
+                    $_value = Timestamp::decode(array_slice($bytes, $i, $_len));
+                    $i = $_msgLen;
+                    $d->created_at = $_value;
                     break;
                 case 3:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field balance', $wireType));
@@ -87,10 +97,11 @@ class User
                         $_len |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    $_postIndex = $i + $_len;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $d->balance = Money::decode(array_slice($bytes, $i, $_len));
-                    $i = $_postIndex;
+                    $_msgLen = $i + $_len;
+                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
+                    $_value = Money::decode(array_slice($bytes, $i, $_len));
+                    $i = $_msgLen;
+                    $d->balance = $_value;
                     break;
                 case 4:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field coordinates', $wireType));
@@ -102,10 +113,11 @@ class User
                         $_len |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    $_postIndex = $i + $_len;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $d->coordinates = Coordinates::decode(array_slice($bytes, $i, $_len));
-                    $i = $_postIndex;
+                    $_msgLen = $i + $_len;
+                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
+                    $_value = Coordinates::decode(array_slice($bytes, $i, $_len));
+                    $i = $_msgLen;
+                    $d->coordinates = $_value;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);
