@@ -1,0 +1,84 @@
+{
+   "int32_bool": {
+      "2147483647": true
+   },
+   "int64_bool": {
+      "9223372036854775807": false
+   },
+   "uint32_bool": {
+      "4294967295": true
+   },
+   "uint64_bool": {
+      "18446744073709551615": true
+   },
+   "sint32_bool": {
+      "2147483647": true
+   },
+   "sint64_bool": {
+      "9223372036854775807": true
+   },
+   "fixed32_bool": {
+      "4294967295": false
+   },
+   "fixed64_bool": {
+      "18446744073709551615": false
+   },
+   "sfixed32_bool": {
+      "2147483647": true
+   },
+   "sfixed64_bool": {
+      "9223372036854775807": true
+   },
+   "string_bool": {
+      "Here irritably his onto would none yearly each from upon.": false
+   },
+   "string_address": {
+      "Hourly archipelago slavery inexpensive how a talent how ourselves because.": {
+         "street": "3448 South Plazafort",
+         "city": "Bakersfield",
+         "state": "AE",
+         "zip_code": "92344",
+         "country": "USA"
+      }
+   },
+   "string_repeated": {
+      "Day what finally at dynasty then road cluster with one.": {
+         "addresses": [
+            {
+               "street": "434 Centersland",
+               "city": "Sacramento",
+               "state": "NC",
+               "zip_code": "50318",
+               "country": "USA"
+            },
+            {
+               "street": "91057 East Isleberg",
+               "city": "St. Paul",
+               "state": "GA",
+               "zip_code": "80886",
+               "country": "USA"
+            },
+            {
+               "street": "6411 West Fordhaven",
+               "city": "Oklahoma",
+               "state": "WA",
+               "zip_code": "79266",
+               "country": "USA"
+            }
+         ]
+      }
+   },
+   "string_nested_map": {
+      "Its her army finally yours wiggle which yearly whom himself.": {
+         "string_address": {
+            "Always his where always under riches weight accordingly week has.": {
+               "street": "942 Keytown",
+               "city": "Jersey",
+               "state": "IA",
+               "zip_code": "57465",
+               "country": "USA"
+            }
+         }
+      }
+   }
+}
