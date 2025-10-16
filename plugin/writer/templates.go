@@ -6,16 +6,15 @@ import (
 
 // inlineReadVarint generates inline code for reading a varint
 func (w *Writer) InlineReadVarint(varName string) {
-	w.Line(fmt.Sprintf("%s = 0;", varName))
-	w.Line("for ($_shift = 0;; $_shift += 7) {")
-	w.In()
-	w.Line("if ($_shift >= 64) throw new \\Exception('Int overflow');")
-	w.Line("if ($i >= $l) throw new \\Exception('Unexpected EOF');")
 	w.Line("$_b = ord($bytes[$i++]);")
-	w.Line(fmt.Sprintf("%s |= ($_b & 0x7F) << $_shift;", varName))
-	w.Line("if ($_b < 0x80) break;")
+	w.Line(fmt.Sprintf("%s = $_b & 0x7F;", varName))
+	w.Line("for ($_s = 7; $_b >= 0x80; $_s += 7) {")
+	w.In()
+	w.Line("$_b = ord($bytes[$i++]);")
+	w.Line(fmt.Sprintf("%s |= ($_b & 0x7F) << $_s;", varName))
 	w.Out()
 	w.Line("}")
+	w.Line("if ($i > $l) throw new \\Exception('Unexpected EOF');")
 }
 
 // inlineReadVarintGmp generates inline code for reading a varint using GMP to prevent overflow
@@ -23,7 +22,6 @@ func (w *Writer) InlineReadVarintGmp(varName string) {
 	w.Line(fmt.Sprintf("%s = gmp_init(0);", varName))
 	w.Line("for ($_shift = 0;; $_shift += 7) {")
 	w.In()
-	w.Line("if ($_shift >= 64) throw new \\Exception('Int overflow');")
 	w.Line("if ($i >= $l) throw new \\Exception('Unexpected EOF');")
 	w.Line("$_b = gmp_init(ord($bytes[$i++]));")
 	w.Line(fmt.Sprintf("%s = gmp_or(%s, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_shift)));", varName, varName))
