@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package test.repeated;
 
-option php_namespace = "Tests\\PB";
+option php_namespace = "Tests\\php\\pb\\Repeated";
 option go_package = "tests/go/pb";
 
 import "tests/protos/imports.proto";

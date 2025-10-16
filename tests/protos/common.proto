@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package test.common;
 
-option php_namespace = "Tests\\PB";
+option php_namespace = "Tests\\php\\pb\\Common";
 option go_package = "tests/go/pb";
 
 message Address {
