@@ -8,19 +8,22 @@ import (
 
 // genDecodeMethod generates the decode method for a message
 func (g *gen) genDecodeMethod(message *descriptorpb.DescriptorProto, file *descriptorpb.FileDescriptorProto) error {
-	g.w.Docblock(fmt.Sprintf(`Decodes a %s message from binary protobuf format
-@param  int[] $bytes Binary protobuf data
-@return self  The decoded message instance
-@throws Exception if the data is malformed or contains invalid wire types`, message.GetName()))
+	g.w.Docblock(`@throws \Exception if the data is malformed or contains invalid wire types`)
 
-	g.w.Line("public static function decode(array $bytes): self")
+	g.w.Line("public static function decode(string $bytes): self")
 	g.w.Line("{")
 	g.w.In()
+	g.w.Line("return self::__decode($bytes, 0, strlen($bytes));")
+	g.w.Out()
+	g.w.Line("}")
+	g.w.Newline()
 
+	g.w.Docblock(`@throws \Exception if the data is malformed or contains invalid wire types`)
+
+	g.w.Line("public static function __decode(string $bytes, int $i, int $l): self")
+	g.w.Line("{")
+	g.w.In()
 	g.w.Line("$d = new self();")
-	g.w.Line("$l = count($bytes);")
-	g.w.Line("$i = 0;")
-
 	g.w.Line("while ($i < $l) {")
 	g.w.In()
 

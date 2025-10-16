@@ -31,7 +31,7 @@ func (g *gen) genRepeatedFieldCode(field *descriptorpb.FieldDescriptorProto) {
 		g.w.Line("$_msgLen = $i + $_len;")
 		g.w.Line("if ($_msgLen < 0 || $_msgLen > $l) throw new \\Exception('Invalid length');")
 		phpType := php.GetType(field)
-		g.w.Line(fmt.Sprintf("$d->%s[] = %s::decode(array_slice($bytes, $i, $_len));", fieldName, phpType))
+		g.w.Line(fmt.Sprintf("$d->%s[] = %s::__decode($bytes, $i, $_msgLen);", fieldName, phpType))
 		g.w.Line("$i = $_msgLen;")
 	} else if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_STRING || field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BYTES {
 		g.w.Line(fmt.Sprintf("if ($wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s', $wireType));", expectedWireType, fieldName))

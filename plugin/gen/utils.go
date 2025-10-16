@@ -46,7 +46,7 @@ func (g *gen) inlineReadCode(field *descriptorpb.FieldDescriptorProto, varName s
 		g.w.Line("$_msgLen = $i + $_len;")
 		g.w.Line("if ($_msgLen < 0 || $_msgLen > $l) throw new \\Exception('Invalid length');")
 		phpType := php.GetType(field)
-		g.w.Line(fmt.Sprintf("$%s = %s::decode(array_slice($bytes, $i, $_len));", varName, phpType))
+		g.w.Line(fmt.Sprintf("$%s = %s::__decode($bytes, $i, $_msgLen);", varName, phpType))
 		g.w.Line("$i = $_msgLen;")
 	}
 }

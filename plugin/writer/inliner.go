@@ -9,7 +9,7 @@ func (w *Writer) InlineReadVarint(varName string) {
 	w.In()
 	w.Line("if ($_shift >= 64) throw new \\Exception('Int overflow');")
 	w.Line("if ($i >= $l) throw new \\Exception('Unexpected EOF');")
-	w.Line("$_b = $bytes[$i++];")
+	w.Line("$_b = ord($bytes[$i++]);")
 	w.Line(fmt.Sprintf("$%s |= ($_b & 0x7F) << $_shift;", varName))
 	w.Line("if ($_b < 0x80) break;")
 	w.Out()
@@ -23,7 +23,7 @@ func (w *Writer) InlineReadVarintGmp(varName string) {
 	w.In()
 	w.Line("if ($_shift >= 64) throw new \\Exception('Int overflow');")
 	w.Line("if ($i >= $l) throw new \\Exception('Unexpected EOF');")
-	w.Line("$_b = gmp_init($bytes[$i++]);")
+	w.Line("$_b = gmp_init(ord($bytes[$i++]));")
 	w.Line(fmt.Sprintf("$%s = gmp_or($%s, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_shift)));", varName, varName))
 	w.Line("if ($_b < 0x80) break;")
 	w.Out()
@@ -62,38 +62,36 @@ func (w *Writer) InlineReadUint64(varName string) {
 // InlineReadFixed32 generates inline code for reading fixed32
 func (w *Writer) InlineReadFixed32(varName string) {
 	w.Line("if ($i + 4 > $l) throw new \\Exception('Unexpected EOF');")
-	w.Line(fmt.Sprintf("$%s = unpack('V', pack('C*', ...array_slice($bytes, $i, 4)))[1];", varName))
+	w.Line(fmt.Sprintf("$%s = unpack('V', substr($bytes, $i, 4))[1];", varName))
 	w.Line("$i += 4;")
 }
 
 // InlineReadFixed64 generates inline code for reading fixed64
 func (w *Writer) InlineReadFixed64(varName string) {
 	w.Line("if ($i + 8 > $l) throw new \\Exception('Unexpected EOF');")
-	w.Line(fmt.Sprintf("$%s = gmp_strval(gmp_import(pack('C*', ...array_slice($bytes, $i, 8)), GMP_BIG_ENDIAN));", varName))
+	w.Line(fmt.Sprintf("$%s = gmp_strval(gmp_import(substr($bytes, $i, 8), GMP_BIG_ENDIAN));", varName))
 	w.Line("$i += 8;")
 }
 
 // InlineReadSfixed64 generates inline code for reading sfixed64
 func (w *Writer) InlineReadSfixed64(varName string) {
 	w.Line("if ($i + 8 > $l) throw new \\Exception('Unexpected EOF');")
-	w.Line(fmt.Sprintf("$%s = unpack('q', pack('C*', ...array_slice($bytes, $i, 8)))[1];", varName))
+	w.Line(fmt.Sprintf("$%s = unpack('q', substr($bytes, $i, 8))[1];", varName))
 	w.Line("$i += 8;")
 }
 
 // InlineReadFloat generates inline code for reading float
 func (w *Writer) InlineReadFloat(varName string) {
 	w.Line("if ($i + 4 > $l) throw new \\Exception('Unexpected EOF');")
-	w.Line("$_b = array_slice($bytes, $i, 4);")
+	w.Line(fmt.Sprintf("$%s = unpack('f', substr($bytes, $i, 4))[1];", varName))
 	w.Line("$i += 4;")
-	w.Line(fmt.Sprintf("$%s = unpack('f', pack('C*', ...$_b))[1];", varName))
 }
 
 // InlineReadDouble generates inline code for reading double
 func (w *Writer) InlineReadDouble(varName string) {
 	w.Line("if ($i + 8 > $l) throw new \\Exception('Unexpected EOF');")
-	w.Line("$_b = array_slice($bytes, $i, 8);")
+	w.Line(fmt.Sprintf("$%s = unpack('d', substr($bytes, $i, 8))[1];", varName))
 	w.Line("$i += 8;")
-	w.Line(fmt.Sprintf("$%s = unpack('d', pack('C*', ...$_b))[1];", varName))
 }
 
 // InlineReadBytes generates inline code for reading bytes
@@ -108,6 +106,6 @@ func (w *Writer) InlineReadString(varName string) {
 	w.Line("if ($_byteLen < 0) throw new \\Exception('Invalid length');")
 	w.Line("$_postIndex = $i + $_byteLen;")
 	w.Line("if ($_postIndex < 0 || $_postIndex > $l) throw new \\Exception('Invalid length');")
-	w.Line(fmt.Sprintf("$%s = pack('C*', ...array_slice($bytes, $i, $_byteLen));", varName))
+	w.Line(fmt.Sprintf("$%s = substr($bytes, $i, $_byteLen);", varName))
 	w.Line("$i = $_postIndex;")
 }
