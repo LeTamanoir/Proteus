@@ -6,12 +6,12 @@ import (
 
 // InlineReadVarint generates inline code for reading a varint
 func (w *Writer) InlineReadVarint(varName string) {
-	w.Line("$_b = ord($bytes[$i++]);")
+	w.Line("$_b = ord(@$bytes[$i++]);")
 	w.Line(fmt.Sprintf("%s = $_b & 0x7F;", varName))
 	w.Line("if ($_b >= 0x80) {")
 	w.In()
 	w.Line("$_s = 0;")
-	w.Line(fmt.Sprintf("while ($_b >= 0x80) %s |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);", varName))
+	w.Line(fmt.Sprintf("while ($_b >= 0x80) %s |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);", varName))
 	w.Line("if ($_s > 63) throw new \\Exception('Int overflow');")
 	w.Out()
 	w.Line("}")
@@ -22,7 +22,7 @@ func (w *Writer) InlineReadVarintGmp(varName string) {
 	w.Line(fmt.Sprintf("%s = gmp_init(0);", varName))
 	w.Line("for ($_s = 0;; ++$_s) {")
 	w.In()
-	w.Line("$_b = gmp_init(ord($bytes[$i++]));")
+	w.Line("$_b = gmp_init(ord(@$bytes[$i++]));")
 	w.Line(fmt.Sprintf("%s = gmp_or(%s, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_s * 7)));", varName, varName))
 	w.Line("if ($_b < 0x80) break;")
 	w.Out()

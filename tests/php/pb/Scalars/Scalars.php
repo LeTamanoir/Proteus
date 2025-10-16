@@ -96,151 +96,134 @@ class Scalars implements \Proteus\Msg
     {
         $d = new self();
         while ($i < $l) {
-            $_b = ord($bytes[$i++]);
+            $_b = ord(@$bytes[$i++]);
             $wire = $_b & 0x7F;
             if ($_b >= 0x80) {
                 $_s = 0;
-                while ($_b >= 0x80) $wire |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                while ($_b >= 0x80) $wire |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
                 if ($_s > 63) throw new \Exception('Int overflow');
             }
-            if ($i > $l) throw new \Exception('Unexpected EOF');
             $fieldNum = $wire >> 3;
             $wireType = $wire & 0x7;
             switch ($fieldNum) {
                 case 1:
                     if ($wireType !== 1) throw new \Exception(sprintf('Invalid wire type %d for field double', $wireType));
-                    if ($i + 8 > $l) throw new \Exception('Unexpected EOF');
                     $d->double = unpack('d', substr($bytes, $i, 8))[1];
                     $i += 8;
                     break;
                 case 3:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field int32', $wireType));
-                    $_b = ord($bytes[$i++]);
+                    $_b = ord(@$bytes[$i++]);
                     $d->int32 = $_b & 0x7F;
                     if ($_b >= 0x80) {
                         $_s = 0;
-                        while ($_b >= 0x80) $d->int32 |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        while ($_b >= 0x80) $d->int32 |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     break;
                 case 4:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field int64', $wireType));
-                    $_b = ord($bytes[$i++]);
+                    $_b = ord(@$bytes[$i++]);
                     $d->int64 = $_b & 0x7F;
                     if ($_b >= 0x80) {
                         $_s = 0;
-                        while ($_b >= 0x80) $d->int64 |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        while ($_b >= 0x80) $d->int64 |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     break;
                 case 5:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field uint32', $wireType));
-                    $_b = ord($bytes[$i++]);
+                    $_b = ord(@$bytes[$i++]);
                     $d->uint32 = $_b & 0x7F;
                     if ($_b >= 0x80) {
                         $_s = 0;
-                        while ($_b >= 0x80) $d->uint32 |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        while ($_b >= 0x80) $d->uint32 |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     break;
                 case 6:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field uint64', $wireType));
                     $_u = gmp_init(0);
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = gmp_init(ord($bytes[$i++]));
-                        $_u = gmp_or($_u, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_shift)));
+                    for ($_s = 0;; ++$_s) {
+                        $_b = gmp_init(ord(@$bytes[$i++]));
+                        $_u = gmp_or($_u, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_s * 7)));
                         if ($_b < 0x80) break;
                     }
                     $d->uint64 = gmp_strval($_u);
                     break;
                 case 7:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field sint32', $wireType));
-                    $_b = ord($bytes[$i++]);
+                    $_b = ord(@$bytes[$i++]);
                     $_u = $_b & 0x7F;
                     if ($_b >= 0x80) {
                         $_s = 0;
-                        while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        while ($_b >= 0x80) $_u |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     $d->sint32 = ($_u >> 1) ^ -($_u & 1);
                     break;
                 case 8:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field sint64', $wireType));
                     $_u = gmp_init(0);
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = gmp_init(ord($bytes[$i++]));
-                        $_u = gmp_or($_u, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_shift)));
+                    for ($_s = 0;; ++$_s) {
+                        $_b = gmp_init(ord(@$bytes[$i++]));
+                        $_u = gmp_or($_u, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_s * 7)));
                         if ($_b < 0x80) break;
                     }
                     $d->sint64 = gmp_intval(gmp_xor(gmp_div($_u, 2), gmp_neg(gmp_and($_u, 1))));
                     break;
                 case 9:
                     if ($wireType !== 5) throw new \Exception(sprintf('Invalid wire type %d for field fixed32', $wireType));
-                    if ($i + 4 > $l) throw new \Exception('Unexpected EOF');
                     $d->fixed32 = unpack('L', substr($bytes, $i, 4))[1];
                     $i += 4;
                     break;
                 case 10:
                     if ($wireType !== 1) throw new \Exception(sprintf('Invalid wire type %d for field fixed64', $wireType));
-                    if ($i + 8 > $l) throw new \Exception('Unexpected EOF');
                     $d->fixed64 = gmp_strval(gmp_import(substr($bytes, $i, 8), GMP_BIG_ENDIAN));
                     $i += 8;
                     break;
                 case 11:
                     if ($wireType !== 5) throw new \Exception(sprintf('Invalid wire type %d for field sfixed32', $wireType));
-                    if ($i + 4 > $l) throw new \Exception('Unexpected EOF');
                     $d->sfixed32 = unpack('l', substr($bytes, $i, 4))[1];
                     $i += 4;
                     break;
                 case 12:
                     if ($wireType !== 1) throw new \Exception(sprintf('Invalid wire type %d for field sfixed64', $wireType));
-                    if ($i + 8 > $l) throw new \Exception('Unexpected EOF');
                     $d->sfixed64 = unpack('q', substr($bytes, $i, 8))[1];
                     $i += 8;
                     break;
                 case 13:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field bool', $wireType));
-                    $_b = ord($bytes[$i++]);
+                    $_b = ord(@$bytes[$i++]);
                     $_u = $_b & 0x7F;
                     if ($_b >= 0x80) {
                         $_s = 0;
-                        while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        while ($_b >= 0x80) $_u |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     $d->bool = $_u === 1;
                     break;
                 case 14:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field string', $wireType));
-                    $_b = ord($bytes[$i++]);
+                    $_b = ord(@$bytes[$i++]);
                     $_byteLen = $_b & 0x7F;
                     if ($_b >= 0x80) {
                         $_s = 0;
-                        while ($_b >= 0x80) $_byteLen |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($i > $l) throw new \Exception('Unexpected EOF');
-                    if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                     $d->string = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
                     break;
                 case 15:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field bytes', $wireType));
-                    $_b = ord($bytes[$i++]);
+                    $_b = ord(@$bytes[$i++]);
                     $_byteLen = $_b & 0x7F;
                     if ($_b >= 0x80) {
                         $_s = 0;
-                        while ($_b >= 0x80) $_byteLen |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($i > $l) throw new \Exception('Unexpected EOF');
-                    if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                     $d->bytes = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
                     $d->bytes = base64_encode($d->bytes);
@@ -249,6 +232,7 @@ class Scalars implements \Proteus\Msg
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);
             }
         }
+        if ($i !== $l) throw new \Exception('Unexpected EOF');
         return $d;
     }
 
