@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package test.nested;
+
+option php_namespace = "Tests\\php\\pb\\Nested";
+option go_package = "tests/go/pb";
+
+message Nested {
+    message Data {
+        message NestedData {
+            string value = 1;
+        }
+
+        string value = 1;
+        NestedData nested_data = 2;
+    }
+
+    Data data = 2;
+    map<string, Data> map_data = 3;
+    repeated Data repeated_data = 4;
+}
