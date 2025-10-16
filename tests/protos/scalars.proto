@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package test.scalars;
 
-option php_namespace = "Tests\\PB";
+option php_namespace = "Tests\\php\\pb\\Scalars";
 option go_package = "tests/go/pb";
 
 // see https://protobuf.dev/programming-guides/proto3/#scalar

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package benchmark.proteus;
 
-option php_namespace = "Tests\\PB\\benchmark\\proteus";
+option php_namespace = "Tests\\php\\pb\\benchmark\\proteus";
 option go_package = "tests/go/pb/benchmark";
 
 message Address {

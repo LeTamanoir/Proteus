@@ -21,7 +21,7 @@ function benchmarkProteus(string $file)
     $proto = protoFixture($file);
 
     $time = benchmark(function () use ($proto) {
-        $data = \Tests\PB\benchmark\proteus\Bench::decode($proto);
+        $data = \Tests\php\pb\benchmark\proteus\Bench::decode($proto);
     }, 100);
     dump('(Proteus) time: ' . $time . 'ms');
     expect(true)->toBeTrue();

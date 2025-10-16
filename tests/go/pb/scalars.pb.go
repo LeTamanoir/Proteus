@@ -204,7 +204,7 @@ const file_tests_protos_scalars_proto_rawDesc = "" +
 	"\bsfixed64\x18\f \x01(\x10R\bsfixed64\x12\x12\n" +
 	"\x04bool\x18\r \x01(\bR\x04bool\x12\x16\n" +
 	"\x06string\x18\x0e \x01(\tR\x06string\x12\x14\n" +
-	"\x05bytes\x18\x0f \x01(\fR\x05bytesB\x18Z\vtests/go/pb\xca\x02\bTests\\PBb\x06proto3"
+	"\x05bytes\x18\x0f \x01(\fR\x05bytesB$Z\vtests/go/pb\xca\x02\x14Tests\\php\\pb\\Scalarsb\x06proto3"
 
 var (
 	file_tests_protos_scalars_proto_rawDescOnce sync.Once

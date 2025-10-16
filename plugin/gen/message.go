@@ -2,64 +2,74 @@ package gen
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/LeTamanoir/Proteus/plugin/php"
-
-	"google.golang.org/protobuf/types/descriptorpb"
+	"github.com/LeTamanoir/Proteus/plugin/phpgen"
+	"github.com/LeTamanoir/Proteus/plugin/protobuf"
+	"github.com/LeTamanoir/Proteus/plugin/writer"
 )
 
 // genMessage generates code for a message type
-func (g *gen) genMessage(message *descriptorpb.DescriptorProto, file *descriptorpb.FileDescriptorProto, messageIndex int) error {
+func (g *generator) genMessage(m *message) string {
+	w := writer.NewWriter()
+
+	w.Line("<?php")
+	w.Newline()
+	w.Docblock(fmt.Sprintf(`Auto-generated file, DO NOT EDIT!
+Proto file: %s`, m.protoFilePath))
+	w.Newline()
+	w.Line("declare(strict_types=1);")
+	w.Newline()
+
+	nsParts := strings.Split(m.phpFqn, "\\")
+	namepsace := strings.Trim(strings.Join(nsParts[:len(nsParts)-1], "\\"), "\\")
+	w.Line(fmt.Sprintf("namespace %s;", namepsace))
+	w.Newline()
+
 	// Add class docblock if comment exists
-	if comment, ok := g.commentMap[getMessagePath(messageIndex)]; ok {
-		g.w.Docblock(comment)
+	if comment, ok := g.commentByFqn[m.protoFqn]; ok {
+		w.Docblock(comment)
 	}
 
-	g.w.Line(fmt.Sprintf("class %s implements \\Proteus\\Msg", php.GetClassName(message.GetName())))
-	g.w.Line("{")
-	g.w.In()
+	className := phpgen.GetSafeName(m.msg.GetName())
 
-	for fieldIndex, field := range message.GetField() {
-		phpType := php.GetType(field)
+	w.Line(fmt.Sprintf("class %s implements \\Proteus\\Msg", className))
+	w.Line("{")
+	w.In()
+
+	for _, field := range m.msg.GetField() {
+		phpType := g.getPhpType(field)
 		fieldName := field.GetName()
 
-		if comment, ok := g.commentMap[getFieldPath(messageIndex, fieldIndex)]; ok {
-			g.w.Docblock(comment)
+		if comment, ok := g.commentByFqn[m.protoFqn+":"+fieldName]; ok {
+			w.Docblock(comment)
 		}
 
 		switch {
-		case isMapField(field, file):
-			keyField, valueField := getMapKeyValueTypes(field, file)
-			if keyField == nil || valueField == nil {
-				return fmt.Errorf("map entry message %s not found", field.GetTypeName())
-			}
-			keyType := php.GetType(keyField)
-			valueType := php.GetType(valueField)
-			g.w.Comment(fmt.Sprintf("@var array<%s, %s>", keyType, valueType))
-			g.w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
+		case protobuf.IsMapField(field, m.msg):
+			keyField, valueField := protobuf.GetMapKeyValueTypes(field, m.msg)
+			w.Comment(fmt.Sprintf("@var array<%s, %s>", g.getPhpType(keyField), g.getPhpType(valueField)))
+			w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
 
-		case isRepeated(field):
-			g.w.Comment(fmt.Sprintf("@var %s[]", phpType))
-			g.w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
+		case protobuf.IsRepeated(field):
+			w.Comment(fmt.Sprintf("@var %s[]", phpType))
+			w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
 
-		case isOptional(field) || isMessage(field):
-			g.w.Line(fmt.Sprintf("public %s|null $%s = null;", phpType, fieldName))
+		case protobuf.IsOptional(field) || protobuf.IsMessage(field):
+			w.Line(fmt.Sprintf("public %s|null $%s = null;", phpType, fieldName))
 
 		default:
-			defaultValue := php.GetDefaultValue(field)
-			g.w.Line(fmt.Sprintf("public %s $%s = %s;", phpType, fieldName, defaultValue))
+			defaultValue := getDefaultValue(field)
+			w.Line(fmt.Sprintf("public %s $%s = %s;", phpType, fieldName, defaultValue))
 		}
 
-		g.w.Newline()
+		w.Newline()
 	}
 
-	if err := g.addDecodeMethod(message, file); err != nil {
-		return err
-	}
+	g.genDecodeMethods(w, m.msg)
+	w.Out()
+	w.Line("}")
+	w.Newline()
 
-	g.w.Out()
-	g.w.Line("}")
-	g.w.Newline()
-
-	return nil
+	return w.GetOutput()
 }

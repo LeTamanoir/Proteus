@@ -166,7 +166,7 @@ const file_tests_protos_benchmark_proteus_proto_rawDesc = "" +
 	"\x12repeated_addresses\x18\x02 \x03(\v2\x1a.benchmark.proteus.AddressR\x11repeatedAddresses\x1a[\n" +
 	"\x11MapAddressesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x120\n" +
-	"\x05value\x18\x02 \x01(\v2\x1a.benchmark.proteus.AddressR\x05value:\x028\x01B4Z\x15tests/go/pb/benchmark\xca\x02\x1aTests\\PB\\benchmark\\proteusb\x06proto3"
+	"\x05value\x18\x02 \x01(\v2\x1a.benchmark.proteus.AddressR\x05value:\x028\x01B8Z\x15tests/go/pb/benchmark\xca\x02\x1eTests\\php\\pb\\benchmark\\proteusb\x06proto3"
 
 var (
 	file_tests_protos_benchmark_proteus_proto_rawDescOnce sync.Once

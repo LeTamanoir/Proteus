@@ -100,7 +100,7 @@ const file_tests_protos_imports_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x02 \x01(\v2\x16.test.common.TimestampR\tcreatedAt\x12,\n" +
 	"\abalance\x18\x03 \x01(\v2\x12.test.common.MoneyR\abalance\x12:\n" +
-	"\vcoordinates\x18\x04 \x01(\v2\x18.test.common.CoordinatesR\vcoordinatesB\x18Z\vtests/go/pb\xca\x02\bTests\\PBb\x06proto3"
+	"\vcoordinates\x18\x04 \x01(\v2\x18.test.common.CoordinatesR\vcoordinatesB$Z\vtests/go/pb\xca\x02\x14Tests\\php\\pb\\Importsb\x06proto3"
 
 var (
 	file_tests_protos_imports_proto_rawDescOnce sync.Once

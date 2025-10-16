@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package test.imports;
 
-option php_namespace = "Tests\\PB";
+option php_namespace = "Tests\\php\\pb\\Imports";
 option go_package = "tests/go/pb";
 
 import "tests/protos/common.proto";

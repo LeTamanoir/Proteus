@@ -282,7 +282,7 @@ const file_tests_protos_common_proto_rawDesc = "" +
 	"\x05nanos\x18\x03 \x01(\x05R\x05nanos\"G\n" +
 	"\vCoordinates\x12\x1a\n" +
 	"\blatitude\x18\x01 \x01(\x01R\blatitude\x12\x1c\n" +
-	"\tlongitude\x18\x02 \x01(\x01R\tlongitudeB\x18Z\vtests/go/pb\xca\x02\bTests\\PBb\x06proto3"
+	"\tlongitude\x18\x02 \x01(\x01R\tlongitudeB#Z\vtests/go/pb\xca\x02\x13Tests\\php\\pb\\Commonb\x06proto3"
 
 var (
 	file_tests_protos_common_proto_rawDescOnce sync.Once
