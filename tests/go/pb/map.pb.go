@@ -333,7 +333,7 @@ const file_tests_protos_map_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2\x12.test.map.RepeatedR\x05value:\x028\x01\x1aW\n" +
 	"\x14StringNestedMapEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12)\n" +
-	"\x05value\x18\x02 \x01(\v2\x13.test.map.NestedMapR\x05value:\x028\x01B\x18Z\vtests/go/pb\xca\x02\bTests\\PBb\x06proto3"
+	"\x05value\x18\x02 \x01(\v2\x13.test.map.NestedMapR\x05value:\x028\x01B Z\vtests/go/pb\xca\x02\x10Tests\\php\\pb\\Mapb\x06proto3"
 
 var (
 	file_tests_protos_map_proto_rawDescOnce sync.Once

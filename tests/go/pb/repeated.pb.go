@@ -98,7 +98,7 @@ const file_tests_protos_repeated_proto_rawDesc = "" +
 	"\x05users\x18\x01 \x03(\v2\x12.test.imports.UserR\x05users\x12\x16\n" +
 	"\x06emails\x18\x02 \x03(\tR\x06emails\x12\x12\n" +
 	"\x04ages\x18\x03 \x03(\x05R\x04ages\x12\x19\n" +
-	"\bis_admin\x18\x04 \x03(\bR\aisAdminB\x18Z\vtests/go/pb\xca\x02\bTests\\PBb\x06proto3"
+	"\bis_admin\x18\x04 \x03(\bR\aisAdminB%Z\vtests/go/pb\xca\x02\x15Tests\\php\\pb\\Repeatedb\x06proto3"
 
 var (
 	file_tests_protos_repeated_proto_rawDescOnce sync.Once
