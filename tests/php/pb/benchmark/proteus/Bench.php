@@ -113,10 +113,9 @@ class Bench implements \Proteus\Msg
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
-                    $_msgLen = $i + $_len;
-                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $d->repeated_addresses[] = \Tests\php\pb\benchmark\proteus\Address::__decode($bytes, $i, $_msgLen);
-                    $i = $_msgLen;
+                    if ($_len < 0 || $i + $_len > $l) throw new \Exception('Invalid length');
+                    $d->repeated_addresses[] = \Tests\php\pb\benchmark\proteus\Address::__decode($bytes, $i, $i + $_len);
+                    $i += $_len;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);

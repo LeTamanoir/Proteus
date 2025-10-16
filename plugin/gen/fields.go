@@ -40,11 +40,10 @@ func (g *generator) genRepeatedFieldCode(w *writer.Writer, field *descriptorpb.F
 	case protobuf.IsMessage(field):
 		w.Line(fmt.Sprintf("if ($wireType !== 2) throw new \\Exception(sprintf('Invalid wire type %%d for field %s', $wireType));", fieldName))
 		w.InlineReadVarint("$_len")
-		w.Line("$_msgLen = $i + $_len;")
-		w.Line("if ($_msgLen < 0 || $_msgLen > $l) throw new \\Exception('Invalid length');")
+		w.Line("if ($_len < 0 || $i + $_len > $l) throw new \\Exception('Invalid length');")
 		phpType := g.getPhpType(field)
-		w.Line(fmt.Sprintf("$d->%s[] = %s::__decode($bytes, $i, $_msgLen);", fieldName, phpType))
-		w.Line("$i = $_msgLen;")
+		w.Line(fmt.Sprintf("$d->%s[] = %s::__decode($bytes, $i, $i + $_len);", fieldName, phpType))
+		w.Line("$i += $_len;")
 
 	case field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_STRING || field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BYTES:
 		w.Line(fmt.Sprintf("if ($wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s', $wireType));", expectedWireType, fieldName))
