@@ -25,6 +25,7 @@ var Generators = []struct {
 	{"Scalars", Scalars, true},
 	{"Map", Map, true},
 	{"Benchmark", Benchmark, false},
+	{"Nested", Nested, true},
 }
 
 func Address() proto.Message {
@@ -196,5 +197,38 @@ func Benchmark() proto.Message {
 	return &benchmark.Bench{
 		MapAddresses:      mapAddresses,
 		RepeatedAddresses: repeatedAddresses,
+	}
+}
+
+func Nested() proto.Message {
+	return &pb.Nested{
+		Data: &pb.Nested_Data{
+			Value: gofakeit.Sentence(10),
+			NestedData: &pb.Nested_Data_NestedData{
+				Value: gofakeit.Sentence(10),
+			},
+		},
+		MapData: map[string]*pb.Nested_Data{
+			gofakeit.Sentence(10): {
+				Value: gofakeit.Sentence(10),
+				NestedData: &pb.Nested_Data_NestedData{
+					Value: gofakeit.Sentence(10),
+				},
+			},
+		},
+		RepeatedData: []*pb.Nested_Data{
+			{
+				Value:      gofakeit.Sentence(10),
+				NestedData: &pb.Nested_Data_NestedData{Value: gofakeit.Sentence(10)},
+			},
+			{
+				Value:      gofakeit.Sentence(10),
+				NestedData: &pb.Nested_Data_NestedData{Value: gofakeit.Sentence(10)},
+			},
+			{
+				Value:      gofakeit.Sentence(10),
+				NestedData: &pb.Nested_Data_NestedData{Value: gofakeit.Sentence(10)},
+			},
+		},
 	}
 }

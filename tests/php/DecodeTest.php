@@ -25,4 +25,7 @@ test('Decode Message', function (string $class, string $file) {
     //
     // Map
     [\Tests\php\pb\Map\Map::class, 'Map'],
+    //
+    // Nested
+    [\Tests\php\pb\Nested\Nested::class, 'Nested'],
 ]);
