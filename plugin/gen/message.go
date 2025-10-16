@@ -15,7 +15,7 @@ func (g *gen) genMessage(message *descriptorpb.DescriptorProto, file *descriptor
 		g.w.Docblock(comment)
 	}
 
-	g.w.Line(fmt.Sprintf("class %s", php.GetClassName(message.GetName())))
+	g.w.Line(fmt.Sprintf("class %s implements \\Proteus\\Msg", php.GetClassName(message.GetName())))
 	g.w.Line("{")
 	g.w.In()
 
@@ -53,7 +53,7 @@ func (g *gen) genMessage(message *descriptorpb.DescriptorProto, file *descriptor
 		g.w.Newline()
 	}
 
-	if err := g.genDecodeMethod(message, file); err != nil {
+	if err := g.addDecodeMethod(message, file); err != nil {
 		return err
 	}
 
