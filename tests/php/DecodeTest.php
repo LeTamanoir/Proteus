@@ -9,20 +9,20 @@ test('Decode Message', function (string $class, string $file) {
     expect(json_encode($data, JSON_PRETTY_PRINT))->toBe(json_encode($json, JSON_PRETTY_PRINT));
 })->with([
     // Common
-    [\Tests\PB\Address::class, 'Address'],
-    [\Tests\PB\Coordinates::class, 'Coordinates'],
-    [\Tests\PB\Money::class, 'Money'],
-    [\Tests\PB\Timestamp::class, 'Timestamp'],
+    [\Tests\php\pb\Common\Address::class, 'Address'],
+    [\Tests\php\pb\Common\Coordinates::class, 'Coordinates'],
+    [\Tests\php\pb\Common\Money::class, 'Money'],
+    [\Tests\php\pb\Common\Timestamp::class, 'Timestamp'],
     //
     // Imports
-    [\Tests\PB\User::class, 'User'],
+    [\Tests\php\pb\Imports\User::class, 'User'],
     //
     // Repeated
-    [\Tests\PB\Organization::class, 'Organization'],
+    [\Tests\php\pb\Repeated\Organization::class, 'Organization'],
     //
     // Scalars
-    [\Tests\PB\Scalars::class, 'Scalars'],
+    [\Tests\php\pb\Scalars\Scalars::class, 'Scalars'],
     //
     // Map
-    [\Tests\PB\Map::class, 'Map'],
+    [\Tests\php\pb\Map\Map::class, 'Map'],
 ]);
