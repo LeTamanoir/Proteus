@@ -9,7 +9,7 @@ import (
 )
 
 // genDecodeMethods generates the decode methods for all messages
-func (g *generator) genDecodeMethods(w *writer.Writer, message *descriptorpb.DescriptorProto) error {
+func (g *generator) genDecodeMethods(w *writer.Writer, message *descriptorpb.DescriptorProto) {
 	w.Docblock(`@throws \Exception if the data is malformed or contains invalid wire types`)
 	w.Line("public static function decode(string $bytes): self")
 	w.Line("{")
@@ -67,6 +67,4 @@ func (g *generator) genDecodeMethods(w *writer.Writer, message *descriptorpb.Des
 	w.Out()
 	w.Line("}")
 	w.Newline()
-
-	return nil
 }

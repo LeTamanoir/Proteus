@@ -8,7 +8,7 @@ build:
 # Format the plugin code
 fmt:
     cd plugin && go fmt ./... && goimports -w .
-    cd tests/go && go fmt $(go list ./... | grep -v /pb) && goimports -w .
+    cd tests/go && go fmt ./... && goimports -w .
 
 # Static analysis and linting of the plugin
 check:
@@ -45,5 +45,4 @@ _gen-fixtures:
     cd tests/go && go run .
 
 # Generate PHP & Go classes from proto files for tests
-gen-mocks: _cleanup-mocks _gen-go-mocks _gen-php-mocks _gen-benchmark-mocks _gen-fixtures
-
+gen-mocks: _cleanup-mocks _gen-go-mocks _gen-php-mocks _gen-benchmark-mocks _gen-fixtures fmt

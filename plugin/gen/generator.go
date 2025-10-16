@@ -35,7 +35,9 @@ func (g *generator) populateRegistry(file *descriptorpb.FileDescriptorProto) err
 	}
 
 	for i, msg := range file.GetMessageType() {
-		g.populateMsg(file, msg, phpNamespace, file.GetPackage(), i)
+		if err := g.populateMsg(file, msg, phpNamespace, file.GetPackage(), i); err != nil {
+			return err
+		}
 	}
 
 	for _, importPath := range file.GetDependency() {
@@ -73,20 +75,16 @@ func Run(req *pluginpb.CodeGeneratorRequest) *pluginpb.CodeGeneratorResponse {
 			resp.Error = proto.String(fmt.Sprintf("file %s not found", fileName))
 			return resp
 		}
-		gen.populateRegistry(file)
+		if err := gen.populateRegistry(file); err != nil {
+			resp.Error = proto.String(err.Error())
+			return resp
+		}
 	}
 
 	for _, e := range gen.msgByFqn {
-		output, err := gen.genMessage(e)
-
-		if err != nil {
-			resp.Error = proto.String(err.Error())
-			clear(resp.File)
-			return resp
-		}
-
+		output := gen.genMessage(e)
 		resp.File = append(resp.File, &pluginpb.CodeGeneratorResponse_File{
-			Name:    proto.String(strings.ReplaceAll(string(e.phpFqn), "\\", "/") + ".php"),
+			Name:    proto.String(strings.ReplaceAll(e.phpFqn, "\\", "/") + ".php"),
 			Content: proto.String(output),
 		})
 	}

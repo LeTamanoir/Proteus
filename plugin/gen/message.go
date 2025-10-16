@@ -10,7 +10,7 @@ import (
 )
 
 // genMessage generates code for a message type
-func (g *generator) genMessage(m *message) (string, error) {
+func (g *generator) genMessage(m *message) string {
 	w := writer.NewWriter()
 
 	w.Line("<?php")
@@ -66,13 +66,10 @@ Proto file: %s`, m.protoFilePath))
 		w.Newline()
 	}
 
-	if err := g.genDecodeMethods(w, m.msg); err != nil {
-		return "", err
-	}
-
+	g.genDecodeMethods(w, m.msg)
 	w.Out()
 	w.Line("}")
 	w.Newline()
 
-	return w.GetOutput(), nil
+	return w.GetOutput()
 }
