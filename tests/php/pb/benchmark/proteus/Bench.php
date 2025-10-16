@@ -78,11 +78,9 @@ class Bench implements \Proteus\Msg
                                     $_byteLen |= ($_b & 0x7F) << $_shift;
                                     if ($_b < 0x80) break;
                                 }
-                                if ($_byteLen < 0) throw new \Exception('Invalid length');
-                                $_postIndex = $i + $_byteLen;
-                                if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
+                                if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                                 $_key = substr($bytes, $i, $_byteLen);
-                                $i = $_postIndex;
+                                $i += $_byteLen;
                                 break;
                             case 2:
                                 if ($_wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field map_addresses value', $_wireType));

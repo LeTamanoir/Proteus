@@ -57,11 +57,9 @@ class Address implements \Proteus\Msg
                         $_byteLen |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
+                    if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                     $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
+                    $i += $_byteLen;
                     $d->street = $_value;
                     break;
                 case 2:
@@ -74,11 +72,9 @@ class Address implements \Proteus\Msg
                         $_byteLen |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
+                    if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                     $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
+                    $i += $_byteLen;
                     $d->city = $_value;
                     break;
                 case 3:
@@ -91,11 +87,9 @@ class Address implements \Proteus\Msg
                         $_byteLen |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
+                    if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                     $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
+                    $i += $_byteLen;
                     $d->state = $_value;
                     break;
                 case 4:
@@ -108,11 +102,9 @@ class Address implements \Proteus\Msg
                         $_byteLen |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
+                    if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                     $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
+                    $i += $_byteLen;
                     $d->zip_code = $_value;
                     break;
                 case 5:
@@ -125,11 +117,9 @@ class Address implements \Proteus\Msg
                         $_byteLen |= ($_b & 0x7F) << $_shift;
                         if ($_b < 0x80) break;
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
+                    if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                     $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
+                    $i += $_byteLen;
                     $d->country = $_value;
                     break;
                 default:
