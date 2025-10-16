@@ -31,11 +31,16 @@ func (w *Writer) InlineReadVarintGmp(varName string) {
 	w.Line("}")
 }
 
+// InlineReadBool generates inline code for reading int32 with sign extension
+func (w *Writer) InlineReadBool(varName string) {
+	w.InlineReadVarint("$_u")
+	w.Line(fmt.Sprintf("%s = $_u === 1;", varName))
+}
+
 // inlineReadInt32 generates inline code for reading int32 with sign extension
 func (w *Writer) InlineReadInt32(varName string) {
 	// as we are reading a int32 we ignore the potential overflow
-	w.InlineReadVarint("$_u")
-	w.Line(fmt.Sprintf("%s = $_u;", varName))
+	w.InlineReadVarint(varName)
 }
 
 // inlineReadSint32 generates inline code for reading sint32 with ZigZag decoding
@@ -55,8 +60,8 @@ func (w *Writer) InlineReadSint64(varName string) {
 
 // inlineReadUint64 generates inline code for reading uint64
 func (w *Writer) InlineReadUint64(varName string) {
-	w.InlineReadVarintGmp(varName)
-	w.Line(fmt.Sprintf("%s = gmp_strval(%s);", varName, varName))
+	w.InlineReadVarintGmp("$_u")
+	w.Line(fmt.Sprintf("%s = gmp_strval($_u);", varName))
 }
 
 // inlineReadFixed32 generates inline code for reading fixed32
