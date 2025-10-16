@@ -54,34 +54,30 @@ class Money implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
+                    $d->currency_code = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
-                    $d->currency_code = $_value;
                     break;
                 case 2:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field units', $wireType));
                     $_b = ord($bytes[$i++]);
-                    $_value = $_b & 0x7F;
+                    $d->units = $_b & 0x7F;
                     if ($_b >= 0x80) {
                         $_s = 0;
-                        while ($_b >= 0x80) $_value |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        while ($_b >= 0x80) $d->units |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
-                    $d->units = $_value;
                     break;
                 case 3:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field nanos', $wireType));
                     $_b = ord($bytes[$i++]);
-                    $_u = $_b & 0x7F;
+                    $d->nanos = $_b & 0x7F;
                     if ($_b >= 0x80) {
                         $_s = 0;
-                        while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        while ($_b >= 0x80) $d->nanos |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
-                    $_value = $_u;
-                    $d->nanos = $_value;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);

@@ -44,16 +44,14 @@ class Coordinates implements \Proteus\Msg
                 case 1:
                     if ($wireType !== 1) throw new \Exception(sprintf('Invalid wire type %d for field latitude', $wireType));
                     if ($i + 8 > $l) throw new \Exception('Unexpected EOF');
-                    $_value = unpack('d', substr($bytes, $i, 8))[1];
+                    $d->latitude = unpack('d', substr($bytes, $i, 8))[1];
                     $i += 8;
-                    $d->latitude = $_value;
                     break;
                 case 2:
                     if ($wireType !== 1) throw new \Exception(sprintf('Invalid wire type %d for field longitude', $wireType));
                     if ($i + 8 > $l) throw new \Exception('Unexpected EOF');
-                    $_value = unpack('d', substr($bytes, $i, 8))[1];
+                    $d->longitude = unpack('d', substr($bytes, $i, 8))[1];
                     $i += 8;
-                    $d->longitude = $_value;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);

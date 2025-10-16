@@ -57,9 +57,8 @@ class User implements \Proteus\Msg
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_msgLen = $i + $_len;
                     if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Common\Address::__decode($bytes, $i, $_msgLen);
+                    $d->address = \Tests\php\pb\Common\Address::__decode($bytes, $i, $_msgLen);
                     $i = $_msgLen;
-                    $d->address = $_value;
                     break;
                 case 2:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field created_at', $wireType));
@@ -73,9 +72,8 @@ class User implements \Proteus\Msg
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_msgLen = $i + $_len;
                     if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Common\Timestamp::__decode($bytes, $i, $_msgLen);
+                    $d->created_at = \Tests\php\pb\Common\Timestamp::__decode($bytes, $i, $_msgLen);
                     $i = $_msgLen;
-                    $d->created_at = $_value;
                     break;
                 case 3:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field balance', $wireType));
@@ -89,9 +87,8 @@ class User implements \Proteus\Msg
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_msgLen = $i + $_len;
                     if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Common\Money::__decode($bytes, $i, $_msgLen);
+                    $d->balance = \Tests\php\pb\Common\Money::__decode($bytes, $i, $_msgLen);
                     $i = $_msgLen;
-                    $d->balance = $_value;
                     break;
                 case 4:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field coordinates', $wireType));
@@ -105,9 +102,8 @@ class User implements \Proteus\Msg
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_msgLen = $i + $_len;
                     if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Common\Coordinates::__decode($bytes, $i, $_msgLen);
+                    $d->coordinates = \Tests\php\pb\Common\Coordinates::__decode($bytes, $i, $_msgLen);
                     $i = $_msgLen;
-                    $d->coordinates = $_value;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);

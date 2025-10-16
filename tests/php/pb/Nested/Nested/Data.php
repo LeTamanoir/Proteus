@@ -52,9 +52,8 @@ class Data implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
+                    $d->value = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
-                    $d->value = $_value;
                     break;
                 case 2:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field nested_data', $wireType));
@@ -68,9 +67,8 @@ class Data implements \Proteus\Msg
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_msgLen = $i + $_len;
                     if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Nested\Nested\Data\NestedData::__decode($bytes, $i, $_msgLen);
+                    $d->nested_data = \Tests\php\pb\Nested\Nested\Data\NestedData::__decode($bytes, $i, $_msgLen);
                     $i = $_msgLen;
-                    $d->nested_data = $_value;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);

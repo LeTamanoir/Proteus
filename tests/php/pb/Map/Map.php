@@ -108,6 +108,17 @@ class Map implements \Proteus\Msg
                             case 1:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field int32_bool key', $_wireType));
                                 $_b = ord($bytes[$i++]);
+                                $_key = $_b & 0x7F;
+                                if ($_b >= 0x80) {
+                                    $_s = 0;
+                                    while ($_b >= 0x80) $_key |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    if ($_s > 63) throw new \Exception('Int overflow');
+                                }
+                                if ($i > $l) throw new \Exception('Unexpected EOF');
+                                break;
+                            case 2:
+                                if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field int32_bool value', $_wireType));
+                                $_b = ord($bytes[$i++]);
                                 $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
@@ -115,19 +126,7 @@ class Map implements \Proteus\Msg
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_key = $_u;
-                                break;
-                            case 2:
-                                if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field int32_bool value', $_wireType));
-                                $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
-                                if ($_b >= 0x80) {
-                                    $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
-                                    if ($_s > 63) throw new \Exception('Int overflow');
-                                }
-                                if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
@@ -175,14 +174,14 @@ class Map implements \Proteus\Msg
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field int64_bool value', $_wireType));
                                 $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
+                                $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
@@ -230,14 +229,14 @@ class Map implements \Proteus\Msg
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field uint32_bool value', $_wireType));
                                 $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
+                                $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
@@ -273,26 +272,26 @@ class Map implements \Proteus\Msg
                         switch ($_fieldNum) {
                             case 1:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field uint64_bool key', $_wireType));
-                                $_key = gmp_init(0);
+                                $_u = gmp_init(0);
                                 for ($_shift = 0;; $_shift += 7) {
                                     if ($i >= $l) throw new \Exception('Unexpected EOF');
                                     $_b = gmp_init(ord($bytes[$i++]));
-                                    $_key = gmp_or($_key, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_shift)));
+                                    $_u = gmp_or($_u, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_shift)));
                                     if ($_b < 0x80) break;
                                 }
-                                $_key = gmp_strval($_key);
+                                $_key = gmp_strval($_u);
                                 break;
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field uint64_bool value', $_wireType));
                                 $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
+                                $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
@@ -341,14 +340,14 @@ class Map implements \Proteus\Msg
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field sint32_bool value', $_wireType));
                                 $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
+                                $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
@@ -396,14 +395,14 @@ class Map implements \Proteus\Msg
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field sint64_bool value', $_wireType));
                                 $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
+                                $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
@@ -446,14 +445,14 @@ class Map implements \Proteus\Msg
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field fixed32_bool value', $_wireType));
                                 $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
+                                $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
@@ -496,14 +495,14 @@ class Map implements \Proteus\Msg
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field fixed64_bool value', $_wireType));
                                 $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
+                                $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
@@ -546,14 +545,14 @@ class Map implements \Proteus\Msg
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field sfixed32_bool value', $_wireType));
                                 $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
+                                $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
@@ -596,14 +595,14 @@ class Map implements \Proteus\Msg
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field sfixed64_bool value', $_wireType));
                                 $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
+                                $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
@@ -654,14 +653,14 @@ class Map implements \Proteus\Msg
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field string_bool value', $_wireType));
                                 $_b = ord($bytes[$i++]);
-                                $_val = $_b & 0x7F;
+                                $_u = $_b & 0x7F;
                                 if ($_b >= 0x80) {
                                     $_s = 0;
-                                    while ($_b >= 0x80) $_val |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
                                     if ($_s > 63) throw new \Exception('Int overflow');
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
-                                $_val = $_val === 1;
+                                $_val = $_u === 1;
                                 break;
                             default:
                                 $i = \Proteus\skipField($i, $l, $bytes, $_wireType);

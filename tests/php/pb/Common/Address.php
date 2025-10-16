@@ -58,9 +58,8 @@ class Address implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
+                    $d->street = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
-                    $d->street = $_value;
                     break;
                 case 2:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field city', $wireType));
@@ -73,9 +72,8 @@ class Address implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
+                    $d->city = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
-                    $d->city = $_value;
                     break;
                 case 3:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field state', $wireType));
@@ -88,9 +86,8 @@ class Address implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
+                    $d->state = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
-                    $d->state = $_value;
                     break;
                 case 4:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field zip_code', $wireType));
@@ -103,9 +100,8 @@ class Address implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
+                    $d->zip_code = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
-                    $d->zip_code = $_value;
                     break;
                 case 5:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field country', $wireType));
@@ -118,9 +114,8 @@ class Address implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
+                    $d->country = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
-                    $d->country = $_value;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);

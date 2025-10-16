@@ -50,9 +50,8 @@ class NestedData implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
+                    $d->value = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
-                    $d->value = $_value;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);

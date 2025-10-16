@@ -57,9 +57,8 @@ class Nested implements \Proteus\Msg
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_msgLen = $i + $_len;
                     if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Nested\Nested\Data::__decode($bytes, $i, $_msgLen);
+                    $d->data = \Tests\php\pb\Nested\Nested\Data::__decode($bytes, $i, $_msgLen);
                     $i = $_msgLen;
-                    $d->data = $_value;
                     break;
                 case 3:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field map_data', $wireType));
