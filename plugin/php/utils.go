@@ -129,48 +129,12 @@ var phpReservedWords = map[string]bool{
 	"__trait__":     true,
 }
 
-// GetClassName returns the PHP class name for a field
-func GetClassName(name string) string {
+// GetSafeName returns a safe PHP keyword
+func GetSafeName(name string) string {
 	if _, ok := phpReservedWords[strings.ToLower(name)]; ok {
-		return GetClassName(name + "_")
+		return GetSafeName(name + "_")
 	}
 	return name
-}
-
-// GetType returns the PHP type for a field
-func GetType(field *descriptorpb.FieldDescriptorProto) string {
-	switch field.GetType() {
-	case descriptorpb.FieldDescriptorProto_TYPE_INT32,
-		descriptorpb.FieldDescriptorProto_TYPE_SINT32,
-		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32:
-		return "int"
-	case descriptorpb.FieldDescriptorProto_TYPE_UINT32,
-		descriptorpb.FieldDescriptorProto_TYPE_FIXED32:
-		return "int"
-	case descriptorpb.FieldDescriptorProto_TYPE_INT64,
-		descriptorpb.FieldDescriptorProto_TYPE_SINT64,
-		descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
-		return "int"
-	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
-		descriptorpb.FieldDescriptorProto_TYPE_UINT64:
-		return "string"
-	case descriptorpb.FieldDescriptorProto_TYPE_FLOAT,
-		descriptorpb.FieldDescriptorProto_TYPE_DOUBLE:
-		return "float"
-	case descriptorpb.FieldDescriptorProto_TYPE_BOOL:
-		return "bool"
-	case descriptorpb.FieldDescriptorProto_TYPE_STRING:
-		return "string"
-	case descriptorpb.FieldDescriptorProto_TYPE_BYTES:
-		return "string"
-	case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
-		// Extract just the message name from the type name
-		typeName := field.GetTypeName()
-		parts := strings.Split(typeName, ".")
-		return GetClassName(parts[len(parts)-1])
-	default:
-		return "mixed"
-	}
 }
 
 // GetDefaultValue returns the PHP default value for a field type
@@ -200,12 +164,4 @@ func GetDefaultValue(field *descriptorpb.FieldDescriptorProto) string {
 	default:
 		return "[]"
 	}
-}
-
-// GetNamespace extracts the PHP namespace from file options
-func GetNamespace(file *descriptorpb.FileDescriptorProto) (string, bool) {
-	if file.Options != nil && file.Options.PhpNamespace != nil {
-		return file.Options.GetPhpNamespace(), true
-	}
-	return "", false
 }
