@@ -2,8 +2,10 @@ package gen
 
 import (
 	"math"
+	"strconv"
 
 	"github.com/LeTamanoir/Proteus/tests/generator/pb"
+	"github.com/LeTamanoir/Proteus/tests/generator/pb/benchmark"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"google.golang.org/protobuf/proto"
@@ -22,7 +24,7 @@ var Generators = []struct {
 	{"Organization", Organization, true},
 	{"Scalars", Scalars, true},
 	{"Map", Map, true},
-	// {"BenchmarkMap", BenchmarkMap, false},
+	{"Benchmark", Benchmark, false},
 }
 
 func Address() proto.Message {
@@ -31,7 +33,7 @@ func Address() proto.Message {
 		City:    gofakeit.City(),
 		State:   gofakeit.StateAbr(),
 		ZipCode: gofakeit.Zip(),
-		Country: "USA",
+		Country: gofakeit.CountryAbr(),
 	}
 }
 
@@ -169,17 +171,30 @@ func Map() proto.Message {
 	}
 }
 
-func BenchmarkMap() proto.Message {
-	addresses := make([]*pb.Address, 1000)
-	for i := range 1000 {
-		addresses[i] = Address().(*pb.Address)
+func Benchmark() proto.Message {
+	benchAddress := func() *benchmark.Address {
+		return &benchmark.Address{
+			Street:  gofakeit.Street(),
+			City:    gofakeit.City(),
+			State:   gofakeit.StateAbr(),
+			ZipCode: gofakeit.Zip(),
+			Country: gofakeit.CountryAbr(),
+		}
 	}
 
-	return &pb.Map{
-		StringRepeated: map[string]*pb.Repeated{
-			gofakeit.Sentence(10): {
-				Addresses: addresses,
-			},
-		},
+	mapAddresses := make(map[string]*benchmark.Address)
+	for i := range 10_000 {
+		mapAddresses[gofakeit.Word()+"_"+strconv.Itoa(i)] = benchAddress()
+	}
+
+	repeatedAddresses := make([]*benchmark.Address, 10_000)
+
+	for i := range 10_000 {
+		repeatedAddresses[i] = benchAddress()
+	}
+
+	return &benchmark.Bench{
+		MapAddresses:      mapAddresses,
+		RepeatedAddresses: repeatedAddresses,
 	}
 }
