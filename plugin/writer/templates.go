@@ -106,9 +106,7 @@ func (w *Writer) InlineReadBytes(varName string) {
 // inlineReadString generates inline code for reading a string
 func (w *Writer) InlineReadString(varName string) {
 	w.InlineReadVarint("$_byteLen")
-	w.Line("if ($_byteLen < 0) throw new \\Exception('Invalid length');")
-	w.Line("$_postIndex = $i + $_byteLen;")
-	w.Line("if ($_postIndex < 0 || $_postIndex > $l) throw new \\Exception('Invalid length');")
+	w.Line("if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \\Exception('Invalid length');")
 	w.Line(fmt.Sprintf("%s = substr($bytes, $i, $_byteLen);", varName))
-	w.Line("$i = $_postIndex;")
+	w.Line("$i += $_byteLen;")
 }
