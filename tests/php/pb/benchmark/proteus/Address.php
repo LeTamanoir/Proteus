@@ -36,106 +36,81 @@ class Address implements \Proteus\Msg
     {
         $d = new self();
         while ($i < $l) {
-            $wire = 0;
-            for ($_shift = 0;; $_shift += 7) {
-                if ($_shift >= 64) throw new \Exception('Int overflow');
-                if ($i >= $l) throw new \Exception('Unexpected EOF');
-                $_b = ord($bytes[$i++]);
-                $wire |= ($_b & 0x7F) << $_shift;
-                if ($_b < 0x80) break;
+            $_b = ord(@$bytes[$i++]);
+            $wire = $_b & 0x7F;
+            if ($_b >= 0x80) {
+                $_s = 0;
+                while ($_b >= 0x80) $wire |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                if ($_s > 63) throw new \Exception('Int overflow');
             }
             $fieldNum = $wire >> 3;
             $wireType = $wire & 0x7;
             switch ($fieldNum) {
                 case 1:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field street', $wireType));
-                    $_byteLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_byteLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_byteLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
-                    $d->street = $_value;
+                    $d->street = substr($bytes, $i, $_byteLen);
+                    $i += $_byteLen;
                     break;
                 case 2:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field city', $wireType));
-                    $_byteLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_byteLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_byteLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
-                    $d->city = $_value;
+                    $d->city = substr($bytes, $i, $_byteLen);
+                    $i += $_byteLen;
                     break;
                 case 3:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field state', $wireType));
-                    $_byteLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_byteLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_byteLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
-                    $d->state = $_value;
+                    $d->state = substr($bytes, $i, $_byteLen);
+                    $i += $_byteLen;
                     break;
                 case 4:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field zip_code', $wireType));
-                    $_byteLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_byteLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_byteLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
-                    $d->zip_code = $_value;
+                    $d->zip_code = substr($bytes, $i, $_byteLen);
+                    $i += $_byteLen;
                     break;
                 case 5:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field country', $wireType));
-                    $_byteLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_byteLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_byteLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
-                    $d->country = $_value;
+                    $d->country = substr($bytes, $i, $_byteLen);
+                    $i += $_byteLen;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);
             }
         }
+        if ($i !== $l) throw new \Exception('Unexpected EOF');
         return $d;
     }
 

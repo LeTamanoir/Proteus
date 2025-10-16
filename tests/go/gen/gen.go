@@ -26,6 +26,7 @@ var Generators = []struct {
 	{"Map", Map, true},
 	{"Benchmark", Benchmark, false},
 	{"Nested", Nested, true},
+	{"ScalarsMin", ScalarsMin, true},
 }
 
 func Address() proto.Message {
@@ -108,6 +109,26 @@ func Scalars() proto.Message {
 		Fixed64:  math.MaxUint64,
 		Sfixed32: math.MaxInt32,
 		Sfixed64: math.MaxInt64,
+		Bool:     true,
+		String_:  gofakeit.Sentence(10),
+		Bytes:    []byte(gofakeit.Sentence(10)),
+	}
+}
+
+// don't use `0` because fields are using omitempty
+func ScalarsMin() proto.Message {
+	return &pb.Scalars{
+		Double:   -math.MaxFloat64,
+		Int32:    -math.MaxInt32,
+		Int64:    -math.MaxInt64,
+		Uint32:   math.MaxUint32,
+		Uint64:   math.MaxUint64,
+		Sint32:   -math.MaxInt32,
+		Sint64:   -math.MaxInt64,
+		Fixed32:  math.MaxInt32,
+		Fixed64:  math.MaxUint64,
+		Sfixed32: -math.MaxInt32,
+		Sfixed64: -math.MaxInt64,
 		Bool:     true,
 		String_:  gofakeit.Sentence(10),
 		Bytes:    []byte(gofakeit.Sentence(10)),

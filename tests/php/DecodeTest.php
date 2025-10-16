@@ -22,6 +22,7 @@ test('Decode Message', function (string $class, string $file) {
     //
     // Scalars
     [\Tests\php\pb\Scalars\Scalars::class, 'Scalars'],
+    [\Tests\php\pb\Scalars\Scalars::class, 'ScalarsMin'],
     //
     // Map
     [\Tests\php\pb\Map\Map::class, 'Map'],

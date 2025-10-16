@@ -63,6 +63,7 @@ func (g *generator) genDecodeMethods(w *writer.Writer, message *descriptorpb.Des
 	w.Line("}")
 	w.Out()
 	w.Line("}")
+	w.Line("if ($i !== $l) throw new \\Exception('Unexpected EOF');")
 	w.Line("return $d;")
 	w.Out()
 	w.Line("}")

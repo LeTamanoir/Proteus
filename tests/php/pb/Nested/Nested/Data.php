@@ -30,54 +30,45 @@ class Data implements \Proteus\Msg
     {
         $d = new self();
         while ($i < $l) {
-            $wire = 0;
-            for ($_shift = 0;; $_shift += 7) {
-                if ($_shift >= 64) throw new \Exception('Int overflow');
-                if ($i >= $l) throw new \Exception('Unexpected EOF');
-                $_b = ord($bytes[$i++]);
-                $wire |= ($_b & 0x7F) << $_shift;
-                if ($_b < 0x80) break;
+            $_b = ord(@$bytes[$i++]);
+            $wire = $_b & 0x7F;
+            if ($_b >= 0x80) {
+                $_s = 0;
+                while ($_b >= 0x80) $wire |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                if ($_s > 63) throw new \Exception('Int overflow');
             }
             $fieldNum = $wire >> 3;
             $wireType = $wire & 0x7;
             switch ($fieldNum) {
                 case 1:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field value', $wireType));
-                    $_byteLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_byteLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_byteLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
-                    $d->value = $_value;
+                    $d->value = substr($bytes, $i, $_byteLen);
+                    $i += $_byteLen;
                     break;
                 case 2:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field nested_data', $wireType));
-                    $_len = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_len |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_len = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_len |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    $_msgLen = $i + $_len;
-                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Nested\Nested\Data\NestedData::__decode($bytes, $i, $_msgLen);
-                    $i = $_msgLen;
-                    $d->nested_data = $_value;
+                    $d->nested_data = \Tests\php\pb\Nested\Nested\Data\NestedData::__decode($bytes, $i, $i + $_len);
+                    $i += $_len;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);
             }
         }
+        if ($i !== $l) throw new \Exception('Unexpected EOF');
         return $d;
     }
 

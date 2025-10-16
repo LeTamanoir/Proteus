@@ -28,38 +28,33 @@ class NestedData implements \Proteus\Msg
     {
         $d = new self();
         while ($i < $l) {
-            $wire = 0;
-            for ($_shift = 0;; $_shift += 7) {
-                if ($_shift >= 64) throw new \Exception('Int overflow');
-                if ($i >= $l) throw new \Exception('Unexpected EOF');
-                $_b = ord($bytes[$i++]);
-                $wire |= ($_b & 0x7F) << $_shift;
-                if ($_b < 0x80) break;
+            $_b = ord(@$bytes[$i++]);
+            $wire = $_b & 0x7F;
+            if ($_b >= 0x80) {
+                $_s = 0;
+                while ($_b >= 0x80) $wire |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                if ($_s > 63) throw new \Exception('Int overflow');
             }
             $fieldNum = $wire >> 3;
             $wireType = $wire & 0x7;
             switch ($fieldNum) {
                 case 1:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field value', $wireType));
-                    $_byteLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_byteLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_byteLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    if ($_byteLen < 0) throw new \Exception('Invalid length');
-                    $_postIndex = $i + $_byteLen;
-                    if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                    $_value = substr($bytes, $i, $_byteLen);
-                    $i = $_postIndex;
-                    $d->value = $_value;
+                    $d->value = substr($bytes, $i, $_byteLen);
+                    $i += $_byteLen;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);
             }
         }
+        if ($i !== $l) throw new \Exception('Unexpected EOF');
         return $d;
     }
 

@@ -28,12 +28,13 @@ func (g *generator) inlineReadCode(w *writer.Writer, field *descriptorpb.FieldDe
 		w.InlineReadUint64(varName)
 
 	case descriptorpb.FieldDescriptorProto_TYPE_BOOL:
-		w.InlineReadVarint(varName)
-		w.Line(fmt.Sprintf("%s = %s === 1;", varName, varName))
+		w.InlineReadBool(varName)
 
-	case descriptorpb.FieldDescriptorProto_TYPE_FIXED32,
-		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32:
+	case descriptorpb.FieldDescriptorProto_TYPE_FIXED32:
 		w.InlineReadFixed32(varName)
+
+	case descriptorpb.FieldDescriptorProto_TYPE_SFIXED32:
+		w.InlineReadSfixed32(varName)
 
 	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64:
 		w.InlineReadFixed64(varName)
@@ -55,10 +56,8 @@ func (g *generator) inlineReadCode(w *writer.Writer, field *descriptorpb.FieldDe
 
 	case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
 		w.InlineReadVarint("$_len")
-		w.Line("$_msgLen = $i + $_len;")
-		w.Line("if ($_msgLen < 0 || $_msgLen > $l) throw new \\Exception('Invalid length');")
 		phpType := g.getPhpType(field)
-		w.Line(fmt.Sprintf("%s = %s::__decode($bytes, $i, $_msgLen);", varName, phpType))
-		w.Line("$i = $_msgLen;")
+		w.Line(fmt.Sprintf("%s = %s::__decode($bytes, $i, $i + $_len);", varName, phpType))
+		w.Line("$i += $_len;")
 	}
 }

@@ -34,85 +34,69 @@ class User implements \Proteus\Msg
     {
         $d = new self();
         while ($i < $l) {
-            $wire = 0;
-            for ($_shift = 0;; $_shift += 7) {
-                if ($_shift >= 64) throw new \Exception('Int overflow');
-                if ($i >= $l) throw new \Exception('Unexpected EOF');
-                $_b = ord($bytes[$i++]);
-                $wire |= ($_b & 0x7F) << $_shift;
-                if ($_b < 0x80) break;
+            $_b = ord(@$bytes[$i++]);
+            $wire = $_b & 0x7F;
+            if ($_b >= 0x80) {
+                $_s = 0;
+                while ($_b >= 0x80) $wire |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                if ($_s > 63) throw new \Exception('Int overflow');
             }
             $fieldNum = $wire >> 3;
             $wireType = $wire & 0x7;
             switch ($fieldNum) {
                 case 1:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field address', $wireType));
-                    $_len = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_len |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_len = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_len |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    $_msgLen = $i + $_len;
-                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Common\Address::__decode($bytes, $i, $_msgLen);
-                    $i = $_msgLen;
-                    $d->address = $_value;
+                    $d->address = \Tests\php\pb\Common\Address::__decode($bytes, $i, $i + $_len);
+                    $i += $_len;
                     break;
                 case 2:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field created_at', $wireType));
-                    $_len = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_len |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_len = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_len |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    $_msgLen = $i + $_len;
-                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Common\Timestamp::__decode($bytes, $i, $_msgLen);
-                    $i = $_msgLen;
-                    $d->created_at = $_value;
+                    $d->created_at = \Tests\php\pb\Common\Timestamp::__decode($bytes, $i, $i + $_len);
+                    $i += $_len;
                     break;
                 case 3:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field balance', $wireType));
-                    $_len = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_len |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_len = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_len |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    $_msgLen = $i + $_len;
-                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Common\Money::__decode($bytes, $i, $_msgLen);
-                    $i = $_msgLen;
-                    $d->balance = $_value;
+                    $d->balance = \Tests\php\pb\Common\Money::__decode($bytes, $i, $i + $_len);
+                    $i += $_len;
                     break;
                 case 4:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field coordinates', $wireType));
-                    $_len = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_len |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord(@$bytes[$i++]);
+                    $_len = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_len |= (($_b = ord(@$bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
-                    $_msgLen = $i + $_len;
-                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $_value = \Tests\php\pb\Common\Coordinates::__decode($bytes, $i, $_msgLen);
-                    $i = $_msgLen;
-                    $d->coordinates = $_value;
+                    $d->coordinates = \Tests\php\pb\Common\Coordinates::__decode($bytes, $i, $i + $_len);
+                    $i += $_len;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);
             }
         }
+        if ($i !== $l) throw new \Exception('Unexpected EOF');
         return $d;
     }
 
