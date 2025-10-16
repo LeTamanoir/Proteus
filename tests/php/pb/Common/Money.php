@@ -32,27 +32,27 @@ class Money implements \Proteus\Msg
     {
         $d = new self();
         while ($i < $l) {
-            $wire = 0;
-            for ($_shift = 0;; $_shift += 7) {
-                if ($_shift >= 64) throw new \Exception('Int overflow');
-                if ($i >= $l) throw new \Exception('Unexpected EOF');
-                $_b = ord($bytes[$i++]);
-                $wire |= ($_b & 0x7F) << $_shift;
-                if ($_b < 0x80) break;
+            $_b = ord($bytes[$i++]);
+            $wire = $_b & 0x7F;
+            if ($_b >= 0x80) {
+                $_s = 0;
+                while ($_b >= 0x80) $wire |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                if ($_s > 63) throw new \Exception('Int overflow');
             }
+            if ($i > $l) throw new \Exception('Unexpected EOF');
             $fieldNum = $wire >> 3;
             $wireType = $wire & 0x7;
             switch ($fieldNum) {
                 case 1:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field currency_code', $wireType));
-                    $_byteLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_byteLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_byteLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                     $_value = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
@@ -60,26 +60,26 @@ class Money implements \Proteus\Msg
                     break;
                 case 2:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field units', $wireType));
-                    $_value = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_value |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_value = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_value |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     $d->units = $_value;
                     break;
                 case 3:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field nanos', $wireType));
-                    $_u = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_u |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_u = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_value = $_u;
                     if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
                     $d->nanos = $_value;

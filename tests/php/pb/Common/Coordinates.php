@@ -30,14 +30,14 @@ class Coordinates implements \Proteus\Msg
     {
         $d = new self();
         while ($i < $l) {
-            $wire = 0;
-            for ($_shift = 0;; $_shift += 7) {
-                if ($_shift >= 64) throw new \Exception('Int overflow');
-                if ($i >= $l) throw new \Exception('Unexpected EOF');
-                $_b = ord($bytes[$i++]);
-                $wire |= ($_b & 0x7F) << $_shift;
-                if ($_b < 0x80) break;
+            $_b = ord($bytes[$i++]);
+            $wire = $_b & 0x7F;
+            if ($_b >= 0x80) {
+                $_s = 0;
+                while ($_b >= 0x80) $wire |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                if ($_s > 63) throw new \Exception('Int overflow');
             }
+            if ($i > $l) throw new \Exception('Unexpected EOF');
             $fieldNum = $wire >> 3;
             $wireType = $wire & 0x7;
             switch ($fieldNum) {

@@ -29,66 +29,66 @@ class NestedMap implements \Proteus\Msg
     {
         $d = new self();
         while ($i < $l) {
-            $wire = 0;
-            for ($_shift = 0;; $_shift += 7) {
-                if ($_shift >= 64) throw new \Exception('Int overflow');
-                if ($i >= $l) throw new \Exception('Unexpected EOF');
-                $_b = ord($bytes[$i++]);
-                $wire |= ($_b & 0x7F) << $_shift;
-                if ($_b < 0x80) break;
+            $_b = ord($bytes[$i++]);
+            $wire = $_b & 0x7F;
+            if ($_b >= 0x80) {
+                $_s = 0;
+                while ($_b >= 0x80) $wire |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                if ($_s > 63) throw new \Exception('Int overflow');
             }
+            if ($i > $l) throw new \Exception('Unexpected EOF');
             $fieldNum = $wire >> 3;
             $wireType = $wire & 0x7;
             switch ($fieldNum) {
                 case 1:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field string_address', $wireType));
-                    $_entryLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_entryLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_entryLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_entryLen |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
                     $_key = '';
                     $_val = [];
                     while ($i < $_limit) {
-                        $_tag = 0;
-                        for ($_shift = 0;; $_shift += 7) {
-                            if ($_shift >= 64) throw new \Exception('Int overflow');
-                            if ($i >= $l) throw new \Exception('Unexpected EOF');
-                            $_b = ord($bytes[$i++]);
-                            $_tag |= ($_b & 0x7F) << $_shift;
-                            if ($_b < 0x80) break;
+                        $_b = ord($bytes[$i++]);
+                        $_tag = $_b & 0x7F;
+                        if ($_b >= 0x80) {
+                            $_s = 0;
+                            while ($_b >= 0x80) $_tag |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                            if ($_s > 63) throw new \Exception('Int overflow');
                         }
+                        if ($i > $l) throw new \Exception('Unexpected EOF');
                         $_fieldNum = $_tag >> 3;
                         $_wireType = $_tag & 0x7;
                         switch ($_fieldNum) {
                             case 1:
                                 if ($_wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field string_address key', $_wireType));
-                                $_byteLen = 0;
-                                for ($_shift = 0;; $_shift += 7) {
-                                    if ($_shift >= 64) throw new \Exception('Int overflow');
-                                    if ($i >= $l) throw new \Exception('Unexpected EOF');
-                                    $_b = ord($bytes[$i++]);
-                                    $_byteLen |= ($_b & 0x7F) << $_shift;
-                                    if ($_b < 0x80) break;
+                                $_b = ord($bytes[$i++]);
+                                $_byteLen = $_b & 0x7F;
+                                if ($_b >= 0x80) {
+                                    $_s = 0;
+                                    while ($_b >= 0x80) $_byteLen |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    if ($_s > 63) throw new \Exception('Int overflow');
                                 }
+                                if ($i > $l) throw new \Exception('Unexpected EOF');
                                 if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                                 $_key = substr($bytes, $i, $_byteLen);
                                 $i += $_byteLen;
                                 break;
                             case 2:
                                 if ($_wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field string_address value', $_wireType));
-                                $_len = 0;
-                                for ($_shift = 0;; $_shift += 7) {
-                                    if ($_shift >= 64) throw new \Exception('Int overflow');
-                                    if ($i >= $l) throw new \Exception('Unexpected EOF');
-                                    $_b = ord($bytes[$i++]);
-                                    $_len |= ($_b & 0x7F) << $_shift;
-                                    if ($_b < 0x80) break;
+                                $_b = ord($bytes[$i++]);
+                                $_len = $_b & 0x7F;
+                                if ($_b >= 0x80) {
+                                    $_s = 0;
+                                    while ($_b >= 0x80) $_len |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                                    if ($_s > 63) throw new \Exception('Int overflow');
                                 }
+                                if ($i > $l) throw new \Exception('Unexpected EOF');
                                 $_msgLen = $i + $_len;
                                 if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
                                 $_val = \Tests\php\pb\Common\Address::__decode($bytes, $i, $_msgLen);

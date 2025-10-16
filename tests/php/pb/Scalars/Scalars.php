@@ -96,14 +96,14 @@ class Scalars implements \Proteus\Msg
     {
         $d = new self();
         while ($i < $l) {
-            $wire = 0;
-            for ($_shift = 0;; $_shift += 7) {
-                if ($_shift >= 64) throw new \Exception('Int overflow');
-                if ($i >= $l) throw new \Exception('Unexpected EOF');
-                $_b = ord($bytes[$i++]);
-                $wire |= ($_b & 0x7F) << $_shift;
-                if ($_b < 0x80) break;
+            $_b = ord($bytes[$i++]);
+            $wire = $_b & 0x7F;
+            if ($_b >= 0x80) {
+                $_s = 0;
+                while ($_b >= 0x80) $wire |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                if ($_s > 63) throw new \Exception('Int overflow');
             }
+            if ($i > $l) throw new \Exception('Unexpected EOF');
             $fieldNum = $wire >> 3;
             $wireType = $wire & 0x7;
             switch ($fieldNum) {
@@ -116,47 +116,46 @@ class Scalars implements \Proteus\Msg
                     break;
                 case 3:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field int32', $wireType));
-                    $_u = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_u |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_u = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_value = $_u;
                     if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
                     $d->int32 = $_value;
                     break;
                 case 4:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field int64', $wireType));
-                    $_value = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_value |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_value = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_value |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     $d->int64 = $_value;
                     break;
                 case 5:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field uint32', $wireType));
-                    $_value = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_value |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_value = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_value |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     $d->uint32 = $_value;
                     break;
                 case 6:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field uint64', $wireType));
                     $_value = gmp_init(0);
                     for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
                         if ($i >= $l) throw new \Exception('Unexpected EOF');
                         $_b = gmp_init(ord($bytes[$i++]));
                         $_value = gmp_or($_value, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_shift)));
@@ -167,14 +166,14 @@ class Scalars implements \Proteus\Msg
                     break;
                 case 7:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field sint32', $wireType));
-                    $_u = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_u |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_u = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_u |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_value = ($_u >> 1) ^ -($_u & 1);
                     if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
                     $d->sint32 = $_value;
@@ -183,7 +182,6 @@ class Scalars implements \Proteus\Msg
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field sint64', $wireType));
                     $_u = gmp_init(0);
                     for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
                         if ($i >= $l) throw new \Exception('Unexpected EOF');
                         $_b = gmp_init(ord($bytes[$i++]));
                         $_u = gmp_or($_u, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_shift)));
@@ -222,27 +220,27 @@ class Scalars implements \Proteus\Msg
                     break;
                 case 13:
                     if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field bool', $wireType));
-                    $_value = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_value |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_value = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_value |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_value = $_value === 1;
                     $d->bool = $_value;
                     break;
                 case 14:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field string', $wireType));
-                    $_byteLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_byteLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_byteLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                     $_value = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
@@ -250,14 +248,14 @@ class Scalars implements \Proteus\Msg
                     break;
                 case 15:
                     if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field bytes', $wireType));
-                    $_byteLen = 0;
-                    for ($_shift = 0;; $_shift += 7) {
-                        if ($_shift >= 64) throw new \Exception('Int overflow');
-                        if ($i >= $l) throw new \Exception('Unexpected EOF');
-                        $_b = ord($bytes[$i++]);
-                        $_byteLen |= ($_b & 0x7F) << $_shift;
-                        if ($_b < 0x80) break;
+                    $_b = ord($bytes[$i++]);
+                    $_byteLen = $_b & 0x7F;
+                    if ($_b >= 0x80) {
+                        $_s = 0;
+                        while ($_b >= 0x80) $_byteLen |= (($_b = ord($bytes[$i++])) & 0x7F) << ($_s += 7);
+                        if ($_s > 63) throw new \Exception('Int overflow');
                     }
+                    if ($i > $l) throw new \Exception('Unexpected EOF');
                     if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \Exception('Invalid length');
                     $_value = substr($bytes, $i, $_byteLen);
                     $i += $_byteLen;
