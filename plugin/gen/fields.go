@@ -14,8 +14,7 @@ func (g *generator) genRegularFieldCode(w *writer.Writer, field *descriptorpb.Fi
 	expectedWireType := protobuf.GetWireType(field.GetType())
 
 	w.Line(fmt.Sprintf("if ($wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s', $wireType));", expectedWireType, fieldName))
-	g.inlineReadCode(w, field, "$_value")
-	w.Line(fmt.Sprintf("$d->%s = $_value;", fieldName))
+	g.inlineReadCode(w, field, fmt.Sprintf("$d->%s", fieldName))
 }
 
 // genRepeatedFieldCode generates code for deserializing a repeated field
