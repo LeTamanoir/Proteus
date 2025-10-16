@@ -1,21 +1,21 @@
 {
    "int32_bool": {
-      "2147483647": true
+      "2147483647": false
    },
    "int64_bool": {
-      "9223372036854775807": false
+      "9223372036854775807": true
    },
    "uint32_bool": {
       "4294967295": true
    },
    "uint64_bool": {
-      "18446744073709551615": true
+      "18446744073709551615": false
    },
    "sint32_bool": {
       "2147483647": true
    },
    "sint64_bool": {
-      "9223372036854775807": true
+      "9223372036854775807": false
    },
    "fixed32_bool": {
       "4294967295": false
@@ -24,59 +24,59 @@
       "18446744073709551615": false
    },
    "sfixed32_bool": {
-      "2147483647": true
+      "2147483647": false
    },
    "sfixed64_bool": {
-      "9223372036854775807": true
+      "9223372036854775807": false
    },
    "string_bool": {
-      "Here irritably his onto would none yearly each from upon.": false
+      "Words none yearly each from upon this archipelago slavery inexpensive.": false
    },
    "string_address": {
-      "Hourly archipelago slavery inexpensive how a talent how ourselves because.": {
-         "street": "3448 South Plazafort",
-         "city": "Bakersfield",
-         "state": "AE",
-         "zip_code": "92344",
-         "country": "USA"
+      "She her dynasty with will fear hourly from yours any.": {
+         "street": "692 Islandport",
+         "city": "Omaha",
+         "state": "NJ",
+         "zip_code": "70424",
+         "country": "ER"
       }
    },
    "string_repeated": {
-      "Day what finally at dynasty then road cluster with one.": {
+      "Dynasty then road cluster with one caravan wealth clarity Elizabethan.": {
          "addresses": [
             {
-               "street": "434 Centersland",
-               "city": "Sacramento",
+               "street": "50318 Islandland",
+               "city": "Chesapeake",
+               "state": "HI",
+               "zip_code": "57132",
+               "country": "NG"
+            },
+            {
+               "street": "808 Lake Placeshire",
+               "city": "Wichita",
                "state": "NC",
-               "zip_code": "50318",
-               "country": "USA"
+               "zip_code": "11328",
+               "country": "FM"
             },
             {
-               "street": "91057 East Isleberg",
-               "city": "St. Paul",
-               "state": "GA",
-               "zip_code": "80886",
-               "country": "USA"
-            },
-            {
-               "street": "6411 West Fordhaven",
-               "city": "Oklahoma",
-               "state": "WA",
-               "zip_code": "79266",
-               "country": "USA"
+               "street": "79266 Coursechester",
+               "city": "Austin",
+               "state": "NH",
+               "zip_code": "74284",
+               "country": "VC"
             }
          ]
       }
    },
    "string_nested_map": {
-      "Its her army finally yours wiggle which yearly whom himself.": {
+      "Would back must some before his where always under riches.": {
          "string_address": {
-            "Always his where always under riches weight accordingly week has.": {
-               "street": "942 Keytown",
-               "city": "Jersey",
-               "state": "IA",
-               "zip_code": "57465",
-               "country": "USA"
+            "Weight accordingly week has tea join elsewhere that yesterday how.": {
+               "street": "593 Port Rampborough",
+               "city": "Scottsdale",
+               "state": "AE",
+               "zip_code": "82146",
+               "country": "AU"
             }
          }
       }

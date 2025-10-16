@@ -6,17 +6,26 @@ namespace Proteus;
 
 use Exception;
 
+// @mago-ignore analysis:redundant-comparison,impossible-condition
+if (PHP_INT_SIZE !== 8) {
+    trigger_error('This message is only supported on 64-bit systems', E_USER_WARNING);
+}
+
+if (!extension_loaded('gmp')) {
+    trigger_error('The gmp extension must be loaded in order to decode this message', E_USER_WARNING);
+}
+
 /**
  * Skips an unknown field in the protobuf binary data
  *
- * @param int $i Current position in the byte string (passed by reference, will be updated)
+ * @param int $i Current position in the byte string
  * @param int $l Total length of the byte string
- * @param int[] $bytes The binary data
+ * @param string $bytes The binary data
  * @param int $wireType The wire type of the field to skip (0, 1, 2, or 5)
  * @throws Exception if wire type is unsupported or data is malformed
  * @return int The new position in the byte string
  */
-function skipField(int $i, int $l, array $bytes, int $wireType): int
+function skipField(int $i, int $l, string $bytes, int $wireType): int
 {
     switch ($wireType) {
         case 0: // varint - inline the varint skip
@@ -27,8 +36,7 @@ function skipField(int $i, int $l, array $bytes, int $wireType): int
                 if ($i >= $l) {
                     throw new Exception('Unexpected EOF');
                 }
-                $b = $bytes[$i];
-                ++$i;
+                $b = ord($bytes[$i++]);
                 if ($b < 0x80) {
                     break;
                 }
@@ -51,8 +59,7 @@ function skipField(int $i, int $l, array $bytes, int $wireType): int
                 if ($i >= $l) {
                     throw new Exception('Unexpected EOF');
                 }
-                $b = $bytes[$i];
-                ++$i;
+                $b = ord($bytes[$i++]);
                 $len |= ($b & 0x7F) << $shift;
                 if ($b < 0x80) {
                     break;

@@ -2,12 +2,12 @@
 
 /**
  * Auto-generated file, DO NOT EDIT!
- * Proto file: tests/protos/common.proto
+ * Proto file: tests/protos/benchmark/proteus.proto
  */
 
 declare(strict_types=1);
 
-namespace Tests\PB;
+namespace Tests\PB\benchmark\proteus;
 
 class Address implements \Proteus\Msg
 {
@@ -30,50 +30,20 @@ class Address implements \Proteus\Msg
     }
 }
 
-class Timestamp implements \Proteus\Msg
+class Bench implements \Proteus\Msg
 {
-    public int $seconds = 0;
+    /** @var array<string, Address> */
+    public array $map_addresses = [];
 
-    public int $nanos = 0;
+    /** @var Address[] */
+    public array $repeated_addresses = [];
 
     /**
      * @throws \Exception if the data is malformed or contains invalid wire types
      */
     public static function decode(string $bytes): self
     {
-        return decodeTimestamp($bytes, 0, strlen($bytes));
-    }
-}
-
-class Money implements \Proteus\Msg
-{
-    public string $currency_code = '';
-
-    public int $units = 0;
-
-    public int $nanos = 0;
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return decodeMoney($bytes, 0, strlen($bytes));
-    }
-}
-
-class Coordinates implements \Proteus\Msg
-{
-    public float $latitude = 0.0;
-
-    public float $longitude = 0.0;
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return decodeCoordinates($bytes, 0, strlen($bytes));
+        return decodeBench($bytes, 0, strlen($bytes));
     }
 }
 
@@ -191,9 +161,9 @@ function decodeAddress(string $bytes, int $i, int $l): Address
 /**
  * @throws \Exception if the data is malformed or contains invalid wire types
  */
-function decodeTimestamp(string $bytes, int $i, int $l): Timestamp
+function decodeBench(string $bytes, int $i, int $l): Bench
 {
-    $d = new Timestamp();
+    $d = new Bench();
     while ($i < $l) {
         $wire = 0;
         for ($_shift = 0;; $_shift += 7) {
@@ -207,137 +177,81 @@ function decodeTimestamp(string $bytes, int $i, int $l): Timestamp
         $wireType = $wire & 0x7;
         switch ($fieldNum) {
             case 1:
-                if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field seconds', $wireType));
-                $_value = 0;
+                if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field map_addresses', $wireType));
+                $_entryLen = 0;
                 for ($_shift = 0;; $_shift += 7) {
                     if ($_shift >= 64) throw new \Exception('Int overflow');
                     if ($i >= $l) throw new \Exception('Unexpected EOF');
                     $_b = ord($bytes[$i++]);
-                    $_value |= ($_b & 0x7F) << $_shift;
+                    $_entryLen |= ($_b & 0x7F) << $_shift;
                     if ($_b < 0x80) break;
                 }
-                $d->seconds = $_value;
+                $_limit = $i + $_entryLen;
+                $_key = '';
+                $_val = [];
+                while ($i < $_limit) {
+                    $_tag = 0;
+                    for ($_shift = 0;; $_shift += 7) {
+                        if ($_shift >= 64) throw new \Exception('Int overflow');
+                        if ($i >= $l) throw new \Exception('Unexpected EOF');
+                        $_b = ord($bytes[$i++]);
+                        $_tag |= ($_b & 0x7F) << $_shift;
+                        if ($_b < 0x80) break;
+                    }
+                    $_fieldNum = $_tag >> 3;
+                    $_wireType = $_tag & 0x7;
+                    switch ($_fieldNum) {
+                        case 1:
+                            if ($_wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field map_addresses key', $_wireType));
+                            $_byteLen = 0;
+                            for ($_shift = 0;; $_shift += 7) {
+                                if ($_shift >= 64) throw new \Exception('Int overflow');
+                                if ($i >= $l) throw new \Exception('Unexpected EOF');
+                                $_b = ord($bytes[$i++]);
+                                $_byteLen |= ($_b & 0x7F) << $_shift;
+                                if ($_b < 0x80) break;
+                            }
+                            if ($_byteLen < 0) throw new \Exception('Invalid length');
+                            $_postIndex = $i + $_byteLen;
+                            if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
+                            $_key = substr($bytes, $i, $_byteLen);
+                            $i = $_postIndex;
+                            break;
+                        case 2:
+                            if ($_wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field map_addresses value', $_wireType));
+                            $_len = 0;
+                            for ($_shift = 0;; $_shift += 7) {
+                                if ($_shift >= 64) throw new \Exception('Int overflow');
+                                if ($i >= $l) throw new \Exception('Unexpected EOF');
+                                $_b = ord($bytes[$i++]);
+                                $_len |= ($_b & 0x7F) << $_shift;
+                                if ($_b < 0x80) break;
+                            }
+                            $_msgLen = $i + $_len;
+                            if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
+                            $_val = decodeAddress($bytes, $i, $_msgLen);
+                            $i = $_msgLen;
+                            break;
+                        default:
+                            $i = \Proteus\skipField($i, $l, $bytes, $_wireType);
+                    }
+                }
+                $d->map_addresses[$_key] = $_val;
                 break;
             case 2:
-                if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field nanos', $wireType));
-                $_u = 0;
+                if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field repeated_addresses', $wireType));
+                $_len = 0;
                 for ($_shift = 0;; $_shift += 7) {
                     if ($_shift >= 64) throw new \Exception('Int overflow');
                     if ($i >= $l) throw new \Exception('Unexpected EOF');
                     $_b = ord($bytes[$i++]);
-                    $_u |= ($_b & 0x7F) << $_shift;
+                    $_len |= ($_b & 0x7F) << $_shift;
                     if ($_b < 0x80) break;
                 }
-                $_value = $_u;
-                if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
-                $d->nanos = $_value;
-                break;
-            default:
-                $i = \Proteus\skipField($i, $l, $bytes, $wireType);
-        }
-    }
-    return $d;
-}
-
-/**
- * @throws \Exception if the data is malformed or contains invalid wire types
- */
-function decodeMoney(string $bytes, int $i, int $l): Money
-{
-    $d = new Money();
-    while ($i < $l) {
-        $wire = 0;
-        for ($_shift = 0;; $_shift += 7) {
-            if ($_shift >= 64) throw new \Exception('Int overflow');
-            if ($i >= $l) throw new \Exception('Unexpected EOF');
-            $_b = ord($bytes[$i++]);
-            $wire |= ($_b & 0x7F) << $_shift;
-            if ($_b < 0x80) break;
-        }
-        $fieldNum = $wire >> 3;
-        $wireType = $wire & 0x7;
-        switch ($fieldNum) {
-            case 1:
-                if ($wireType !== 2) throw new \Exception(sprintf('Invalid wire type %d for field currency_code', $wireType));
-                $_byteLen = 0;
-                for ($_shift = 0;; $_shift += 7) {
-                    if ($_shift >= 64) throw new \Exception('Int overflow');
-                    if ($i >= $l) throw new \Exception('Unexpected EOF');
-                    $_b = ord($bytes[$i++]);
-                    $_byteLen |= ($_b & 0x7F) << $_shift;
-                    if ($_b < 0x80) break;
-                }
-                if ($_byteLen < 0) throw new \Exception('Invalid length');
-                $_postIndex = $i + $_byteLen;
-                if ($_postIndex < 0 || $_postIndex > $l) throw new \Exception('Invalid length');
-                $_value = substr($bytes, $i, $_byteLen);
-                $i = $_postIndex;
-                $d->currency_code = $_value;
-                break;
-            case 2:
-                if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field units', $wireType));
-                $_value = 0;
-                for ($_shift = 0;; $_shift += 7) {
-                    if ($_shift >= 64) throw new \Exception('Int overflow');
-                    if ($i >= $l) throw new \Exception('Unexpected EOF');
-                    $_b = ord($bytes[$i++]);
-                    $_value |= ($_b & 0x7F) << $_shift;
-                    if ($_b < 0x80) break;
-                }
-                $d->units = $_value;
-                break;
-            case 3:
-                if ($wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field nanos', $wireType));
-                $_u = 0;
-                for ($_shift = 0;; $_shift += 7) {
-                    if ($_shift >= 64) throw new \Exception('Int overflow');
-                    if ($i >= $l) throw new \Exception('Unexpected EOF');
-                    $_b = ord($bytes[$i++]);
-                    $_u |= ($_b & 0x7F) << $_shift;
-                    if ($_b < 0x80) break;
-                }
-                $_value = $_u;
-                if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
-                $d->nanos = $_value;
-                break;
-            default:
-                $i = \Proteus\skipField($i, $l, $bytes, $wireType);
-        }
-    }
-    return $d;
-}
-
-/**
- * @throws \Exception if the data is malformed or contains invalid wire types
- */
-function decodeCoordinates(string $bytes, int $i, int $l): Coordinates
-{
-    $d = new Coordinates();
-    while ($i < $l) {
-        $wire = 0;
-        for ($_shift = 0;; $_shift += 7) {
-            if ($_shift >= 64) throw new \Exception('Int overflow');
-            if ($i >= $l) throw new \Exception('Unexpected EOF');
-            $_b = ord($bytes[$i++]);
-            $wire |= ($_b & 0x7F) << $_shift;
-            if ($_b < 0x80) break;
-        }
-        $fieldNum = $wire >> 3;
-        $wireType = $wire & 0x7;
-        switch ($fieldNum) {
-            case 1:
-                if ($wireType !== 1) throw new \Exception(sprintf('Invalid wire type %d for field latitude', $wireType));
-                if ($i + 8 > $l) throw new \Exception('Unexpected EOF');
-                $_value = unpack('d', substr($bytes, $i, 8))[1];
-                $i += 8;
-                $d->latitude = $_value;
-                break;
-            case 2:
-                if ($wireType !== 1) throw new \Exception(sprintf('Invalid wire type %d for field longitude', $wireType));
-                if ($i + 8 > $l) throw new \Exception('Unexpected EOF');
-                $_value = unpack('d', substr($bytes, $i, 8))[1];
-                $i += 8;
-                $d->longitude = $_value;
+                $_msgLen = $i + $_len;
+                if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
+                $d->repeated_addresses[] = decodeAddress($bytes, $i, $_msgLen);
+                $i = $_msgLen;
                 break;
             default:
                 $i = \Proteus\skipField($i, $l, $bytes, $wireType);

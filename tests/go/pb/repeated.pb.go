@@ -2,16 +2,17 @@
 // versions:
 // 	protoc-gen-go v1.36.10
 // 	protoc        v6.32.1
-// source: repeated.proto
+// source: tests/protos/repeated.proto
 
 package pb
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -33,7 +34,7 @@ type Organization struct {
 
 func (x *Organization) Reset() {
 	*x = Organization{}
-	mi := &file_repeated_proto_msgTypes[0]
+	mi := &file_tests_protos_repeated_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +46,7 @@ func (x *Organization) String() string {
 func (*Organization) ProtoMessage() {}
 
 func (x *Organization) ProtoReflect() protoreflect.Message {
-	mi := &file_repeated_proto_msgTypes[0]
+	mi := &file_tests_protos_repeated_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +59,7 @@ func (x *Organization) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Organization.ProtoReflect.Descriptor instead.
 func (*Organization) Descriptor() ([]byte, []int) {
-	return file_repeated_proto_rawDescGZIP(), []int{0}
+	return file_tests_protos_repeated_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Organization) GetUsers() []*User {
@@ -89,36 +90,35 @@ func (x *Organization) GetIsAdmin() []bool {
 	return nil
 }
 
-var File_repeated_proto protoreflect.FileDescriptor
+var File_tests_protos_repeated_proto protoreflect.FileDescriptor
 
-const file_repeated_proto_rawDesc = "" +
+const file_tests_protos_repeated_proto_rawDesc = "" +
 	"\n" +
-	"\x0erepeated.proto\x12\rtest.repeated\x1a\rimports.proto\"\x7f\n" +
+	"\x1btests/protos/repeated.proto\x12\rtest.repeated\x1a\x1atests/protos/imports.proto\"\x7f\n" +
 	"\fOrganization\x12(\n" +
 	"\x05users\x18\x01 \x03(\v2\x12.test.imports.UserR\x05users\x12\x16\n" +
 	"\x06emails\x18\x02 \x03(\tR\x06emails\x12\x12\n" +
 	"\x04ages\x18\x03 \x03(\x05R\x04ages\x12\x19\n" +
-	"\bis_admin\x18\x04 \x03(\bR\aisAdminB\x17Z\n" +
-	"proteus/pb\xca\x02\bTests\\PBb\x06proto3"
+	"\bis_admin\x18\x04 \x03(\bR\aisAdminB\x18Z\vtests/go/pb\xca\x02\bTests\\PBb\x06proto3"
 
 var (
-	file_repeated_proto_rawDescOnce sync.Once
-	file_repeated_proto_rawDescData []byte
+	file_tests_protos_repeated_proto_rawDescOnce sync.Once
+	file_tests_protos_repeated_proto_rawDescData []byte
 )
 
-func file_repeated_proto_rawDescGZIP() []byte {
-	file_repeated_proto_rawDescOnce.Do(func() {
-		file_repeated_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_repeated_proto_rawDesc), len(file_repeated_proto_rawDesc)))
+func file_tests_protos_repeated_proto_rawDescGZIP() []byte {
+	file_tests_protos_repeated_proto_rawDescOnce.Do(func() {
+		file_tests_protos_repeated_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_tests_protos_repeated_proto_rawDesc), len(file_tests_protos_repeated_proto_rawDesc)))
 	})
-	return file_repeated_proto_rawDescData
+	return file_tests_protos_repeated_proto_rawDescData
 }
 
-var file_repeated_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_repeated_proto_goTypes = []any{
+var file_tests_protos_repeated_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_tests_protos_repeated_proto_goTypes = []any{
 	(*Organization)(nil), // 0: test.repeated.Organization
 	(*User)(nil),         // 1: test.imports.User
 }
-var file_repeated_proto_depIdxs = []int32{
+var file_tests_protos_repeated_proto_depIdxs = []int32{
 	1, // 0: test.repeated.Organization.users:type_name -> test.imports.User
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
@@ -127,27 +127,27 @@ var file_repeated_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_repeated_proto_init() }
-func file_repeated_proto_init() {
-	if File_repeated_proto != nil {
+func init() { file_tests_protos_repeated_proto_init() }
+func file_tests_protos_repeated_proto_init() {
+	if File_tests_protos_repeated_proto != nil {
 		return
 	}
-	file_imports_proto_init()
+	file_tests_protos_imports_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_repeated_proto_rawDesc), len(file_repeated_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tests_protos_repeated_proto_rawDesc), len(file_tests_protos_repeated_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_repeated_proto_goTypes,
-		DependencyIndexes: file_repeated_proto_depIdxs,
-		MessageInfos:      file_repeated_proto_msgTypes,
+		GoTypes:           file_tests_protos_repeated_proto_goTypes,
+		DependencyIndexes: file_tests_protos_repeated_proto_depIdxs,
+		MessageInfos:      file_tests_protos_repeated_proto_msgTypes,
 	}.Build()
-	File_repeated_proto = out.File
-	file_repeated_proto_goTypes = nil
-	file_repeated_proto_depIdxs = nil
+	File_tests_protos_repeated_proto = out.File
+	file_tests_protos_repeated_proto_goTypes = nil
+	file_tests_protos_repeated_proto_depIdxs = nil
 }

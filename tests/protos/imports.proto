@@ -3,9 +3,9 @@ syntax = "proto3";
 package test.imports;
 
 option php_namespace = "Tests\\PB";
-option go_package = "proteus/pb";
+option go_package = "tests/go/pb";
 
-import "common.proto";
+import "tests/protos/common.proto";
 
 message User {
     common.Address address = 1;

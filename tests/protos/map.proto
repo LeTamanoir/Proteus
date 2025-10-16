@@ -3,9 +3,9 @@ syntax = "proto3";
 package test.map;
 
 option php_namespace = "Tests\\PB";
-option go_package = "proteus/pb";
+option go_package = "tests/go/pb";
 
-import "common.proto";
+import "tests/protos/common.proto";
 
 message NestedMap {
     map<string, common.Address> string_address = 1;

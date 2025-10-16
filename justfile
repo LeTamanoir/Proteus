@@ -8,10 +8,12 @@ build:
 # Format the plugin code
 fmt:
     cd plugin && go fmt ./... && goimports -w .
+    cd tests/go && go fmt ./... && goimports -w .
 
 # Static analysis and linting of the plugin
 check:
     cd plugin && golangci-lint run
+    cd tests/go && golangci-lint run
 
 # Run the plugin tests
 test:
@@ -22,12 +24,27 @@ test:
 # build-image:
 # docker build -t proteus-plugin -f plugin/Dockerfile .
 
-# Generate PHP & Go classes from proto files for tests
-gen-mocks:
+_cleanup-mocks:
     rm -rf ./tests/php/pb/*
     rm -rf ./tests/go/pb/*
-    protoc --plugin=./plugin/bin/protoc-gen-php-proteus --php-proteus_out=./tests/php/pb --proto_path=./tests/protos ./tests/protos/*
-    protoc --go_out=./tests/go/pb --go_opt=paths=source_relative --proto_path=./tests/protos ./tests/protos/*
-    composer dump-autoload
+
+_gen-go-mocks:
+    mkdir -p ./tests/go/pb/
+    protoc --go_out=. ./tests/protos/*.proto
+
+_gen-benchmark-mocks:
+    protoc --php_out=. ./tests/protos/benchmark/google.proto
+    mkdir -p ./tests/php/pb/benchmark/proteus/
+    protoc --plugin=./plugin/bin/protoc-gen-php-proteus --php-proteus_out=./tests/php/pb/benchmark/proteus/ ./tests/protos/benchmark/proteus.proto
+    protoc --go_out=. ./tests/protos/benchmark/proteus.proto
+
+_gen-php-mocks:
+    protoc --plugin=./plugin/bin/protoc-gen-php-proteus --php-proteus_out=./tests/php/pb ./tests/protos/*.proto
+    
+_gen-fixtures:
     rm -rf ./tests/fixtures/*
     cd tests/go && go run .
+
+# Generate PHP & Go classes from proto files for tests
+gen-mocks: _cleanup-mocks _gen-go-mocks _gen-php-mocks _gen-benchmark-mocks _gen-fixtures
+    composer dump-autoload

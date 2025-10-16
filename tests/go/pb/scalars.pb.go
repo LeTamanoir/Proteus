@@ -2,16 +2,17 @@
 // versions:
 // 	protoc-gen-go v1.36.10
 // 	protoc        v6.32.1
-// source: scalars.proto
+// source: tests/protos/scalars.proto
 
 package pb
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -57,7 +58,7 @@ type Scalars struct {
 
 func (x *Scalars) Reset() {
 	*x = Scalars{}
-	mi := &file_scalars_proto_msgTypes[0]
+	mi := &file_tests_protos_scalars_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -69,7 +70,7 @@ func (x *Scalars) String() string {
 func (*Scalars) ProtoMessage() {}
 
 func (x *Scalars) ProtoReflect() protoreflect.Message {
-	mi := &file_scalars_proto_msgTypes[0]
+	mi := &file_tests_protos_scalars_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -82,7 +83,7 @@ func (x *Scalars) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Scalars.ProtoReflect.Descriptor instead.
 func (*Scalars) Descriptor() ([]byte, []int) {
-	return file_scalars_proto_rawDescGZIP(), []int{0}
+	return file_tests_protos_scalars_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Scalars) GetDouble() float64 {
@@ -183,11 +184,11 @@ func (x *Scalars) GetBytes() []byte {
 	return nil
 }
 
-var File_scalars_proto protoreflect.FileDescriptor
+var File_tests_protos_scalars_proto protoreflect.FileDescriptor
 
-const file_scalars_proto_rawDesc = "" +
+const file_tests_protos_scalars_proto_rawDesc = "" +
 	"\n" +
-	"\rscalars.proto\x12\ftest.scalars\"\xdb\x02\n" +
+	"\x1atests/protos/scalars.proto\x12\ftest.scalars\"\xdb\x02\n" +
 	"\aScalars\x12\x16\n" +
 	"\x06double\x18\x01 \x01(\x01R\x06double\x12\x14\n" +
 	"\x05int32\x18\x03 \x01(\x05R\x05int32\x12\x14\n" +
@@ -203,26 +204,25 @@ const file_scalars_proto_rawDesc = "" +
 	"\bsfixed64\x18\f \x01(\x10R\bsfixed64\x12\x12\n" +
 	"\x04bool\x18\r \x01(\bR\x04bool\x12\x16\n" +
 	"\x06string\x18\x0e \x01(\tR\x06string\x12\x14\n" +
-	"\x05bytes\x18\x0f \x01(\fR\x05bytesB\x17Z\n" +
-	"proteus/pb\xca\x02\bTests\\PBb\x06proto3"
+	"\x05bytes\x18\x0f \x01(\fR\x05bytesB\x18Z\vtests/go/pb\xca\x02\bTests\\PBb\x06proto3"
 
 var (
-	file_scalars_proto_rawDescOnce sync.Once
-	file_scalars_proto_rawDescData []byte
+	file_tests_protos_scalars_proto_rawDescOnce sync.Once
+	file_tests_protos_scalars_proto_rawDescData []byte
 )
 
-func file_scalars_proto_rawDescGZIP() []byte {
-	file_scalars_proto_rawDescOnce.Do(func() {
-		file_scalars_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_scalars_proto_rawDesc), len(file_scalars_proto_rawDesc)))
+func file_tests_protos_scalars_proto_rawDescGZIP() []byte {
+	file_tests_protos_scalars_proto_rawDescOnce.Do(func() {
+		file_tests_protos_scalars_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_tests_protos_scalars_proto_rawDesc), len(file_tests_protos_scalars_proto_rawDesc)))
 	})
-	return file_scalars_proto_rawDescData
+	return file_tests_protos_scalars_proto_rawDescData
 }
 
-var file_scalars_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_scalars_proto_goTypes = []any{
+var file_tests_protos_scalars_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_tests_protos_scalars_proto_goTypes = []any{
 	(*Scalars)(nil), // 0: test.scalars.Scalars
 }
-var file_scalars_proto_depIdxs = []int32{
+var file_tests_protos_scalars_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -230,26 +230,26 @@ var file_scalars_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_scalars_proto_init() }
-func file_scalars_proto_init() {
-	if File_scalars_proto != nil {
+func init() { file_tests_protos_scalars_proto_init() }
+func file_tests_protos_scalars_proto_init() {
+	if File_tests_protos_scalars_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_scalars_proto_rawDesc), len(file_scalars_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tests_protos_scalars_proto_rawDesc), len(file_tests_protos_scalars_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_scalars_proto_goTypes,
-		DependencyIndexes: file_scalars_proto_depIdxs,
-		MessageInfos:      file_scalars_proto_msgTypes,
+		GoTypes:           file_tests_protos_scalars_proto_goTypes,
+		DependencyIndexes: file_tests_protos_scalars_proto_depIdxs,
+		MessageInfos:      file_tests_protos_scalars_proto_msgTypes,
 	}.Build()
-	File_scalars_proto = out.File
-	file_scalars_proto_goTypes = nil
-	file_scalars_proto_depIdxs = nil
+	File_tests_protos_scalars_proto = out.File
+	file_tests_protos_scalars_proto_goTypes = nil
+	file_tests_protos_scalars_proto_depIdxs = nil
 }

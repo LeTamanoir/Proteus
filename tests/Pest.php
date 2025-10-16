@@ -44,10 +44,7 @@ function jsonFixture(string $name): array
     return json_decode(file_get_contents(__DIR__ . "/fixtures/{$name}.json"), true, 512, JSON_BIGINT_AS_STRING);
 }
 
-/**
- * @return int[]
- */
-function protoFixture(string $name): array
+function protoFixture(string $name): string
 {
-    return array_values(unpack('C*', file_get_contents(__DIR__ . "/fixtures/{$name}.bin")));
+    return file_get_contents(__DIR__ . "/fixtures/{$name}.bin");
 }

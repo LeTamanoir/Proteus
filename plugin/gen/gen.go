@@ -17,6 +17,11 @@ type gen struct {
 	w            *writer.Writer
 	typeRegistry map[string]string
 	commentMap   map[string]string
+
+	decodeFunctions []struct {
+		message *descriptorpb.DescriptorProto
+		file    *descriptorpb.FileDescriptorProto
+	}
 }
 
 // genFile generates PHP code for a proto file
@@ -55,29 +60,16 @@ Proto file: %s`, file.GetName()))
 		g.w.Newline()
 	}
 
-	g.w.Line("if (PHP_INT_SIZE !== 8) {")
-	g.w.In()
-	g.w.Line("trigger_error('This message is only supported on 64-bit systems', E_USER_WARNING);")
-	g.w.Out()
-	g.w.Line("}")
-	g.w.Newline()
-
-	g.w.Line("if (!extension_loaded('gmp')) {")
-	g.w.In()
-	g.w.Line("trigger_error('The gmp extension must be loaded in order to decode this message', E_USER_WARNING);")
-	g.w.Out()
-	g.w.Line("}")
-	g.w.Newline()
-
-	// Generate all messages
 	for messageIndex, message := range file.GetMessageType() {
-		// Skip map entry messages (they are internal representations)
-		if message.GetOptions().GetMapEntry() {
-			continue
-		}
 		if err := g.genMessage(message, file, messageIndex); err != nil {
 			return "", err
 		}
+	}
+
+	g.w.Newline()
+
+	if err := g.genDecodeMethods(); err != nil {
+		return "", err
 	}
 
 	return g.w.GetOutput(), nil

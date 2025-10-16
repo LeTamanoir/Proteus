@@ -20,6 +20,7 @@
     "require-dev": {
         "carthage-software/mago": "1.0.0-beta.28",
         "fakerphp/faker": "^1.24",
+        "google/protobuf": "^4.33",
         "pestphp/pest": "^4.1",
         "symfony/var-dumper": "^7.3"
     },
