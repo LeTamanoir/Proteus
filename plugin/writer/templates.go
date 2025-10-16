@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-// inlineReadVarint generates inline code for reading a varint
+// InlineReadVarint generates inline code for reading a varint
 func (w *Writer) InlineReadVarint(varName string) {
 	w.Line("$_b = ord($bytes[$i++]);")
 	w.Line(fmt.Sprintf("%s = $_b & 0x7F;", varName))
@@ -15,17 +15,15 @@ func (w *Writer) InlineReadVarint(varName string) {
 	w.Line("if ($_s > 63) throw new \\Exception('Int overflow');")
 	w.Out()
 	w.Line("}")
-	w.Line("if ($i > $l) throw new \\Exception('Unexpected EOF');")
 }
 
-// inlineReadVarintGmp generates inline code for reading a varint using GMP to prevent overflow
+// InlineReadVarintGmp generates inline code for reading a varint using GMP to prevent overflow
 func (w *Writer) InlineReadVarintGmp(varName string) {
 	w.Line(fmt.Sprintf("%s = gmp_init(0);", varName))
-	w.Line("for ($_shift = 0;; $_shift += 7) {")
+	w.Line("for ($_s = 0;; ++$_s) {")
 	w.In()
-	w.Line("if ($i >= $l) throw new \\Exception('Unexpected EOF');")
 	w.Line("$_b = gmp_init(ord($bytes[$i++]));")
-	w.Line(fmt.Sprintf("%s = gmp_or(%s, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_shift)));", varName, varName))
+	w.Line(fmt.Sprintf("%s = gmp_or(%s, gmp_mul(gmp_and($_b, 0x7F), gmp_pow(2, $_s * 7)));", varName, varName))
 	w.Line("if ($_b < 0x80) break;")
 	w.Out()
 	w.Line("}")
@@ -37,20 +35,20 @@ func (w *Writer) InlineReadBool(varName string) {
 	w.Line(fmt.Sprintf("%s = $_u === 1;", varName))
 }
 
-// inlineReadInt32 generates inline code for reading int32 with sign extension
+// InlineReadInt32 generates inline code for reading int32 with sign extension
 func (w *Writer) InlineReadInt32(varName string) {
 	// as we are reading a int32 we ignore the potential overflow
 	w.InlineReadVarint(varName)
 }
 
-// inlineReadSint32 generates inline code for reading sint32 with ZigZag decoding
+// InlineReadSint32 generates inline code for reading sint32 with ZigZag decoding
 func (w *Writer) InlineReadSint32(varName string) {
 	// as we are reading a int32 we ignore the potential overflow
 	w.InlineReadVarint("$_u")
 	w.Line(fmt.Sprintf("%s = ($_u >> 1) ^ -($_u & 1);", varName))
 }
 
-// inlineReadSint64 generates inline code for reading sint64 with ZigZag decoding
+// InlineReadSint64 generates inline code for reading sint64 with ZigZag decoding
 func (w *Writer) InlineReadSint64(varName string) {
 	// zigzag encoding will use a full uint64 so we need to make sur we don't overflow
 	w.InlineReadVarintGmp("$_u")
@@ -58,64 +56,57 @@ func (w *Writer) InlineReadSint64(varName string) {
 	w.Line(fmt.Sprintf("%s = gmp_intval(gmp_xor(gmp_div($_u, 2), gmp_neg(gmp_and($_u, 1))));", varName))
 }
 
-// inlineReadUint64 generates inline code for reading uint64
+// InlineReadUint64 generates inline code for reading uint64
 func (w *Writer) InlineReadUint64(varName string) {
 	w.InlineReadVarintGmp("$_u")
 	w.Line(fmt.Sprintf("%s = gmp_strval($_u);", varName))
 }
 
-// inlineReadFixed32 generates inline code for reading fixed32
+// InlineReadFixed32 generates inline code for reading fixed32
 func (w *Writer) InlineReadFixed32(varName string) {
-	w.Line("if ($i + 4 > $l) throw new \\Exception('Unexpected EOF');")
 	w.Line(fmt.Sprintf("%s = unpack('L', substr($bytes, $i, 4))[1];", varName))
 	w.Line("$i += 4;")
 }
 
-// inlineReadSfixed32 generates inline code for reading sfixed32
+// InlineReadSfixed32 generates inline code for reading sfixed32
 func (w *Writer) InlineReadSfixed32(varName string) {
-	w.Line("if ($i + 4 > $l) throw new \\Exception('Unexpected EOF');")
 	w.Line(fmt.Sprintf("%s = unpack('l', substr($bytes, $i, 4))[1];", varName))
 	w.Line("$i += 4;")
 }
 
-// inlineReadFixed64 generates inline code for reading fixed64
+// InlineReadFixed64 generates inline code for reading fixed64
 func (w *Writer) InlineReadFixed64(varName string) {
-	w.Line("if ($i + 8 > $l) throw new \\Exception('Unexpected EOF');")
 	w.Line(fmt.Sprintf("%s = gmp_strval(gmp_import(substr($bytes, $i, 8), GMP_BIG_ENDIAN));", varName))
 	w.Line("$i += 8;")
 }
 
-// inlineReadSfixed64 generates inline code for reading sfixed64
+// InlineReadSfixed64 generates inline code for reading sfixed64
 func (w *Writer) InlineReadSfixed64(varName string) {
-	w.Line("if ($i + 8 > $l) throw new \\Exception('Unexpected EOF');")
 	w.Line(fmt.Sprintf("%s = unpack('q', substr($bytes, $i, 8))[1];", varName))
 	w.Line("$i += 8;")
 }
 
-// inlineReadFloat generates inline code for reading float
+// InlineReadFloat generates inline code for reading float
 func (w *Writer) InlineReadFloat(varName string) {
-	w.Line("if ($i + 4 > $l) throw new \\Exception('Unexpected EOF');")
 	w.Line(fmt.Sprintf("%s = unpack('f', substr($bytes, $i, 4))[1];", varName))
 	w.Line("$i += 4;")
 }
 
-// inlineReadDouble generates inline code for reading double
+// InlineReadDouble generates inline code for reading double
 func (w *Writer) InlineReadDouble(varName string) {
-	w.Line("if ($i + 8 > $l) throw new \\Exception('Unexpected EOF');")
 	w.Line(fmt.Sprintf("%s = unpack('d', substr($bytes, $i, 8))[1];", varName))
 	w.Line("$i += 8;")
 }
 
-// inlineReadBytes generates inline code for reading bytes
+// InlineReadBytes generates inline code for reading bytes
 func (w *Writer) InlineReadBytes(varName string) {
 	w.InlineReadString(varName)
 	w.Line(fmt.Sprintf("%s = base64_encode(%s);", varName, varName))
 }
 
-// inlineReadString generates inline code for reading a string
+// InlineReadString generates inline code for reading a string
 func (w *Writer) InlineReadString(varName string) {
 	w.InlineReadVarint("$_byteLen")
-	w.Line("if ($_byteLen < 0 || $i + $_byteLen > $l) throw new \\Exception('Invalid length');")
 	w.Line(fmt.Sprintf("%s = substr($bytes, $i, $_byteLen);", varName))
 	w.Line("$i += $_byteLen;")
 }

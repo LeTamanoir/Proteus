@@ -34,12 +34,10 @@ func (g *generator) genRepeatedFieldCode(w *writer.Writer, field *descriptorpb.F
 		w.Line(fmt.Sprintf("$d->%s[] = $_value;", fieldName))
 		w.Out()
 		w.Line("}")
-		w.Line(fmt.Sprintf("if ($i !== $_end) throw new \\Exception('Packed %s field over/under-read');", field.GetType().String()))
 
 	case protobuf.IsMessage(field):
 		w.Line(fmt.Sprintf("if ($wireType !== 2) throw new \\Exception(sprintf('Invalid wire type %%d for field %s', $wireType));", fieldName))
 		w.InlineReadVarint("$_len")
-		w.Line("if ($_len < 0 || $i + $_len > $l) throw new \\Exception('Invalid length');")
 		phpType := g.getPhpType(field)
 		w.Line(fmt.Sprintf("$d->%s[] = %s::__decode($bytes, $i, $i + $_len);", fieldName, phpType))
 		w.Line("$i += $_len;")
@@ -59,7 +57,6 @@ func (g *generator) genMapFieldCode(w *writer.Writer, field *descriptorpb.FieldD
 	w.Line(fmt.Sprintf("if ($wireType !== 2) throw new \\Exception(sprintf('Invalid wire type %%d for field %s', $wireType));", fieldName))
 	w.InlineReadVarint("$_entryLen")
 	w.Line("$_limit = $i + $_entryLen;")
-	w.Line("if ($_limit > $l) throw new \\Exception('Invalid length');")
 	w.Line(fmt.Sprintf("$_key = %s;", getDefaultValue(keyField)))
 	w.Line(fmt.Sprintf("$_val = %s;", getDefaultValue(valueField)))
 	w.Line("while ($i < $_limit) {")
