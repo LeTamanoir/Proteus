@@ -65,10 +65,9 @@ class Data implements \Proteus\Msg
                         if ($_s > 63) throw new \Exception('Int overflow');
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
-                    $_msgLen = $i + $_len;
-                    if ($_msgLen < 0 || $_msgLen > $l) throw new \Exception('Invalid length');
-                    $d->nested_data = \Tests\php\pb\Nested\Nested\Data\NestedData::__decode($bytes, $i, $_msgLen);
-                    $i = $_msgLen;
+                    if ($i + $_len > $l) throw new \Exception('Invalid length');
+                    $d->nested_data = \Tests\php\pb\Nested\Nested\Data\NestedData::__decode($bytes, $i, $i + $_len);
+                    $i += $_len;
                     break;
                 default:
                     $i = \Proteus\skipField($i, $l, $bytes, $wireType);

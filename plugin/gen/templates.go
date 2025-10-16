@@ -56,10 +56,9 @@ func (g *generator) inlineReadCode(w *writer.Writer, field *descriptorpb.FieldDe
 
 	case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
 		w.InlineReadVarint("$_len")
-		w.Line("$_msgLen = $i + $_len;")
-		w.Line("if ($_msgLen < 0 || $_msgLen > $l) throw new \\Exception('Invalid length');")
+		w.Line("if ($i + $_len > $l) throw new \\Exception('Invalid length');")
 		phpType := g.getPhpType(field)
-		w.Line(fmt.Sprintf("%s = %s::__decode($bytes, $i, $_msgLen);", varName, phpType))
-		w.Line("$i = $_msgLen;")
+		w.Line(fmt.Sprintf("%s = %s::__decode($bytes, $i, $i + $_len);", varName, phpType))
+		w.Line("$i += $_len;")
 	}
 }
