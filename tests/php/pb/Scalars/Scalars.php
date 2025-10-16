@@ -125,7 +125,6 @@ class Scalars implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_value = $_u;
-                    if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
                     $d->int32 = $_value;
                     break;
                 case 4:
@@ -175,7 +174,6 @@ class Scalars implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_value = ($_u >> 1) ^ -($_u & 1);
-                    if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
                     $d->sint32 = $_value;
                     break;
                 case 8:
@@ -193,7 +191,7 @@ class Scalars implements \Proteus\Msg
                 case 9:
                     if ($wireType !== 5) throw new \Exception(sprintf('Invalid wire type %d for field fixed32', $wireType));
                     if ($i + 4 > $l) throw new \Exception('Unexpected EOF');
-                    $_value = unpack('V', substr($bytes, $i, 4))[1];
+                    $_value = unpack('L', substr($bytes, $i, 4))[1];
                     $i += 4;
                     $d->fixed32 = $_value;
                     break;
@@ -207,7 +205,7 @@ class Scalars implements \Proteus\Msg
                 case 11:
                     if ($wireType !== 5) throw new \Exception(sprintf('Invalid wire type %d for field sfixed32', $wireType));
                     if ($i + 4 > $l) throw new \Exception('Unexpected EOF');
-                    $_value = unpack('V', substr($bytes, $i, 4))[1];
+                    $_value = unpack('l', substr($bytes, $i, 4))[1];
                     $i += 4;
                     $d->sfixed32 = $_value;
                     break;

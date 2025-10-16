@@ -90,6 +90,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = 0;
                     $_val = false;
                     while ($i < $_limit) {
@@ -115,7 +116,6 @@ class Map implements \Proteus\Msg
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
                                 $_key = $_u;
-                                if ($_key > 0x7FFFFFFF) $_key -= 0x100000000;
                                 break;
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field int32_bool value', $_wireType));
@@ -146,6 +146,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = 0;
                     $_val = false;
                     while ($i < $_limit) {
@@ -200,6 +201,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = 0;
                     $_val = false;
                     while ($i < $_limit) {
@@ -254,6 +256,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = '0';
                     $_val = false;
                     while ($i < $_limit) {
@@ -308,6 +311,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = 0;
                     $_val = false;
                     while ($i < $_limit) {
@@ -333,7 +337,6 @@ class Map implements \Proteus\Msg
                                 }
                                 if ($i > $l) throw new \Exception('Unexpected EOF');
                                 $_key = ($_u >> 1) ^ -($_u & 1);
-                                if ($_key > 0x7FFFFFFF) $_key -= 0x100000000;
                                 break;
                             case 2:
                                 if ($_wireType !== 0) throw new \Exception(sprintf('Invalid wire type %d for field sint32_bool value', $_wireType));
@@ -364,6 +367,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = 0;
                     $_val = false;
                     while ($i < $_limit) {
@@ -418,6 +422,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = 0;
                     $_val = false;
                     while ($i < $_limit) {
@@ -435,7 +440,7 @@ class Map implements \Proteus\Msg
                             case 1:
                                 if ($_wireType !== 5) throw new \Exception(sprintf('Invalid wire type %d for field fixed32_bool key', $_wireType));
                                 if ($i + 4 > $l) throw new \Exception('Unexpected EOF');
-                                $_key = unpack('V', substr($bytes, $i, 4))[1];
+                                $_key = unpack('L', substr($bytes, $i, 4))[1];
                                 $i += 4;
                                 break;
                             case 2:
@@ -467,6 +472,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = '0';
                     $_val = false;
                     while ($i < $_limit) {
@@ -516,6 +522,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = 0;
                     $_val = false;
                     while ($i < $_limit) {
@@ -533,7 +540,7 @@ class Map implements \Proteus\Msg
                             case 1:
                                 if ($_wireType !== 5) throw new \Exception(sprintf('Invalid wire type %d for field sfixed32_bool key', $_wireType));
                                 if ($i + 4 > $l) throw new \Exception('Unexpected EOF');
-                                $_key = unpack('V', substr($bytes, $i, 4))[1];
+                                $_key = unpack('l', substr($bytes, $i, 4))[1];
                                 $i += 4;
                                 break;
                             case 2:
@@ -565,6 +572,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = 0;
                     $_val = false;
                     while ($i < $_limit) {
@@ -614,6 +622,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = '';
                     $_val = false;
                     while ($i < $_limit) {
@@ -671,6 +680,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = '';
                     $_val = [];
                     while ($i < $_limit) {
@@ -731,6 +741,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = '';
                     $_val = [];
                     while ($i < $_limit) {
@@ -791,6 +802,7 @@ class Map implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = '';
                     $_val = [];
                     while ($i < $_limit) {

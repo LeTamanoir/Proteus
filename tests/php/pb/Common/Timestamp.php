@@ -64,7 +64,6 @@ class Timestamp implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_value = $_u;
-                    if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
                     $d->nanos = $_value;
                     break;
                 default:

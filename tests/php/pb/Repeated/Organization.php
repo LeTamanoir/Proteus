@@ -99,7 +99,6 @@ class Organization implements \Proteus\Msg
                         }
                         if ($i > $l) throw new \Exception('Unexpected EOF');
                         $_value = $_u;
-                        if ($_value > 0x7FFFFFFF) $_value -= 0x100000000;
                         $d->ages[] = $_value;
                     }
                     if ($i !== $_end) throw new \Exception('Packed TYPE_INT32 field over/under-read');

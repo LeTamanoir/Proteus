@@ -1,0 +1,16 @@
+{
+   "double": -1.7976931348623157e+308,
+   "int32": -2147483647,
+   "int64": -9223372036854775807,
+   "uint32": 4294967295,
+   "uint64": 18446744073709551615,
+   "sint32": -2147483647,
+   "sint64": -9223372036854775807,
+   "fixed32": 2147483647,
+   "fixed64": 18446744073709551615,
+   "sfixed32": -2147483647,
+   "sfixed64": -9223372036854775807,
+   "bool": true,
+   "string": "Careful inside thoughtful why Danish intensely loneliness belong deeply bitterness.",
+   "bytes": "RnJlcXVlbnRseSBlYWNoIG5vbmUgd2hvc2UgZ2VuZXJhbGx5IGNhc3QgYWNjb3JkaW5nbHkgaGVuY2UgY3J1ZWxseSBiZW5kLg=="
+}

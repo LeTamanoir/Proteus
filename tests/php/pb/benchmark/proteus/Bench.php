@@ -54,6 +54,7 @@ class Bench implements \Proteus\Msg
                     }
                     if ($i > $l) throw new \Exception('Unexpected EOF');
                     $_limit = $i + $_entryLen;
+                    if ($_limit > $l) throw new \Exception('Invalid length');
                     $_key = '';
                     $_val = [];
                     while ($i < $_limit) {
