@@ -3,6 +3,7 @@ package gen
 import (
 	"fmt"
 
+	"github.com/LeTamanoir/Proteus/plugin/protobuf"
 	"github.com/LeTamanoir/Proteus/plugin/writer"
 	"google.golang.org/protobuf/types/descriptorpb"
 )
@@ -40,12 +41,12 @@ func (g *generator) genDecodeMethods(w *writer.Writer, message *descriptorpb.Des
 		w.In()
 
 		switch {
-		case isMapField(field, message):
-			if err := g.genMapFieldCode(w, field, message); err != nil {
-				return err
-			}
-		case isRepeated(field):
+		case protobuf.IsMapField(field, message):
+			g.genMapFieldCode(w, field, message)
+
+		case protobuf.IsRepeated(field):
 			g.genRepeatedFieldCode(w, field)
+
 		default:
 			g.genRegularFieldCode(w, field)
 		}

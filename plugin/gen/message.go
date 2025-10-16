@@ -2,8 +2,10 @@ package gen
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/LeTamanoir/Proteus/plugin/php"
+	"github.com/LeTamanoir/Proteus/plugin/phpgen"
+	"github.com/LeTamanoir/Proteus/plugin/protobuf"
 	"github.com/LeTamanoir/Proteus/plugin/writer"
 )
 
@@ -18,7 +20,10 @@ Proto file: %s`, m.protoFilePath))
 	w.Newline()
 	w.Line("declare(strict_types=1);")
 	w.Newline()
-	w.Line(fmt.Sprintf("namespace %s;", m.PhpNamespace()))
+
+	nsParts := strings.Split(m.phpFqn, "\\")
+	namepsace := strings.Trim(strings.Join(nsParts[:len(nsParts)-1], "\\"), "\\")
+	w.Line(fmt.Sprintf("namespace %s;", namepsace))
 	w.Newline()
 
 	// Add class docblock if comment exists
@@ -26,7 +31,7 @@ Proto file: %s`, m.protoFilePath))
 		w.Docblock(comment)
 	}
 
-	className := php.GetSafeName(m.msg.GetName())
+	className := phpgen.GetSafeName(m.msg.GetName())
 
 	w.Line(fmt.Sprintf("class %s implements \\Proteus\\Msg", className))
 	w.Line("{")
@@ -41,23 +46,20 @@ Proto file: %s`, m.protoFilePath))
 		}
 
 		switch {
-		case isMapField(field, m.msg):
-			keyField, valueField := getMapKeyValueTypes(field, m.msg)
-			if keyField == nil || valueField == nil {
-				return "", fmt.Errorf("map entry message %s not found", field.GetTypeName())
-			}
+		case protobuf.IsMapField(field, m.msg):
+			keyField, valueField := protobuf.GetMapKeyValueTypes(field, m.msg)
 			w.Comment(fmt.Sprintf("@var array<%s, %s>", g.getPhpType(keyField), g.getPhpType(valueField)))
 			w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
 
-		case isRepeated(field):
+		case protobuf.IsRepeated(field):
 			w.Comment(fmt.Sprintf("@var %s[]", phpType))
 			w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
 
-		case isOptional(field) || isMessage(field):
+		case protobuf.IsOptional(field) || protobuf.IsMessage(field):
 			w.Line(fmt.Sprintf("public %s|null $%s = null;", phpType, fieldName))
 
 		default:
-			defaultValue := php.GetDefaultValue(field)
+			defaultValue := getDefaultValue(field)
 			w.Line(fmt.Sprintf("public %s $%s = %s;", phpType, fieldName, defaultValue))
 		}
 

@@ -1,10 +1,6 @@
-package php
+package phpgen
 
-import (
-	"strings"
-
-	"google.golang.org/protobuf/types/descriptorpb"
-)
+import "strings"
 
 // phpReservedWords is a map of PHP reserved words in lowercase
 // This map should not be modified after initialization
@@ -135,33 +131,4 @@ func GetSafeName(name string) string {
 		return GetSafeName(name + "_")
 	}
 	return name
-}
-
-// GetDefaultValue returns the PHP default value for a field type
-func GetDefaultValue(field *descriptorpb.FieldDescriptorProto) string {
-	switch field.GetType() {
-	case descriptorpb.FieldDescriptorProto_TYPE_INT32,
-		descriptorpb.FieldDescriptorProto_TYPE_UINT32,
-		descriptorpb.FieldDescriptorProto_TYPE_SINT32,
-		descriptorpb.FieldDescriptorProto_TYPE_INT64,
-		descriptorpb.FieldDescriptorProto_TYPE_SINT64,
-		descriptorpb.FieldDescriptorProto_TYPE_FIXED32,
-		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32,
-		descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
-		return "0"
-	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
-		descriptorpb.FieldDescriptorProto_TYPE_UINT64:
-		return "'0'"
-	case descriptorpb.FieldDescriptorProto_TYPE_FLOAT,
-		descriptorpb.FieldDescriptorProto_TYPE_DOUBLE:
-		return "0.0"
-	case descriptorpb.FieldDescriptorProto_TYPE_BOOL:
-		return "false"
-	case descriptorpb.FieldDescriptorProto_TYPE_STRING:
-		return "''"
-	case descriptorpb.FieldDescriptorProto_TYPE_BYTES:
-		return "''"
-	default:
-		return "[]"
-	}
 }
