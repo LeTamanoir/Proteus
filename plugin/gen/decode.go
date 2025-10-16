@@ -30,7 +30,7 @@ func (g *gen) genDecodeMethod(message *descriptorpb.DescriptorProto, file *descr
 	// Google uses uint32 in their CPP implem so it's fair
 	// to assume we can ignore the uint64 overflow here
 	// see https://stackoverflow.com/questions/57520857/maximum-field-number-in-protobuf-message
-	g.w.InlineReadVarint("wire")
+	g.w.InlineReadVarint("$wire")
 	g.w.Line("$fieldNum = $wire >> 3;")
 	g.w.Line("$wireType = $wire & 0x7;")
 	g.w.Line("switch ($fieldNum) {")

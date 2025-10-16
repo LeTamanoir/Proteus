@@ -12,6 +12,6 @@ func (g *gen) genRegularFieldCode(field *descriptorpb.FieldDescriptorProto) {
 	expectedWireType := getWireType(field.GetType())
 
 	g.w.Line(fmt.Sprintf("if ($wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s', $wireType));", expectedWireType, fieldName))
-	g.inlineReadCode(field, "_value")
+	g.inlineReadCode(field, "$_value")
 	g.w.Line(fmt.Sprintf("$d->%s = $_value;", fieldName))
 }
