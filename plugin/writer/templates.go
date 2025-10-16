@@ -36,7 +36,6 @@ func (w *Writer) InlineReadInt32(varName string) {
 	// as we are reading a int32 we ignore the potential overflow
 	w.InlineReadVarint("$_u")
 	w.Line(fmt.Sprintf("%s = $_u;", varName))
-	w.Line(fmt.Sprintf("if (%s > 0x7FFFFFFF) %s -= 0x100000000;", varName, varName))
 }
 
 // inlineReadSint32 generates inline code for reading sint32 with ZigZag decoding
@@ -44,7 +43,6 @@ func (w *Writer) InlineReadSint32(varName string) {
 	// as we are reading a int32 we ignore the potential overflow
 	w.InlineReadVarint("$_u")
 	w.Line(fmt.Sprintf("%s = ($_u >> 1) ^ -($_u & 1);", varName))
-	w.Line(fmt.Sprintf("if (%s > 0x7FFFFFFF) %s -= 0x100000000;", varName, varName))
 }
 
 // inlineReadSint64 generates inline code for reading sint64 with ZigZag decoding
@@ -64,7 +62,14 @@ func (w *Writer) InlineReadUint64(varName string) {
 // inlineReadFixed32 generates inline code for reading fixed32
 func (w *Writer) InlineReadFixed32(varName string) {
 	w.Line("if ($i + 4 > $l) throw new \\Exception('Unexpected EOF');")
-	w.Line(fmt.Sprintf("%s = unpack('V', substr($bytes, $i, 4))[1];", varName))
+	w.Line(fmt.Sprintf("%s = unpack('L', substr($bytes, $i, 4))[1];", varName))
+	w.Line("$i += 4;")
+}
+
+// inlineReadSfixed32 generates inline code for reading sfixed32
+func (w *Writer) InlineReadSfixed32(varName string) {
+	w.Line("if ($i + 4 > $l) throw new \\Exception('Unexpected EOF');")
+	w.Line(fmt.Sprintf("%s = unpack('l', substr($bytes, $i, 4))[1];", varName))
 	w.Line("$i += 4;")
 }
 

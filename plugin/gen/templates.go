@@ -31,9 +31,11 @@ func (g *generator) inlineReadCode(w *writer.Writer, field *descriptorpb.FieldDe
 		w.InlineReadVarint(varName)
 		w.Line(fmt.Sprintf("%s = %s === 1;", varName, varName))
 
-	case descriptorpb.FieldDescriptorProto_TYPE_FIXED32,
-		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32:
+	case descriptorpb.FieldDescriptorProto_TYPE_FIXED32:
 		w.InlineReadFixed32(varName)
+
+	case descriptorpb.FieldDescriptorProto_TYPE_SFIXED32:
+		w.InlineReadSfixed32(varName)
 
 	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64:
 		w.InlineReadFixed64(varName)

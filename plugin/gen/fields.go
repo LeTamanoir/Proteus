@@ -55,11 +55,12 @@ func (g *generator) genRepeatedFieldCode(w *writer.Writer, field *descriptorpb.F
 // genMapFieldCode generates code for deserializing a map field
 func (g *generator) genMapFieldCode(w *writer.Writer, field *descriptorpb.FieldDescriptorProto, message *descriptorpb.DescriptorProto) {
 	keyField, valueField := protobuf.GetMapKeyValueTypes(field, message)
-
 	fieldName := field.GetName()
+
 	w.Line(fmt.Sprintf("if ($wireType !== 2) throw new \\Exception(sprintf('Invalid wire type %%d for field %s', $wireType));", fieldName))
 	w.InlineReadVarint("$_entryLen")
 	w.Line("$_limit = $i + $_entryLen;")
+	w.Line("if ($_limit > $l) throw new \\Exception('Invalid length');")
 	w.Line(fmt.Sprintf("$_key = %s;", getDefaultValue(keyField)))
 	w.Line(fmt.Sprintf("$_val = %s;", getDefaultValue(valueField)))
 	w.Line("while ($i < $_limit) {")
@@ -71,16 +72,15 @@ func (g *generator) genMapFieldCode(w *writer.Writer, field *descriptorpb.FieldD
 	w.In()
 	w.Line("case 1:")
 	w.In()
-	keyWireType := protobuf.GetWireType(keyField.GetType())
-	w.Line(fmt.Sprintf("if ($_wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s key', $_wireType));", keyWireType, fieldName))
-
+	w.Line(fmt.Sprintf("if ($_wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s key', $_wireType));",
+		protobuf.GetWireType(keyField.GetType()), fieldName))
 	g.inlineReadCode(w, keyField, "$_key")
 	w.Line("break;")
 	w.Out()
 	w.Line("case 2:")
 	w.In()
-	valueWireType := protobuf.GetWireType(valueField.GetType())
-	w.Line(fmt.Sprintf("if ($_wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s value', $_wireType));", valueWireType, fieldName))
+	w.Line(fmt.Sprintf("if ($_wireType !== %d) throw new \\Exception(sprintf('Invalid wire type %%d for field %s value', $_wireType));",
+		protobuf.GetWireType(valueField.GetType()), fieldName))
 	g.inlineReadCode(w, valueField, "$_val")
 	w.Line("break;")
 	w.Out()
