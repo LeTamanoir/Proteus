@@ -8,6 +8,7 @@ build:
 # Format the plugin code
 fmt:
     cd plugin && go fmt ./... && goimports -w .
+    cd tests/go && go fmt ./... && goimports -w .
 
 # Static analysis and linting of the plugin
 check:
