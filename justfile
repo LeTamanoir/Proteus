@@ -8,7 +8,7 @@ build:
 # Format the plugin code
 fmt:
     cd plugin && go fmt ./... && goimports -w .
-    cd tests/go && go fmt ./... && goimports -w .
+    cd tests/go && go fmt $(go list ./... | grep -v /pb) && goimports -w .
 
 # Static analysis and linting of the plugin
 check:
@@ -34,12 +34,11 @@ _gen-go-mocks:
 
 _gen-benchmark-mocks:
     protoc --php_out=. ./tests/protos/benchmark/google.proto
-    mkdir -p ./tests/php/pb/benchmark/proteus/
-    protoc --plugin=./plugin/bin/protoc-gen-php-proteus --php-proteus_out=./tests/php/pb/benchmark/proteus/ ./tests/protos/benchmark/proteus.proto
+    protoc --plugin=./plugin/bin/protoc-gen-php-proteus --php-proteus_out=. ./tests/protos/benchmark/proteus.proto
     protoc --go_out=. ./tests/protos/benchmark/proteus.proto
 
 _gen-php-mocks:
-    protoc --plugin=./plugin/bin/protoc-gen-php-proteus --php-proteus_out=./tests/php/pb ./tests/protos/*.proto
+    protoc --plugin=./plugin/bin/protoc-gen-php-proteus --php-proteus_out=. ./tests/protos/*.proto
     
 _gen-fixtures:
     rm -rf ./tests/fixtures/*
@@ -47,4 +46,4 @@ _gen-fixtures:
 
 # Generate PHP & Go classes from proto files for tests
 gen-mocks: _cleanup-mocks _gen-go-mocks _gen-php-mocks _gen-benchmark-mocks _gen-fixtures
-    composer dump-autoload
+
