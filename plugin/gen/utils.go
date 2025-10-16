@@ -5,49 +5,50 @@ import (
 	"strings"
 
 	"github.com/LeTamanoir/Proteus/plugin/php"
+	"github.com/LeTamanoir/Proteus/plugin/writer"
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
 // inlineReadCode returns inline code for reading a specific protobuf type
 // inspired by gogoproto: https://github.com/cosmos/gogoproto/blob/main/plugin/unmarshal/unmarshal.go#L345
-func (g *gen) inlineReadCode(field *descriptorpb.FieldDescriptorProto, varName string) {
+func (g *generator) inlineReadCode(w *writer.Writer, field *descriptorpb.FieldDescriptorProto, varName string) {
 	switch field.GetType() {
 	case descriptorpb.FieldDescriptorProto_TYPE_INT32:
-		g.w.InlineReadInt32(varName)
+		w.InlineReadInt32(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_SINT32:
-		g.w.InlineReadSint32(varName)
+		w.InlineReadSint32(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_SINT64:
-		g.w.InlineReadSint64(varName)
+		w.InlineReadSint64(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_UINT32,
 		descriptorpb.FieldDescriptorProto_TYPE_INT64:
-		g.w.InlineReadVarint(varName)
+		w.InlineReadVarint(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_UINT64:
-		g.w.InlineReadUint64(varName)
+		w.InlineReadUint64(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_BOOL:
-		g.w.InlineReadVarint(varName)
-		g.w.Line(fmt.Sprintf("%s = %s === 1;", varName, varName))
+		w.InlineReadVarint(varName)
+		w.Line(fmt.Sprintf("%s = %s === 1;", varName, varName))
 	case descriptorpb.FieldDescriptorProto_TYPE_FIXED32,
 		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32:
-		g.w.InlineReadFixed32(varName)
+		w.InlineReadFixed32(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64:
-		g.w.InlineReadFixed64(varName)
+		w.InlineReadFixed64(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
-		g.w.InlineReadSfixed64(varName)
+		w.InlineReadSfixed64(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_FLOAT:
-		g.w.InlineReadFloat(varName)
+		w.InlineReadFloat(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_DOUBLE:
-		g.w.InlineReadDouble(varName)
+		w.InlineReadDouble(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_STRING:
-		g.w.InlineReadString(varName)
+		w.InlineReadString(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_BYTES:
-		g.w.InlineReadBytes(varName)
+		w.InlineReadBytes(varName)
 	case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
-		g.w.InlineReadVarint("$_len")
-		g.w.Line("$_msgLen = $i + $_len;")
-		g.w.Line("if ($_msgLen < 0 || $_msgLen > $l) throw new \\Exception('Invalid length');")
-		phpType := php.GetType(field)
-		g.w.Line(fmt.Sprintf("%s = decode%s($bytes, $i, $_msgLen);", varName, phpType))
-		g.w.Line("$i = $_msgLen;")
+		w.InlineReadVarint("$_len")
+		w.Line("$_msgLen = $i + $_len;")
+		w.Line("if ($_msgLen < 0 || $_msgLen > $l) throw new \\Exception('Invalid length');")
+		phpType := g.getPhpType(field)
+		w.Line(fmt.Sprintf("%s = %s::__decode($bytes, $i, $_msgLen);", varName, phpType))
+		w.Line("$i = $_msgLen;")
 	}
 }
 
@@ -107,7 +108,7 @@ func isMessage(field *descriptorpb.FieldDescriptorProto) bool {
 }
 
 // isMapField checks if a field is a map field by looking at the message descriptor
-func isMapField(field *descriptorpb.FieldDescriptorProto, file *descriptorpb.FileDescriptorProto) bool {
+func isMapField(field *descriptorpb.FieldDescriptorProto, message *descriptorpb.DescriptorProto) bool {
 	if !isRepeated(field) || !isMessage(field) {
 		return false
 	}
@@ -116,13 +117,50 @@ func isMapField(field *descriptorpb.FieldDescriptorProto, file *descriptorpb.Fil
 	typeName := field.GetTypeName()
 
 	// Look for the nested message type in the parent message
-	for _, message := range file.GetMessageType() {
-		for _, nested := range message.GetNestedType() {
-			if strings.HasSuffix(typeName, "."+nested.GetName()) {
-				return nested.GetOptions().GetMapEntry()
-			}
+	for _, nested := range message.GetNestedType() {
+		if strings.HasSuffix(typeName, "."+nested.GetName()) {
+			return nested.GetOptions().GetMapEntry()
 		}
 	}
 
 	return false
+}
+
+// GetType returns the PHP type for a field
+func (g *generator) getPhpType(field *descriptorpb.FieldDescriptorProto) string {
+	switch field.GetType() {
+	case descriptorpb.FieldDescriptorProto_TYPE_INT32,
+		descriptorpb.FieldDescriptorProto_TYPE_SINT32,
+		descriptorpb.FieldDescriptorProto_TYPE_SFIXED32:
+		return "int"
+	case descriptorpb.FieldDescriptorProto_TYPE_UINT32,
+		descriptorpb.FieldDescriptorProto_TYPE_FIXED32:
+		return "int"
+	case descriptorpb.FieldDescriptorProto_TYPE_INT64,
+		descriptorpb.FieldDescriptorProto_TYPE_SINT64,
+		descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
+		return "int"
+	case descriptorpb.FieldDescriptorProto_TYPE_FIXED64,
+		descriptorpb.FieldDescriptorProto_TYPE_UINT64:
+		return "string"
+	case descriptorpb.FieldDescriptorProto_TYPE_FLOAT,
+		descriptorpb.FieldDescriptorProto_TYPE_DOUBLE:
+		return "float"
+	case descriptorpb.FieldDescriptorProto_TYPE_BOOL:
+		return "bool"
+	case descriptorpb.FieldDescriptorProto_TYPE_STRING:
+		return "string"
+	case descriptorpb.FieldDescriptorProto_TYPE_BYTES:
+		return "string"
+	case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
+		if entry, ok := g.msgByFqn[field.GetTypeName()]; ok {
+			return entry.phpFqn
+		}
+
+		typeName := field.GetTypeName()
+		parts := strings.Split(typeName, ".")
+		return php.GetSafeName(parts[len(parts)-1])
+	default:
+		return "mixed"
+	}
 }

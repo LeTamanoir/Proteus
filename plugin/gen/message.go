@@ -4,62 +4,73 @@ import (
 	"fmt"
 
 	"github.com/LeTamanoir/Proteus/plugin/php"
-
-	"google.golang.org/protobuf/types/descriptorpb"
+	"github.com/LeTamanoir/Proteus/plugin/writer"
 )
 
 // genMessage generates code for a message type
-func (g *gen) genMessage(message *descriptorpb.DescriptorProto, file *descriptorpb.FileDescriptorProto, messageIndex int) error {
+func (g *generator) genMessage(m *message) (string, error) {
+	w := writer.NewWriter()
+
+	w.Line("<?php")
+	w.Newline()
+	w.Docblock(fmt.Sprintf(`Auto-generated file, DO NOT EDIT!
+Proto file: %s`, m.protoFilePath))
+	w.Newline()
+	w.Line("declare(strict_types=1);")
+	w.Newline()
+	w.Line(fmt.Sprintf("namespace %s;", m.PhpNamespace()))
+	w.Newline()
+
 	// Add class docblock if comment exists
-	if comment, ok := g.commentMap[getMessagePath(messageIndex)]; ok {
-		g.w.Docblock(comment)
+	if comment, ok := g.commentByFqn[m.protoFqn]; ok {
+		w.Docblock(comment)
 	}
 
-	g.w.Line(fmt.Sprintf("class %s implements \\Proteus\\Msg", php.GetClassName(message.GetName())))
-	g.w.Line("{")
-	g.w.In()
+	className := php.GetSafeName(m.msg.GetName())
 
-	for fieldIndex, field := range message.GetField() {
-		phpType := php.GetType(field)
+	w.Line(fmt.Sprintf("class %s implements \\Proteus\\Msg", className))
+	w.Line("{")
+	w.In()
+
+	for _, field := range m.msg.GetField() {
+		phpType := g.getPhpType(field)
 		fieldName := field.GetName()
 
-		if comment, ok := g.commentMap[getFieldPath(messageIndex, fieldIndex)]; ok {
-			g.w.Docblock(comment)
+		if comment, ok := g.commentByFqn[m.protoFqn+":"+fieldName]; ok {
+			w.Docblock(comment)
 		}
 
 		switch {
-		case isMapField(field, file):
-			keyField, valueField := getMapKeyValueTypes(field, file)
+		case isMapField(field, m.msg):
+			keyField, valueField := getMapKeyValueTypes(field, m.msg)
 			if keyField == nil || valueField == nil {
-				return fmt.Errorf("map entry message %s not found", field.GetTypeName())
+				return "", fmt.Errorf("map entry message %s not found", field.GetTypeName())
 			}
-			keyType := php.GetType(keyField)
-			valueType := php.GetType(valueField)
-			g.w.Comment(fmt.Sprintf("@var array<%s, %s>", keyType, valueType))
-			g.w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
+			w.Comment(fmt.Sprintf("@var array<%s, %s>", g.getPhpType(keyField), g.getPhpType(valueField)))
+			w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
 
 		case isRepeated(field):
-			g.w.Comment(fmt.Sprintf("@var %s[]", phpType))
-			g.w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
+			w.Comment(fmt.Sprintf("@var %s[]", phpType))
+			w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
 
 		case isOptional(field) || isMessage(field):
-			g.w.Line(fmt.Sprintf("public %s|null $%s = null;", phpType, fieldName))
+			w.Line(fmt.Sprintf("public %s|null $%s = null;", phpType, fieldName))
 
 		default:
 			defaultValue := php.GetDefaultValue(field)
-			g.w.Line(fmt.Sprintf("public %s $%s = %s;", phpType, fieldName, defaultValue))
+			w.Line(fmt.Sprintf("public %s $%s = %s;", phpType, fieldName, defaultValue))
 		}
 
-		g.w.Newline()
+		w.Newline()
 	}
 
-	if err := g.addDecodeMethod(message, file); err != nil {
-		return err
+	if err := g.genDecodeMethods(w, m.msg); err != nil {
+		return "", err
 	}
 
-	g.w.Out()
-	g.w.Line("}")
-	g.w.Newline()
+	w.Out()
+	w.Line("}")
+	w.Newline()
 
-	return nil
+	return w.GetOutput(), nil
 }
