@@ -29,12 +29,12 @@ func buildTypeRegistry(file *descriptorpb.FileDescriptorProto, fileByName map[st
 			phpClassName := php.GetClassName(message.GetName())
 			phpFqn := importedNamespace + "\\" + phpClassName
 
-			// Store both the simple name and the fully qualified proto name
-			registry[message.GetName()] = phpFqn
-			if importedFile.GetPackage() != "" {
-				protoFqn := "." + importedFile.GetPackage() + "." + message.GetName()
-				registry[protoFqn] = phpFqn
+			protoFqn := message.GetName()
+			if pkg := importedFile.GetPackage(); pkg != "" {
+				protoFqn = "." + pkg + "." + protoFqn
 			}
+
+			registry[protoFqn] = phpFqn
 		}
 	}
 
@@ -49,8 +49,6 @@ func collectUsedImports(file *descriptorpb.FileDescriptorProto, typeRegistry map
 		for _, field := range message.GetField() {
 			if isMessage(field) {
 				typeName := field.GetTypeName()
-
-				// Check if this is an imported type
 				if phpFqn, ok := typeRegistry[typeName]; ok {
 					usedImports[phpFqn] = true
 				}
