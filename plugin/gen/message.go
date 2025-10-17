@@ -23,7 +23,7 @@ Proto file: %s`, m.protoFilePath))
 
 	nsParts := strings.Split(m.phpFqn, "\\")
 	namepsace := strings.Trim(strings.Join(nsParts[:len(nsParts)-1], "\\"), "\\")
-	w.Line(fmt.Sprintf("namespace %s;", namepsace))
+	w.Line("namespace %s;", namepsace)
 	w.Newline()
 
 	// Add class docblock if comment exists
@@ -33,7 +33,7 @@ Proto file: %s`, m.protoFilePath))
 
 	className := phpgen.GetSafeName(m.msg.GetName())
 
-	w.Line(fmt.Sprintf("class %s implements \\Proteus\\Msg", className))
+	w.Line("final class %s extends \\Proteus\\Msg", className)
 	w.Line("{")
 	w.In()
 
@@ -49,24 +49,25 @@ Proto file: %s`, m.protoFilePath))
 		case protobuf.IsMapField(field, m.msg):
 			keyField, valueField := protobuf.GetMapKeyValueTypes(field, m.msg)
 			w.Comment(fmt.Sprintf("@var array<%s, %s>", g.getPhpType(keyField), g.getPhpType(valueField)))
-			w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
+			w.Line("public array $%s = [];", fieldName)
 
 		case protobuf.IsRepeated(field):
 			w.Comment(fmt.Sprintf("@var %s[]", phpType))
-			w.Line(fmt.Sprintf("public array $%s = [];", fieldName))
+			w.Line("public array $%s = [];", fieldName)
 
 		case protobuf.IsOptional(field) || protobuf.IsMessage(field):
-			w.Line(fmt.Sprintf("public %s|null $%s = null;", phpType, fieldName))
+			w.Line("public %s|null $%s = null;", phpType, fieldName)
 
 		default:
 			defaultValue := getDefaultValue(field)
-			w.Line(fmt.Sprintf("public %s $%s = %s;", phpType, fieldName, defaultValue))
+			w.Line("public %s $%s = %s;", phpType, fieldName, defaultValue)
 		}
 
 		w.Newline()
 	}
 
 	g.genDecodeMethods(w, m.msg)
+	g.genEncodeMethods(w, m.msg)
 	w.Out()
 	w.Line("}")
 	w.Newline()

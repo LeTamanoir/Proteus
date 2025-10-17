@@ -1,8 +1,6 @@
 package gen
 
 import (
-	"fmt"
-
 	"github.com/LeTamanoir/Proteus/plugin/protobuf"
 	"github.com/LeTamanoir/Proteus/plugin/writer"
 	"google.golang.org/protobuf/types/descriptorpb"
@@ -10,16 +8,7 @@ import (
 
 // genDecodeMethods generates the decode methods for all messages
 func (g *generator) genDecodeMethods(w *writer.Writer, message *descriptorpb.DescriptorProto) {
-	w.Docblock(`@throws \Exception if the data is malformed or contains invalid wire types`)
-	w.Line("public static function decode(string $bytes): self")
-	w.Line("{")
-	w.In()
-	w.Line("return self::__decode($bytes, 0, strlen($bytes));")
-	w.Out()
-	w.Line("}")
-	w.Newline()
-
-	w.Docblock(`@throws \Exception if the data is malformed or contains invalid wire types`)
+	w.Docblock(`@internal`)
 	w.Line("public static function __decode(string $bytes, int $i, int $l): self")
 	w.Line("{")
 	w.In()
@@ -37,7 +26,7 @@ func (g *generator) genDecodeMethods(w *writer.Writer, message *descriptorpb.Des
 	w.In()
 
 	for _, field := range message.GetField() {
-		w.Line(fmt.Sprintf("case %d:", field.GetNumber()))
+		w.Line("case %d:", field.GetNumber())
 		w.In()
 
 		switch {
