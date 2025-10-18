@@ -1,6 +1,7 @@
 package writer
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -37,9 +38,9 @@ func (w *Writer) Out() {
 }
 
 // Line writes a single line with current indentation
-func (w *Writer) Line(line string) {
+func (w *Writer) Line(line string, a ...any) {
 	w.output.WriteString(strings.Repeat(w.indent, w.indentLevel))
-	w.output.WriteString(line)
+	w.output.WriteString(fmt.Sprintf(line, a...))
 	w.output.WriteString("\n")
 }
 

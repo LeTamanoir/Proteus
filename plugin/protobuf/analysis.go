@@ -8,7 +8,7 @@ import (
 )
 
 // GetWireType returns the wire type for a field type
-func GetWireType(fieldType descriptorpb.FieldDescriptorProto_Type) int {
+func GetWireType(fieldType descriptorpb.FieldDescriptorProto_Type) int32 {
 	switch fieldType {
 	case descriptorpb.FieldDescriptorProto_TYPE_INT32,
 		descriptorpb.FieldDescriptorProto_TYPE_INT64,

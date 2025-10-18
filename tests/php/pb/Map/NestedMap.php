@@ -9,21 +9,13 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\Map;
 
-class NestedMap implements \Proteus\Msg
+final class NestedMap extends \Proteus\Msg
 {
     /** @var array<string, \Tests\php\pb\Common\Address> */
     public array $string_address = [];
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -100,5 +92,41 @@ class NestedMap implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        foreach ($this->string_address as $_key => $_val) {
+            $buf .= "\x0a";
+            $_entryBuf = '';
+            $_entryBuf .= "\x0a";
+            $_v = strlen($_key);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_key;
+            $_entryBuf .= "\x12";
+            $_msgBuf = $_val->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_msgBuf;
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        return $buf;
+    }
 }
 

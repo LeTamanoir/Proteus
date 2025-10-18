@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\Imports;
 
-class User implements \Proteus\Msg
+final class User extends \Proteus\Msg
 {
     public \Tests\php\pb\Common\Address|null $address = null;
 
@@ -20,15 +20,7 @@ class User implements \Proteus\Msg
     public \Tests\php\pb\Common\Coordinates|null $coordinates = null;
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -100,5 +92,57 @@ class User implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        if ($this->address !== []) {
+            $buf .= "\x0a";
+            $_msgBuf = $this->address->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_msgBuf;
+        }
+        if ($this->created_at !== []) {
+            $buf .= "\x12";
+            $_msgBuf = $this->created_at->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_msgBuf;
+        }
+        if ($this->balance !== []) {
+            $buf .= "\x1a";
+            $_msgBuf = $this->balance->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_msgBuf;
+        }
+        if ($this->coordinates !== []) {
+            $buf .= "\x22";
+            $_msgBuf = $this->coordinates->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_msgBuf;
+        }
+        return $buf;
+    }
 }
 

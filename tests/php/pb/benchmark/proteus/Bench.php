@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\benchmark\proteus;
 
-class Bench implements \Proteus\Msg
+final class Bench extends \Proteus\Msg
 {
     /** @var array<string, \Tests\php\pb\benchmark\proteus\Address> */
     public array $map_addresses = [];
@@ -18,15 +18,7 @@ class Bench implements \Proteus\Msg
     public array $repeated_addresses = [];
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -115,5 +107,52 @@ class Bench implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        foreach ($this->map_addresses as $_key => $_val) {
+            $buf .= "\x0a";
+            $_entryBuf = '';
+            $_entryBuf .= "\x0a";
+            $_v = strlen($_key);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_key;
+            $_entryBuf .= "\x12";
+            $_msgBuf = $_val->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_msgBuf;
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->repeated_addresses as $_value) {
+            $buf .= "\x12";
+            $_msgBuf = $_value->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_msgBuf;
+        }
+        return $buf;
+    }
 }
 

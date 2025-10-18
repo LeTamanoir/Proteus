@@ -9,21 +9,13 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\Map;
 
-class Repeated implements \Proteus\Msg
+final class Repeated extends \Proteus\Msg
 {
     /** @var \Tests\php\pb\Common\Address[] */
     public array $addresses = [];
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -59,5 +51,24 @@ class Repeated implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        foreach ($this->addresses as $_value) {
+            $buf .= "\x0a";
+            $_msgBuf = $_value->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_msgBuf;
+        }
+        return $buf;
+    }
 }
 

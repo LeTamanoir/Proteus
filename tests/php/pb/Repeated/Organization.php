@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\Repeated;
 
-class Organization implements \Proteus\Msg
+final class Organization extends \Proteus\Msg
 {
     /** @var \Tests\php\pb\Imports\User[] */
     public array $users = [];
@@ -24,15 +24,7 @@ class Organization implements \Proteus\Msg
     public array $is_admin = [];
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -124,5 +116,76 @@ class Organization implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        foreach ($this->users as $_value) {
+            $buf .= "\x0a";
+            $_msgBuf = $_value->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_msgBuf;
+        }
+        foreach ($this->emails as $_value) {
+            $buf .= "\x12";
+            $_v = strlen($_value);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_value;
+        }
+        if (!empty($this->ages)) {
+            $buf .= "\x1a";
+            $_packed = '';
+            foreach ($this->ages as $_value) {
+                $_v = $_value;
+                if ($_v < 0) {
+                    $_v &= 0x7FFFFFFFFFFFFFFF;
+                    for ($_i = 0; $_i < 9; ++$_i) {
+                        $_packed .= chr(($_v | 0x80) & 0xFF);
+                        $_v >>= 7;
+                    }
+                    $_packed .= chr($_v | 0x01);
+                } else {
+                    while ($_v >= 0x80) {
+                        $_packed .= chr(($_v | 0x80) & 0xFF);
+                        $_v >>= 7;
+                    }
+                    $_packed .= chr($_v);
+                }
+            }
+            $_v = strlen($_packed);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_packed;
+        }
+        if (!empty($this->is_admin)) {
+            $buf .= "\x22";
+            $_packed = '';
+            foreach ($this->is_admin as $_value) {
+                $_packed .= chr($_value ? 1 : 0);
+            }
+            $_v = strlen($_packed);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_packed;
+        }
+        return $buf;
+    }
 }
 
