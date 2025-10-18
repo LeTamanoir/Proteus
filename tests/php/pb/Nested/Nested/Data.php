@@ -9,22 +9,14 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\Nested\Nested;
 
-class Data implements \Proteus\Msg
+final class Data extends \Proteus\Msg
 {
     public string $value = '';
 
     public \Tests\php\pb\Nested\Nested\Data\NestedData|null $nested_data = null;
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -72,5 +64,34 @@ class Data implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        if ($this->value !== '') {
+            $buf .= "\x0a";
+            $_v = strlen($this->value);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $this->value;
+        }
+        if ($this->nested_data !== []) {
+            $buf .= "\x12";
+            $_msgBuf = $this->nested_data->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_msgBuf;
+        }
+        return $buf;
+    }
 }
 

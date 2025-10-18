@@ -9,22 +9,14 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\Common;
 
-class Coordinates implements \Proteus\Msg
+final class Coordinates extends \Proteus\Msg
 {
     public float $latitude = 0.0;
 
     public float $longitude = 0.0;
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -58,5 +50,21 @@ class Coordinates implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        if ($this->latitude !== 0.0) {
+            $buf .= "\x09";
+            $buf .= pack('d', $this->latitude);
+        }
+        if ($this->longitude !== 0.0) {
+            $buf .= "\x11";
+            $buf .= pack('d', $this->longitude);
+        }
+        return $buf;
+    }
 }
 

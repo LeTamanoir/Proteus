@@ -9,22 +9,14 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\Common;
 
-class Timestamp implements \Proteus\Msg
+final class Timestamp extends \Proteus\Msg
 {
     public int $seconds = 0;
 
     public int $nanos = 0;
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -68,5 +60,49 @@ class Timestamp implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        if ($this->seconds !== 0) {
+            $buf .= "\x08";
+            $_v = $this->seconds;
+            if ($_v < 0) {
+                $_v &= 0x7FFFFFFFFFFFFFFF;
+                for ($_i = 0; $_i < 9; ++$_i) {
+                    $buf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $buf .= chr($_v | 0x01);
+            } else {
+                while ($_v >= 0x80) {
+                    $buf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $buf .= chr($_v);
+            }
+        }
+        if ($this->nanos !== 0) {
+            $buf .= "\x10";
+            $_v = $this->nanos;
+            if ($_v < 0) {
+                $_v &= 0x7FFFFFFFFFFFFFFF;
+                for ($_i = 0; $_i < 9; ++$_i) {
+                    $buf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $buf .= chr($_v | 0x01);
+            } else {
+                while ($_v >= 0x80) {
+                    $buf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $buf .= chr($_v);
+            }
+        }
+        return $buf;
+    }
 }
 

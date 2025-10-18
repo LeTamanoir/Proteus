@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\Map;
 
-class Map implements \Proteus\Msg
+final class Map extends \Proteus\Msg
 {
     /** @var array<int, bool> */
     public array $int32_bool = [];
@@ -54,15 +54,7 @@ class Map implements \Proteus\Msg
     public array $string_nested_map = [];
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -778,5 +770,347 @@ class Map implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        foreach ($this->int32_bool as $_key => $_val) {
+            $buf .= "\x52";
+            $_entryBuf = '';
+            $_entryBuf .= "\x08";
+            $_v = $_key;
+            if ($_v < 0) {
+                $_v &= 0x7FFFFFFFFFFFFFFF;
+                for ($_i = 0; $_i < 9; ++$_i) {
+                    $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $_entryBuf .= chr($_v | 0x01);
+            } else {
+                while ($_v >= 0x80) {
+                    $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $_entryBuf .= chr($_v);
+            }
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->int64_bool as $_key => $_val) {
+            $buf .= "\x5a";
+            $_entryBuf = '';
+            $_entryBuf .= "\x08";
+            $_v = $_key;
+            if ($_v < 0) {
+                $_v &= 0x7FFFFFFFFFFFFFFF;
+                for ($_i = 0; $_i < 9; ++$_i) {
+                    $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $_entryBuf .= chr($_v | 0x01);
+            } else {
+                while ($_v >= 0x80) {
+                    $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $_entryBuf .= chr($_v);
+            }
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->uint32_bool as $_key => $_val) {
+            $buf .= "\x62";
+            $_entryBuf = '';
+            $_entryBuf .= "\x08";
+            $_v = $_key;
+            if ($_v < 0) {
+                $_v &= 0x7FFFFFFFFFFFFFFF;
+                for ($_i = 0; $_i < 9; ++$_i) {
+                    $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $_entryBuf .= chr($_v | 0x01);
+            } else {
+                while ($_v >= 0x80) {
+                    $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $_entryBuf .= chr($_v);
+            }
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->uint64_bool as $_key => $_val) {
+            $buf .= "\x6a";
+            $_entryBuf = '';
+            $_entryBuf .= "\x08";
+            $_v = gmp_init($_key);
+            while (gmp_cmp($_v, 0x80) >= 0) {
+                $_entryBuf .= chr(gmp_intval(gmp_or($_v, 0x80)) & 0xFF);
+                $_v = gmp_div($_v, 0x80);
+            }
+            $_entryBuf .= chr(gmp_intval($_v));
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->sint32_bool as $_key => $_val) {
+            $buf .= "\x72";
+            $_entryBuf = '';
+            $_entryBuf .= "\x08";
+            $_u = ($_key << 1) ^ ($_key >> 31);
+            $_v = $_u;
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->sint64_bool as $_key => $_val) {
+            $buf .= "\x7a";
+            $_entryBuf = '';
+            $_entryBuf .= "\x08";
+            $_u = ($_key << 1) ^ ($_key >> 63);
+            if ($_u < 0) {
+                $_u = gmp_init($_u);
+                $_u = gmp_add($_u, gmp_pow(2, 64));
+                $_v = gmp_init(gmp_strval($_u));
+                while (gmp_cmp($_v, 0x80) >= 0) {
+                    $_entryBuf .= chr(gmp_intval(gmp_or($_v, 0x80)) & 0xFF);
+                    $_v = gmp_div($_v, 0x80);
+                }
+                $_entryBuf .= chr(gmp_intval($_v));
+            } else {
+                $_v = $_u;
+                if ($_v < 0) {
+                    $_v &= 0x7FFFFFFFFFFFFFFF;
+                    for ($_i = 0; $_i < 9; ++$_i) {
+                        $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                        $_v >>= 7;
+                    }
+                    $_entryBuf .= chr($_v | 0x01);
+                } else {
+                    while ($_v >= 0x80) {
+                        $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                        $_v >>= 7;
+                    }
+                    $_entryBuf .= chr($_v);
+                }
+            }
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->fixed32_bool as $_key => $_val) {
+            $buf .= "\x82\x01";
+            $_entryBuf = '';
+            $_entryBuf .= "\x0d";
+            $_entryBuf .= pack('L', $_key);
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->fixed64_bool as $_key => $_val) {
+            $buf .= "\x8a\x01";
+            $_entryBuf = '';
+            $_entryBuf .= "\x09";
+            $_entryBuf .= gmp_export(gmp_init($_key), GMP_BIG_ENDIAN, 8);
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->sfixed32_bool as $_key => $_val) {
+            $buf .= "\x92\x01";
+            $_entryBuf = '';
+            $_entryBuf .= "\x0d";
+            $_entryBuf .= pack('l', $_key);
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->sfixed64_bool as $_key => $_val) {
+            $buf .= "\x9a\x01";
+            $_entryBuf = '';
+            $_entryBuf .= "\x09";
+            $_entryBuf .= pack('q', $_key);
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->string_bool as $_key => $_val) {
+            $buf .= "\xa2\x01";
+            $_entryBuf = '';
+            $_entryBuf .= "\x0a";
+            $_v = strlen($_key);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_key;
+            $_entryBuf .= "\x10";
+            $_entryBuf .= chr($_val ? 1 : 0);
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->string_address as $_key => $_val) {
+            $buf .= "\xaa\x01";
+            $_entryBuf = '';
+            $_entryBuf .= "\x0a";
+            $_v = strlen($_key);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_key;
+            $_entryBuf .= "\x12";
+            $_msgBuf = $_val->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_msgBuf;
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->string_repeated as $_key => $_val) {
+            $buf .= "\xba\x01";
+            $_entryBuf = '';
+            $_entryBuf .= "\x0a";
+            $_v = strlen($_key);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_key;
+            $_entryBuf .= "\x12";
+            $_msgBuf = $_val->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_msgBuf;
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        foreach ($this->string_nested_map as $_key => $_val) {
+            $buf .= "\xb2\x01";
+            $_entryBuf = '';
+            $_entryBuf .= "\x0a";
+            $_v = strlen($_key);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_key;
+            $_entryBuf .= "\x12";
+            $_msgBuf = $_val->__encode();
+            $_v = strlen($_msgBuf);
+            while ($_v >= 0x80) {
+                $_entryBuf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $_entryBuf .= chr($_v);
+            $_entryBuf .= $_msgBuf;
+            $_v = strlen($_entryBuf);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_entryBuf;
+        }
+        return $buf;
+    }
 }
 

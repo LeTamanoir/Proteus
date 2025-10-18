@@ -12,7 +12,7 @@ namespace Tests\php\pb\Scalars;
 /**
  * see https://protobuf.dev/programming-guides/proto3/#scalar
  */
-class Scalars implements \Proteus\Msg
+final class Scalars extends \Proteus\Msg
 {
     /**
      * Uses IEEE 754 double-precision format.
@@ -82,15 +82,7 @@ class Scalars implements \Proteus\Msg
     public string $bytes = '';
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -236,5 +228,161 @@ class Scalars implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        if ($this->double !== 0.0) {
+            $buf .= "\x09";
+            $buf .= pack('d', $this->double);
+        }
+        if ($this->int32 !== 0) {
+            $buf .= "\x18";
+            $_v = $this->int32;
+            if ($_v < 0) {
+                $_v &= 0x7FFFFFFFFFFFFFFF;
+                for ($_i = 0; $_i < 9; ++$_i) {
+                    $buf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $buf .= chr($_v | 0x01);
+            } else {
+                while ($_v >= 0x80) {
+                    $buf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $buf .= chr($_v);
+            }
+        }
+        if ($this->int64 !== 0) {
+            $buf .= "\x20";
+            $_v = $this->int64;
+            if ($_v < 0) {
+                $_v &= 0x7FFFFFFFFFFFFFFF;
+                for ($_i = 0; $_i < 9; ++$_i) {
+                    $buf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $buf .= chr($_v | 0x01);
+            } else {
+                while ($_v >= 0x80) {
+                    $buf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $buf .= chr($_v);
+            }
+        }
+        if ($this->uint32 !== 0) {
+            $buf .= "\x28";
+            $_v = $this->uint32;
+            if ($_v < 0) {
+                $_v &= 0x7FFFFFFFFFFFFFFF;
+                for ($_i = 0; $_i < 9; ++$_i) {
+                    $buf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $buf .= chr($_v | 0x01);
+            } else {
+                while ($_v >= 0x80) {
+                    $buf .= chr(($_v | 0x80) & 0xFF);
+                    $_v >>= 7;
+                }
+                $buf .= chr($_v);
+            }
+        }
+        if ($this->uint64 !== '0') {
+            $buf .= "\x30";
+            $_v = gmp_init($this->uint64);
+            while (gmp_cmp($_v, 0x80) >= 0) {
+                $buf .= chr(gmp_intval(gmp_or($_v, 0x80)) & 0xFF);
+                $_v = gmp_div($_v, 0x80);
+            }
+            $buf .= chr(gmp_intval($_v));
+        }
+        if ($this->sint32 !== 0) {
+            $buf .= "\x38";
+            $_u = ($this->sint32 << 1) ^ ($this->sint32 >> 31);
+            $_v = $_u;
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+        }
+        if ($this->sint64 !== 0) {
+            $buf .= "\x40";
+            $_u = ($this->sint64 << 1) ^ ($this->sint64 >> 63);
+            if ($_u < 0) {
+                $_u = gmp_init($_u);
+                $_u = gmp_add($_u, gmp_pow(2, 64));
+                $_v = gmp_init(gmp_strval($_u));
+                while (gmp_cmp($_v, 0x80) >= 0) {
+                    $buf .= chr(gmp_intval(gmp_or($_v, 0x80)) & 0xFF);
+                    $_v = gmp_div($_v, 0x80);
+                }
+                $buf .= chr(gmp_intval($_v));
+            } else {
+                $_v = $_u;
+                if ($_v < 0) {
+                    $_v &= 0x7FFFFFFFFFFFFFFF;
+                    for ($_i = 0; $_i < 9; ++$_i) {
+                        $buf .= chr(($_v | 0x80) & 0xFF);
+                        $_v >>= 7;
+                    }
+                    $buf .= chr($_v | 0x01);
+                } else {
+                    while ($_v >= 0x80) {
+                        $buf .= chr(($_v | 0x80) & 0xFF);
+                        $_v >>= 7;
+                    }
+                    $buf .= chr($_v);
+                }
+            }
+        }
+        if ($this->fixed32 !== 0) {
+            $buf .= "\x4d";
+            $buf .= pack('L', $this->fixed32);
+        }
+        if ($this->fixed64 !== '0') {
+            $buf .= "\x51";
+            $buf .= gmp_export(gmp_init($this->fixed64), GMP_BIG_ENDIAN, 8);
+        }
+        if ($this->sfixed32 !== 0) {
+            $buf .= "\x5d";
+            $buf .= pack('l', $this->sfixed32);
+        }
+        if ($this->sfixed64 !== 0) {
+            $buf .= "\x61";
+            $buf .= pack('q', $this->sfixed64);
+        }
+        if ($this->bool !== false) {
+            $buf .= "\x68";
+            $buf .= chr($this->bool ? 1 : 0);
+        }
+        if ($this->string !== '') {
+            $buf .= "\x72";
+            $_v = strlen($this->string);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $this->string;
+        }
+        if ($this->bytes !== '') {
+            $buf .= "\x7a";
+            $_bytes = base64_decode($this->bytes);
+            $_v = strlen($_bytes);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $_bytes;
+        }
+        return $buf;
+    }
 }
 

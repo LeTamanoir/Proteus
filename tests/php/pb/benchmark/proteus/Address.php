@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\benchmark\proteus;
 
-class Address implements \Proteus\Msg
+final class Address extends \Proteus\Msg
 {
     public string $street = '';
 
@@ -22,15 +22,7 @@ class Address implements \Proteus\Msg
     public string $country = '';
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -114,5 +106,63 @@ class Address implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        if ($this->street !== '') {
+            $buf .= "\x0a";
+            $_v = strlen($this->street);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $this->street;
+        }
+        if ($this->city !== '') {
+            $buf .= "\x12";
+            $_v = strlen($this->city);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $this->city;
+        }
+        if ($this->state !== '') {
+            $buf .= "\x1a";
+            $_v = strlen($this->state);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $this->state;
+        }
+        if ($this->zip_code !== '') {
+            $buf .= "\x22";
+            $_v = strlen($this->zip_code);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $this->zip_code;
+        }
+        if ($this->country !== '') {
+            $buf .= "\x2a";
+            $_v = strlen($this->country);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $this->country;
+        }
+        return $buf;
+    }
 }
 

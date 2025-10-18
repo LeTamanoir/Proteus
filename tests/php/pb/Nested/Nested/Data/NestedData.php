@@ -9,20 +9,12 @@ declare(strict_types=1);
 
 namespace Tests\php\pb\Nested\Nested\Data;
 
-class NestedData implements \Proteus\Msg
+final class NestedData extends \Proteus\Msg
 {
     public string $value = '';
 
     /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
-     */
-    public static function decode(string $bytes): self
-    {
-        return self::__decode($bytes, 0, strlen($bytes));
-    }
-
-    /**
-     * @throws \Exception if the data is malformed or contains invalid wire types
+     * @internal
      */
     public static function __decode(string $bytes, int $i, int $l): self
     {
@@ -58,5 +50,23 @@ class NestedData implements \Proteus\Msg
         return $d;
     }
 
+    /**
+     * @internal
+     */
+    public function __encode(): string
+    {
+        $buf = '';
+        if ($this->value !== '') {
+            $buf .= "\x0a";
+            $_v = strlen($this->value);
+            while ($_v >= 0x80) {
+                $buf .= chr(($_v | 0x80) & 0xFF);
+                $_v >>= 7;
+            }
+            $buf .= chr($_v);
+            $buf .= $this->value;
+        }
+        return $buf;
+    }
 }
 
