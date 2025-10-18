@@ -135,6 +135,9 @@ func (w *Writer) InlineWriteString(value, dest string) {
 
 func (w *Writer) InlineWriteTag(tag int32, dest string) {
 	var buf []byte
+	if tag < 0 {
+		panic("tag can not be negative")
+	}
 	v := uint64(tag)
 	for v >= 0x80 {
 		buf = append(buf, byte(v)|0x80)

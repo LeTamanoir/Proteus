@@ -61,9 +61,8 @@ func (g *generator) inlineReadCode(w *writer.Writer, field *descriptorpb.FieldDe
 }
 
 // inlineWriteCode generates inline code for writing a specific protobuf type
-func (g *generator) inlineWriteCode(w *writer.Writer, field *descriptorpb.FieldDescriptorProto, varName, dest string) {
+func (*generator) inlineWriteCode(w *writer.Writer, field *descriptorpb.FieldDescriptorProto, varName, dest string) {
 	switch field.GetType() {
-
 	case descriptorpb.FieldDescriptorProto_TYPE_SINT32:
 		w.InlineWriteSint32(varName, dest)
 

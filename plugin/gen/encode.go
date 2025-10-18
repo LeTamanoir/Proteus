@@ -40,7 +40,7 @@ func (g *generator) genEncodeMethods(w *writer.Writer, message *descriptorpb.Des
 // genRegularFieldEncodeCode generates code for encoding a regular field
 func (g *generator) genRegularFieldEncodeCode(w *writer.Writer, field *descriptorpb.FieldDescriptorProto, fieldNumber int32, fieldName string) {
 	wireType := protobuf.GetWireType(field.GetType())
-	tag := (fieldNumber << 3) | int32(wireType)
+	tag := (fieldNumber << 3) | wireType
 
 	w.Line("if ($this->%s !== %s) {", fieldName, getDefaultValue(field))
 	w.In()
@@ -84,7 +84,7 @@ func (g *generator) genRepeatedFieldEncodeCode(w *writer.Writer, field *descript
 
 	case field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_STRING || field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_BYTES:
 		wireType := protobuf.GetWireType(field.GetType())
-		tag := (fieldNumber << 3) | int32(wireType)
+		tag := (fieldNumber << 3) | wireType
 		w.Line("foreach ($this->%s as $_value) {", fieldName)
 		w.In()
 		w.InlineWriteTag(tag, "$buf")
@@ -108,13 +108,13 @@ func (g *generator) genMapFieldEncodeCode(w *writer.Writer, field *descriptorpb.
 
 	// Write key (field number 1)
 	keyWireType := protobuf.GetWireType(keyField.GetType())
-	keyTag := (1 << 3) | int32(keyWireType)
+	keyTag := (1 << 3) | keyWireType
 	w.InlineWriteTag(keyTag, "$_entryBuf")
 	g.inlineWriteCode(w, keyField, "$_key", "$_entryBuf")
 
 	// Write value (field number 2)
 	valueWireType := protobuf.GetWireType(valueField.GetType())
-	valueTag := (2 << 3) | int32(valueWireType)
+	valueTag := (2 << 3) | valueWireType
 	w.InlineWriteTag(valueTag, "$_entryBuf")
 	g.inlineWriteCode(w, valueField, "$_val", "$_entryBuf")
 
